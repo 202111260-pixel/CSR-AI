@@ -1,0 +1,514 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String        @id @default(uuid())
+  name            String
+  email           String        @unique
+  password        String
+  role            UserRole      @default(employee)
+  department      String?
+  jobTitle        String?
+  employeeId      String?
+  contractType    ContractType?
+  bio             String?
+  phone           String?
+  location        String?
+  avatarUrl       String?
+  status          String        @default("active")
+  notifyEmail     Boolean       @default(true)
+  notifySms       Boolean       @default(false)
+  notifyPush      Boolean       @default(true)
+  salaryRoundingEnabled Boolean @default(true)
+  monthlyDonationEnabled Boolean @default(false)
+  companyMatchEnabled Boolean @default(true)
+  monthlyDonationAmount Float?
+  loginCount      Int           @default(0)
+  lastIP          String?
+  is2FAEnabled       Boolean       @default(false)
+  twoFASecret        String?
+  resetCode          String?
+  resetCodeExpiresAt DateTime?
+  lastLoginAt        DateTime?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  activityLogs       ActivityLog[]
+  donations          Donation[]
+  ideas              Idea[]
+  ideaVotes          IdeaVote[]
+  managedProjects    Project[]     @relation("ProjectManager")
+  notifications      Notification[]
+  teamMembers        ProjectTeam[]
+  reviews            Review[]
+  refreshTokens      RefreshToken[]
+  scenariosCreated   ScenarioAction[] @relation("ScenarioCreator")
+  scenariosApproved  ScenarioAction[] @relation("ScenarioApprover")
+
+  @@index([email])
+  @@index([role])
+  @@index([status])
+  @@index([department])
+  @@index([employeeId])
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([tokenHash])
+  @@index([expiresAt])
+}
+
+model Category {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  nameAr      String?
+  description String?
+  icon        String?
+  color       String?
+  budget      Float     @default(0)
+  sdgGoals    Json?
+  regions     Json?
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  projects    Project[]
+
+  @@index([name])
+}
+
+model Project {
+  id              String         @id @default(uuid())
+  name            String
+  categoryId      String
+  status          ProjectStatus  @default(planning)
+  budget          Float
+  location        String
+  region          String?
+  latitude        Float?
+  longitude       Float?
+  startDate       DateTime
+  endDate         DateTime
+  description     String?
+  objectives      Json?
+  expectedOutputs Json?
+  coverImage      String?
+  tags            Json?
+  sdgGoals        Json?
+  progress        Float          @default(0)
+  managerId       String?
+  riskThresholds  Json?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  activities      ActivityLog[]  @relation("ProjectActivities")
+  alerts          Alert[]
+  beneficiaries   Beneficiary[]
+  documents       Document[]
+  donations       Donation[]
+  expenses        Expense[]
+  media           Media[]
+  milestones      Milestone[]
+  category        Category       @relation(fields: [categoryId], references: [id])
+  manager         User?          @relation("ProjectManager", fields: [managerId], references: [id])
+  team            ProjectTeam[]
+  reviews         Review[]
+  successStories    SuccessStory[]
+  scenarioActions   ScenarioAction[]
+
+  @@index([categoryId])
+  @@index([status])
+  @@index([managerId])
+  @@index([region])
+  @@index([startDate])
+  @@index([endDate])
+  @@index([createdAt])
+}
+
+model Milestone {
+  id          String   @id @default(uuid())
+  projectId   String
+  title       String
+  description String?
+  status      String   @default("pending")
+  date        DateTime
+  attachments Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([status])
+}
+
+model Expense {
+  id          String        @id @default(uuid())
+  projectId   String
+  amount      Float
+  category    String
+  description String?
+  invoiceUrl  String?
+  approvedBy  String?
+  status      ExpenseStatus @default(pending)
+  date        DateTime      @default(now())
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  project     Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([category])
+  @@index([status])
+  @@index([date])
+}
+
+model Beneficiary {
+  id          String  @id @default(uuid())
+  projectId   String
+  count       Int
+  male        Int     @default(0)
+  female      Int     @default(0)
+  children    Int     @default(0)
+  elderly     Int     @default(0)
+  disabled    Int     @default(0)
+  ageGroup    String?
+  gender      String?
+  description String?
+  impact      String?
+  project     Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  projectId String
+  userId    String
+  rating    Float
+  comment   String?
+  createdAt DateTime @default(now())
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([projectId])
+  @@index([userId])
+}
+
+model Media {
+  id        String   @id @default(uuid())
+  projectId String
+  url       String
+  type      String
+  thumbnail String?
+  caption   String?
+  category  String?
+  phase     String?
+  createdAt DateTime @default(now())
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([category])
+}
+
+model Document {
+  id         String   @id @default(uuid())
+  projectId  String
+  name       String
+  type       String
+  size       Int      @default(0)
+  url        String
+  uploadedBy String?
+  createdAt  DateTime @default(now())
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+}
+
+model SuccessStory {
+  id          String   @id @default(uuid())
+  projectId   String
+  title       String
+  content     String
+  beforeImage String?
+  afterImage  String?
+  createdAt   DateTime @default(now())
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+}
+
+model ProjectTeam {
+  id        String  @id @default(uuid())
+  projectId String
+  userId    String
+  role      String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User    @relation(fields: [userId], references: [id])
+
+  @@unique([projectId, userId])
+  @@index([projectId])
+  @@index([userId])
+}
+
+model Alert {
+  id         String     @id @default(uuid())
+  projectId  String
+  type       AlertType
+  level      AlertLevel
+  message    String
+  resolvedAt DateTime?
+  createdAt  DateTime   @default(now())
+  project    Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([level])
+  @@index([resolvedAt])
+  @@index([createdAt])
+}
+
+model Idea {
+  id          String     @id @default(uuid())
+  userId      String
+  title       String
+  description String
+  nlpCategory String?
+  status      IdeaStatus @default(pending)
+  votes       Int        @default(0)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  user        User       @relation(fields: [userId], references: [id])
+  ideaVotes   IdeaVote[]
+
+  @@index([userId])
+  @@index([status])
+}
+
+model IdeaVote {
+  id     String @id @default(uuid())
+  ideaId String
+  userId String
+  idea   Idea   @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@unique([ideaId, userId])
+}
+
+model Partner {
+  id                String     @id @default(uuid())
+  name              String
+  type              String
+  supportArea       String?
+  logoUrl           String?
+  totalContribution Float      @default(0)
+  contactPerson     String?
+  phone             String?
+  email             String?
+  startDate         DateTime?
+  endDate           DateTime?
+  status            String     @default("active")
+  projectsCount     Int        @default(0)
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  donations         Donation[]
+
+  @@index([type])
+  @@index([status])
+}
+
+model Donation {
+  id        String   @id @default(uuid())
+  userId    String?
+  partnerId String?
+  projectId String?
+  challengeId String?
+  amount    Float
+  type      String
+  createdAt DateTime @default(now())
+  challenge Challenge? @relation(fields: [challengeId], references: [id], onDelete: SetNull)
+  partner   Partner? @relation(fields: [partnerId], references: [id])
+  project   Project? @relation(fields: [projectId], references: [id])
+  user      User?    @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([partnerId])
+  @@index([projectId])
+  @@index([challengeId])
+  @@index([challengeId, createdAt])
+  @@index([type])
+  @@index([createdAt])
+}
+
+model Challenge {
+  id              String            @id @default(uuid())
+  title           String
+  description     String
+  goal            Float
+  collected       Float             @default(0)
+  startDate       DateTime          @default(now())
+  endDate         DateTime
+  status          ChallengeStatus   @default(active)
+  winner          String?
+  participants    Int               @default(0)
+  topDonorsSnapshot Json?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  donations       Donation[]
+  rewards         ChallengeReward[]
+
+  @@index([status])
+  @@index([endDate])
+  @@index([createdAt])
+}
+
+model ChallengeReward {
+  id          String    @id @default(uuid())
+  challengeId String
+  title       String
+  condition   String
+  icon        String
+  color       String?
+  createdAt   DateTime  @default(now())
+  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+
+  @@index([challengeId])
+}
+
+model ActivityLog {
+  id        String   @id @default(uuid())
+  userId    String
+  projectId String?
+  action    String
+  entity    String
+  entityId  String
+  details   String?
+  type      String?
+  diffJson  Json?
+  ip        String?
+  createdAt DateTime @default(now())
+  project   Project? @relation("ProjectActivities", fields: [projectId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([projectId])
+  @@index([entity])
+  @@index([createdAt])
+}
+
+model Settings {
+  id    String @id @default(uuid())
+  orgId String
+  key   String
+  value String
+
+  @@unique([orgId, key])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  message   String
+  type      String   @default("info")
+  read      Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([read])
+  @@index([createdAt])
+}
+
+model ScenarioAction {
+  id              String        @id @default(uuid())
+  projectId       String
+  alertId         String?
+  scenarioId      String        // budget_reallocation, timeline_extension, etc.
+  title           String
+  description     String
+  status          String        @default("pending") // pending | approved | rejected
+  impactBefore    Json          // { metric, value, unit, risk }
+  impactAfter     Json          // { metric, value, unit, risk }
+  confidence      Int
+  effort          String
+  timeframe       String
+  approvedById    String?
+  approvedAt      DateTime?
+  rejectedById    String?
+  rejectedAt      DateTime?
+  rejectionReason String?
+  executionNote   String?
+  createdById     String
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  project         Project       @relation(fields: [projectId], references: [id])
+  createdBy       User          @relation("ScenarioCreator", fields: [createdById], references: [id])
+  approvedBy      User?         @relation("ScenarioApprover", fields: [approvedById], references: [id])
+
+  @@index([projectId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([alertId])
+}
+
+enum UserRole {
+  admin
+  manager
+  employee
+  viewer
+}
+
+enum ContractType {
+  full_time
+  part_time
+  contractor
+}
+
+enum ProjectStatus {
+  planning
+  active
+  on_hold
+  completed
+  archived
+}
+
+enum AlertType {
+  budget
+  timeline
+  quality
+  impact
+}
+
+enum AlertLevel {
+  info
+  warning
+  critical
+}
+
+enum IdeaStatus {
+  pending
+  under_review
+  approved
+  rejected
+}
+
+enum ExpenseStatus {
+  approved
+  pending
+  rejected
+}
+
+enum ChallengeStatus {
+  active
+  completed
+  failed
+}

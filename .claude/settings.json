@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm why:*)",
+      "Bash(node -e:*)",
+      "Bash(npx tsc --noEmit)",
+      "Bash(npx vite build)",
+      "Bash(npm install @vitejs/plugin-react@5.1.0 --force)",
+      "Bash(npx npm@latest install --save-dev @tailwindcss/vite)"
+    ]
+  }
+}

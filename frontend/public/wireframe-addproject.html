@@ -1,0 +1,1727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Add Project — Balsamiq Wireframe Prototype</title>
+  <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+  <link href="https://fonts.googleapis.com/css2?family=Balsamiq+Sans:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Balsamiq Sans', cursive;
+      background: #e8e8e8;
+      width: 1560px;
+      padding: 28px;
+    }
+
+    /* ══ Canvas Header ══════════════════════════════════ */
+    .canvas-header {
+      background: #1a1a1a;
+      border-radius: 12px;
+      padding: 20px 28px;
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .ch-title { font-size: 20px; font-weight: 700; color: #fff; letter-spacing: .02em; }
+    .ch-sub { font-size: 11px; color: #999; margin-top: 3px; }
+    .ch-steps { display: flex; align-items: center; gap: 6px; }
+    .ch-dot { width: 28px; height: 28px; border-radius: 50%; background: #fff; border: 2px solid #fff;
+              display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #1a1a1a; }
+    .ch-line { width: 20px; height: 2px; background: #555; }
+
+    /* ══ Screen Frame ════════════════════════════════════ */
+    .screen-wrap {
+      margin-bottom: 28px;
+      position: relative;
+    }
+    .screen-label-bar {
+      display: flex; align-items: center; gap: 14px;
+      margin-bottom: 8px;
+    }
+    .screen-badge {
+      background: #1a1a1a; color: #fff;
+      font-size: 11px; font-weight: 700;
+      padding: 5px 14px; border-radius: 20px;
+    }
+    .screen-title-lbl {
+      font-size: 13px; font-weight: 700; color: #1a1a1a;
+    }
+    .screen-sub-lbl { font-size: 10px; color: #888; }
+    .screen-rule { flex: 1; height: 2px; background: #ccc; border-radius: 2px; }
+
+    .screen-frame {
+      background: #fff;
+      border: 3px solid #1a1a1a;
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      min-height: 820px;
+      box-shadow: 4px 4px 0 #1a1a1a;
+    }
+
+    /* ══ Flow Arrow ══════════════════════════════════════ */
+    .flow-arrow {
+      text-align: center;
+      padding: 10px 0 2px;
+      font-size: 26px;
+      color: #888;
+      letter-spacing: 0;
+    }
+
+    /* ══ Sidebar ═════════════════════════════════════════ */
+    .sidebar {
+      width: 210px; min-width: 210px;
+      background: #fafafa;
+      border-right: 2px solid #1a1a1a;
+      display: flex; flex-direction: column;
+    }
+    .s-logo {
+      padding: 14px 14px;
+      border-bottom: 2px solid #1a1a1a;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .s-logo-box {
+      width: 34px; height: 34px;
+      background: #1a1a1a; border-radius: 8px;
+      color: #fff; font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .s-logo-name { font-size: 12px; font-weight: 700; color: #1a1a1a; }
+    .s-logo-sub { font-size: 9px; color: #888; }
+    .s-section { padding: 4px 0; border-bottom: 1px solid #e8e8e8; }
+    .s-lbl {
+      font-size: 9px; font-weight: 700; color: #999;
+      text-transform: uppercase; letter-spacing: .1em;
+      padding: 6px 14px 3px;
+    }
+    .s-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 14px; font-size: 11px; color: #666;
+      border-left: 3px solid transparent;
+    }
+    .s-item.active {
+      background: #f0f0f0; color: #1a1a1a;
+      font-weight: 700; border-left-color: #1a1a1a;
+    }
+    .s-item-icon { font-size: 12px; width: 16px; text-align: center; }
+    .s-badge {
+      margin-left: auto; background: #1a1a1a;
+      color: #fff; border-radius: 99px;
+      font-size: 8px; padding: 1px 6px; font-weight: 700;
+    }
+    .s-user {
+      margin-top: auto; padding: 12px 14px;
+      border-top: 2px solid #1a1a1a;
+      display: flex; align-items: center; gap: 9px;
+    }
+    .s-av {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: #1a1a1a; color: #fff;
+      font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .s-nm { font-size: 10px; font-weight: 700; color: #1a1a1a; }
+    .s-rl { font-size: 8px; color: #888; }
+
+    /* ══ Main Area ═══════════════════════════════════════ */
+    .main { flex: 1; display: flex; flex-direction: column; background: #f4f4f4; overflow: hidden; }
+
+    .topbar {
+      height: 50px; background: #fff;
+      border-bottom: 2px solid #1a1a1a;
+      padding: 0 22px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .breadcrumb { font-size: 10px; color: #888; }
+    .breadcrumb b { color: #1a1a1a; }
+    .tb-right { display: flex; align-items: center; gap: 8px; }
+    .tb-icon-btn {
+      width: 32px; height: 32px;
+      border: 2px solid #1a1a1a; border-radius: 7px;
+      background: #fff; display: flex; align-items: center;
+      justify-content: center; font-size: 13px; position: relative;
+    }
+    .tb-notif-dot {
+      position: absolute; top: -3px; right: -3px;
+      width: 14px; height: 14px; background: #1a1a1a;
+      border-radius: 50%; border: 2px solid #fff;
+      font-size: 7px; font-weight: 700; color: #fff;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .tb-user-btn {
+      padding: 5px 12px; border: 2px solid #1a1a1a;
+      border-radius: 7px; background: #fff;
+      font-size: 10px; font-weight: 700; color: #1a1a1a;
+      display: flex; align-items: center; gap: 5px;
+    }
+
+    .body-area { padding: 20px 26px 28px; flex: 1; overflow: hidden; }
+
+    /* Page Header */
+    .pg-header {
+      display: flex; align-items: center;
+      justify-content: space-between; margin-bottom: 18px;
+    }
+    .pg-header-l { display: flex; align-items: center; gap: 14px; }
+    .back-btn {
+      display: flex; align-items: center; gap: 5px;
+      padding: 7px 16px; border: 2px solid #1a1a1a;
+      border-radius: 20px; background: #fff;
+      font-family: 'Balsamiq Sans', cursive;
+      font-size: 11px; font-weight: 700; color: #1a1a1a;
+    }
+    .pg-title { font-size: 21px; font-weight: 700; color: #1a1a1a; }
+    .pg-subtitle { font-size: 11px; color: #888; margin-top: 2px; }
+    .pg-header-r { display: flex; align-items: center; gap: 8px; }
+    .hdr-btn {
+      display: flex; align-items: center; gap: 5px;
+      padding: 7px 16px; border: 2px solid #1a1a1a;
+      border-radius: 20px; background: #fff;
+      font-family: 'Balsamiq Sans', cursive;
+      font-size: 11px; font-weight: 700; color: #1a1a1a;
+    }
+    .hdr-btn-fill { background: #1a1a1a; color: #fff; }
+
+    /* ══ Stepper ════════════════════════════════════════ */
+    .stepper {
+      background: #fff; border: 2px solid #1a1a1a;
+      border-radius: 12px; padding: 16px 22px 14px;
+      margin-bottom: 18px;
+    }
+    .stepper-track { display: flex; align-items: flex-start; }
+    .step-item { display: flex; flex-direction: column; align-items: center; flex: 1; }
+    .step-circle {
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 2.5px solid #ccc; background: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; color: #aaa;
+      position: relative; z-index: 2;
+    }
+    .step-circle.active { background: #1a1a1a; border-color: #1a1a1a; color: #fff; }
+    .step-circle.done { background: #555; border-color: #555; color: #fff; font-size: 14px; }
+    .step-lbl {
+      font-size: 9px; font-weight: 700; color: #bbb;
+      margin-top: 5px; text-align: center;
+      text-transform: uppercase; letter-spacing: .05em;
+    }
+    .step-lbl.active { color: #1a1a1a; }
+    .step-lbl.done { color: #555; }
+    .step-sublbl { font-size: 8px; color: #ccc; margin-top: 1px; text-align: center; }
+    .step-sublbl.active { color: #777; }
+    .step-sublbl.done { color: #888; }
+    .step-conn {
+      flex: 1; height: 2px; background: #e0e0e0;
+      margin: 18px 4px 0; position: relative;
+    }
+    .step-conn.done { background: #555; }
+
+    /* ══ Cards ══════════════════════════════════════════ */
+    .card {
+      background: #fff; border: 2px solid #1a1a1a;
+      border-radius: 12px; padding: 20px 22px;
+      margin-bottom: 14px;
+    }
+    .card-hd {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 18px; padding-bottom: 14px;
+      border-bottom: 1.5px solid #ebebeb;
+    }
+    .card-icon {
+      width: 40px; height: 40px;
+      border: 2px solid #1a1a1a; border-radius: 10px;
+      background: #f4f4f4; font-size: 18px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .card-icon.lg { font-size: 20px; }
+    .card-ttl { font-size: 15px; font-weight: 700; color: #1a1a1a; }
+    .card-dsc { font-size: 11px; color: #888; margin-top: 2px; }
+
+    /* ══ Form ═══════════════════════════════════════════ */
+    .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+    .g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 13px; margin-bottom: 14px; }
+    .g4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .gh { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .fg { margin-bottom: 14px; }
+    .fg:last-child { margin-bottom: 0; }
+
+    .lbl {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 12px; font-weight: 700; color: #1a1a1a;
+      margin-bottom: 6px;
+    }
+    .lbl .req { color: #999; }
+    .lbl .hint { font-size: 9px; color: #aaa; font-weight: 400; margin-left: 3px; }
+
+    .inp {
+      width: 100%; padding: 9px 14px;
+      border: 2px solid #1a1a1a; border-radius: 20px;
+      font-family: 'Balsamiq Sans', cursive;
+      font-size: 11px; color: #555; background: #fafafa;
+    }
+    .inp.placeholder { color: #bbb; }
+    .inp-icon { position: relative; }
+    .inp-icon .ico {
+      position: absolute; left: 12px; top: 50%;
+      transform: translateY(-50%); font-size: 11px; color: #aaa;
+    }
+    .inp-icon .inp { padding-left: 30px; }
+    .textarea {
+      width: 100%; padding: 10px 14px;
+      border: 2px solid #1a1a1a; border-radius: 10px;
+      font-family: 'Balsamiq Sans', cursive;
+      font-size: 11px; color: #555; background: #fafafa;
+      resize: none; line-height: 1.5;
+    }
+    .char-c { text-align: right; font-size: 9px; color: #aaa; margin-top: 3px; }
+    .field-hint { font-size: 10px; color: #999; margin-top: 4px; font-style: italic; }
+
+    .sel-box {
+      width: 100%; padding: 9px 14px;
+      border: 2px solid #1a1a1a; border-radius: 20px;
+      font-family: 'Balsamiq Sans', cursive;
+      font-size: 11px; background: #fafafa;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .sel-box .ph { color: #bbb; }
+
+    /* Sec title */
+    .sec-ttl {
+      font-size: 11px; font-weight: 700; color: #888;
+      text-transform: uppercase; letter-spacing: .08em;
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 12px; margin-top: 6px;
+    }
+    .sec-ttl::after { content: ''; flex: 1; height: 1px; background: #e0e0e0; }
+
+    /* Dynamic list */
+    .dyn-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 6px; }
+    .dyn-item { display: flex; align-items: center; gap: 7px; }
+    .dyn-num {
+      width: 22px; height: 22px; border-radius: 50%;
+      border: 2px solid #1a1a1a; background: #f4f4f4;
+      font-size: 9px; font-weight: 700; color: #1a1a1a;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .dyn-inp {
+      flex: 1; padding: 7px 12px;
+      border: 2px solid #1a1a1a; border-radius: 20px;
+      font-family: 'Balsamiq Sans', cursive;
+      font-size: 10px; color: #555; background: #fafafa;
+    }
+    .dyn-rm {
+      width: 20px; height: 20px; border: 1px solid #ccc;
+      border-radius: 4px; color: #bbb;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; flex-shrink: 0;
+    }
+    .dyn-add {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 5px 12px; border: 2px dashed #1a1a1a;
+      border-radius: 20px; font-size: 10px; font-weight: 700;
+      color: #1a1a1a; background: #fff;
+      font-family: 'Balsamiq Sans', cursive;
+    }
+
+    /* SDG grid */
+    .sdg-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; margin-bottom: 14px; }
+    .sdg-cell {
+      border: 1.5px solid #d0d0d0; border-radius: 7px;
+      padding: 7px 3px; text-align: center; background: #fafafa;
+    }
+    .sdg-cell.sel { border-color: #1a1a1a; background: #f0f0f0; }
+    .sdg-n { font-size: 14px; font-weight: 700; color: #bbb; display: block; line-height: 1; }
+    .sdg-cell.sel .sdg-n { color: #1a1a1a; }
+    .sdg-t { font-size: 7px; color: #ccc; display: block; margin-top: 2px; line-height: 1.2; }
+    .sdg-cell.sel .sdg-t { color: #666; }
+
+    /* Pillars */
+    .pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+    .pill {
+      padding: 5px 12px; border: 2px solid #1a1a1a;
+      border-radius: 20px; font-size: 10px; font-weight: 700;
+      color: #555; background: #fff;
+      font-family: 'Balsamiq Sans', cursive;
+    }
+    .pill.sel { background: #1a1a1a; color: #fff; }
+
+    /* Tags */
+    .tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 7px; }
+    .tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 10px; border: 2px solid #1a1a1a;
+      border-radius: 20px; font-size: 10px; font-weight: 700;
+      color: #1a1a1a; background: #f4f4f4;
+    }
+    .tag-x { font-size: 9px; color: #aaa; }
+    .tag-inp {
+      width: 100%; padding: 7px 14px;
+      border: 2px dashed #bbb; border-radius: 20px;
+      font-size: 10px; color: #bbb; background: #fafafa;
+      font-family: 'Balsamiq Sans', cursive;
+    }
+
+    /* ══ Step 2 — Budget ═══════════════════════════════ */
+    .stat-pill {
+      padding: 5px 14px; border: 1.5px solid #1a1a1a;
+      border-radius: 20px; font-size: 10px; color: #555;
+      background: #fff; display: inline-block;
+    }
+    .slider-wrap { margin-bottom: 8px; }
+    .slider-track {
+      height: 9px; background: #e8e8e8;
+      border-radius: 4px; position: relative;
+      border: 1px solid #d0d0d0; margin-bottom: 4px;
+    }
+    .slider-fill { height: 100%; background: #555; border-radius: 4px; }
+    .slider-thumb {
+      position: absolute; width: 18px; height: 18px;
+      border-radius: 50%; background: #1a1a1a;
+      border: 2.5px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+      top: 50%; transform: translateY(-50%);
+    }
+    .slider-lbls { display: flex; justify-content: space-between; font-size: 9px; color: #aaa; }
+    .slider-cur {
+      font-size: 9px; font-weight: 700;
+      padding: 2px 7px; border: 1.5px solid #1a1a1a;
+      border-radius: 4px; color: #1a1a1a;
+      display: inline-block; margin-bottom: 3px;
+    }
+    .toggle-row {
+      display: flex; align-items: center;
+      justify-content: space-between; padding: 8px 0;
+    }
+    .toggle-sw {
+      width: 44px; height: 23px; border-radius: 12px;
+      background: #1a1a1a; border: 2px solid #1a1a1a;
+      position: relative; flex-shrink: 0;
+    }
+    .toggle-knob {
+      position: absolute; width: 17px; height: 17px;
+      background: #fff; border-radius: 50%; top: 1px; right: 2px;
+    }
+    .toggle-sw.off { background: #d0d0d0; border-color: #aaa; }
+    .toggle-sw.off .toggle-knob { right: auto; left: 2px; }
+
+    /* ══ Step 3 — Beneficiaries ════════════════════════ */
+    .tgt-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 14px; }
+    .tgt-btn {
+      padding: 10px 6px; border: 2px solid #ccc;
+      border-radius: 10px; text-align: center;
+      font-family: 'Balsamiq Sans', cursive;
+      font-size: 10px; font-weight: 700; color: #888;
+      background: #fff;
+    }
+    .tgt-btn.sel { border-color: #1a1a1a; background: #1a1a1a; color: #fff; }
+    .tgt-btn .tb-ico { font-size: 16px; display: block; margin-bottom: 3px; }
+
+    .gender-bar {
+      height: 11px; background: #e8e8e8;
+      border-radius: 6px; overflow: hidden;
+      border: 1px solid #d0d0d0; display: flex;
+    }
+    .g-male { background: #555; border-radius: 6px 0 0 6px; }
+    .g-female { background: #aaa; border-radius: 0 6px 6px 0; }
+
+    /* ══ Step 4 — Location ══════════════════════════════ */
+    .map-ph {
+      border: 2.5px dashed #ccc; border-radius: 10px;
+      padding: 30px 20px; text-align: center;
+      background: #f9f9f9; margin-bottom: 14px;
+    }
+    .map-ph-ico { font-size: 30px; color: #ccc; display: block; margin-bottom: 8px; }
+    .map-ph-txt { font-size: 11px; color: #bbb; }
+    .map-grid-lines {
+      position: absolute; inset: 0; overflow: hidden;
+      opacity: 0.3; pointer-events: none;
+    }
+
+    .partner-row {
+      display: flex; align-items: center; gap: 8px;
+      padding: 7px 10px; border: 1.5px solid #d0d0d0;
+      border-radius: 20px; font-size: 10px; color: #666;
+      margin-bottom: 5px; background: #fff;
+    }
+    .partner-row.sel { border-color: #1a1a1a; background: #f4f4f4; color: #1a1a1a; font-weight: 700; }
+    .p-chk {
+      width: 14px; height: 14px; border: 2px solid #ccc;
+      border-radius: 3px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9px;
+    }
+    .p-chk.sel { background: #1a1a1a; border-color: #1a1a1a; color: #fff; }
+
+    /* ══ Step 5 — Media ══════════════════════════════════ */
+    .dropzone {
+      border: 3px dashed #ccc; border-radius: 12px;
+      padding: 28px 20px; text-align: center;
+      background: #fafafa; margin-bottom: 12px;
+    }
+    .dz-ico { font-size: 28px; color: #ccc; display: block; margin-bottom: 7px; }
+    .dz-ttl { font-size: 12px; font-weight: 700; color: #666; }
+    .dz-sub { font-size: 10px; color: #bbb; margin-top: 3px; }
+    .dz-btn {
+      display: inline-block; margin-top: 10px;
+      padding: 6px 16px; border: 2px solid #1a1a1a;
+      border-radius: 20px; font-size: 10px; font-weight: 700;
+      color: #1a1a1a; background: #fff;
+      font-family: 'Balsamiq Sans', cursive;
+    }
+    .img-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
+    .img-thumb {
+      border: 2px solid #1a1a1a; border-radius: 8px;
+      padding: 10px 8px; text-align: center; background: #f9f9f9;
+    }
+    .img-thumb-ico { font-size: 22px; display: block; margin-bottom: 4px; }
+    .img-thumb-nm { font-size: 8px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .img-cats { display: flex; gap: 2px; justify-content: center; margin-top: 5px; flex-wrap: wrap; }
+    .img-cat { font-size: 7px; padding: 2px 5px; border: 1px solid #ccc; border-radius: 3px; color: #aaa;
+               font-family: 'Balsamiq Sans', cursive; }
+    .img-cat.sel { background: #555; border-color: #555; color: #fff; }
+    .img-add {
+      border: 2px dashed #ccc; border-radius: 8px;
+      padding: 10px 8px; text-align: center; background: #fafafa;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
+    .img-add-ico { font-size: 20px; color: #ccc; }
+    .img-add-txt { font-size: 8px; color: #ccc; margin-top: 3px; }
+
+    .doc-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border: 2px solid #d0d0d0;
+      border-radius: 10px; background: #fafafa; margin-bottom: 6px;
+    }
+    .doc-ico { font-size: 20px; flex-shrink: 0; }
+    .doc-nm { font-size: 11px; font-weight: 700; color: #555; flex: 1; }
+    .doc-sz { font-size: 9px; color: #aaa; }
+    .doc-tags { display: flex; gap: 3px; }
+    .doc-tag {
+      font-size: 8px; padding: 2px 6px;
+      border: 1px solid #ccc; border-radius: 3px;
+      color: #888; font-family: 'Balsamiq Sans', cursive;
+    }
+    .doc-tag.sel { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+    .doc-del { font-size: 13px; color: #ccc; }
+
+    /* ══ Step 6 — Review ═════════════════════════════════ */
+    .review-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+    .review-panel {
+      border: 2px solid #d0d0d0; border-radius: 10px; padding: 14px;
+    }
+    .review-ttl {
+      font-size: 10px; font-weight: 700; color: #888;
+      text-transform: uppercase; letter-spacing: .08em;
+      margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+    }
+    .review-ttl::after { content: ''; flex: 1; height: 1px; background: #e8e8e8; }
+    .review-row {
+      display: flex; justify-content: space-between;
+      padding: 5px 0; border-bottom: 1px solid #f0f0f0;
+    }
+    .review-row:last-child { border-bottom: none; }
+    .rv-lbl { font-size: 10px; color: #aaa; }
+    .rv-val { font-size: 10px; font-weight: 700; color: #555; text-align: right; max-width: 60%; }
+    .badge-sm {
+      display: inline-block; padding: 2px 8px;
+      border: 1.5px solid #1a1a1a; border-radius: 20px;
+      font-size: 9px; font-weight: 700; color: #1a1a1a;
+    }
+    .completeness-bar {
+      border: 2px solid #1a1a1a; border-radius: 10px;
+      padding: 14px 16px; margin-bottom: 14px;
+      background: #fafafa;
+    }
+    .c-bar-lbl { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; color: #1a1a1a; margin-bottom: 8px; }
+    .c-bar-track { height: 12px; background: #e8e8e8; border-radius: 6px; border: 1px solid #d0d0d0; overflow: hidden; }
+    .c-bar-fill { height: 100%; background: #1a1a1a; border-radius: 6px; }
+    .c-bar-steps { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+    .c-step-pill {
+      display: flex; align-items: center; gap: 4px;
+      padding: 3px 9px; border: 1.5px solid #1a1a1a;
+      border-radius: 20px; font-size: 9px; font-weight: 700;
+      color: #1a1a1a; background: #fff;
+    }
+    .c-step-pill.done { background: #1a1a1a; color: #fff; }
+
+    .agree-box {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 14px 16px; border: 2px solid #1a1a1a;
+      border-radius: 10px; background: #fafafa; margin-bottom: 14px;
+    }
+    .checkbox {
+      width: 20px; height: 20px; border: 2.5px solid #1a1a1a;
+      border-radius: 4px; background: #1a1a1a;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; color: #fff; flex-shrink: 0; margin-top: 1px;
+    }
+
+    /* ══ Bottom Nav ══════════════════════════════════════ */
+    .bottom-nav {
+      background: #fff; border: 2px solid #1a1a1a;
+      border-radius: 12px; padding: 14px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: 14px;
+    }
+    .bn-dots { display: flex; align-items: center; gap: 6px; }
+    .bn-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      border: 2px solid #1a1a1a; background: #fff;
+    }
+    .bn-dot.active { background: #1a1a1a; }
+    .bn-dot.done { background: #888; border-color: #888; }
+    .bn-progress { font-size: 10px; color: #888; margin-left: 10px; }
+    .nav-btn {
+      display: flex; align-items: center; gap: 6px;
+      padding: 9px 20px; border: 2px solid #1a1a1a;
+      border-radius: 20px; font-family: 'Balsamiq Sans', cursive;
+      font-size: 12px; font-weight: 700; color: #1a1a1a; background: #fff;
+    }
+    .nav-btn.primary { background: #1a1a1a; color: #fff; }
+    .nav-btn.ghost { border-color: #d0d0d0; color: #aaa; }
+    .nav-btn-grp { display: flex; align-items: center; gap: 8px; }
+
+    /* ══ Annotation ════════════════════════════════════ */
+    .annotation {
+      position: relative;
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 10px 14px; background: #fffde7;
+      border: 2px solid #e0d000; border-radius: 8px;
+      margin-top: 10px; margin-bottom: 0;
+    }
+    .ann-ico { font-size: 14px; flex-shrink: 0; }
+    .ann-txt { font-size: 10px; color: #555; line-height: 1.5; }
+    .ann-txt b { color: #1a1a1a; }
+
+    /* Inline border box */
+    .inset-box {
+      border: 2px solid #d0d0d0; border-radius: 10px;
+      padding: 14px;
+    }
+    .inset-box-ttl {
+      font-size: 11px; font-weight: 700; color: #888;
+      margin-bottom: 12px; display: flex; align-items: center; gap: 6px;
+    }
+
+    /* Coord fields */
+    .coord-lbl { font-size: 9px; color: #bbb; font-style: italic; }
+
+    /* ══ Sidebar nav icons (text-based) ══════════════════ */
+    .ico-sq { display: inline-block; width: 13px; height: 13px; border: 1.5px solid currentColor; border-radius: 2px; vertical-align: middle; }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════
+     CANVAS HEADER
+══════════════════════════════════════════════════════ -->
+<div class="canvas-header">
+  <div>
+    <div class="ch-title">Add New Project — 6-Step Wizard</div>
+    <div class="ch-sub">Balsamiq Lo-Fi Wireframe Prototype · CSR Platform · All 6 Screens</div>
+  </div>
+  <div class="ch-steps">
+    <div class="ch-dot">1</div><div class="ch-line"></div>
+    <div class="ch-dot">2</div><div class="ch-line"></div>
+    <div class="ch-dot">3</div><div class="ch-line"></div>
+    <div class="ch-dot">4</div><div class="ch-line"></div>
+    <div class="ch-dot">5</div><div class="ch-line"></div>
+    <div class="ch-dot">6</div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     SCREEN 1 — BASIC INFO
+══════════════════════════════════════════════════════ -->
+<div class="screen-wrap">
+  <div class="screen-label-bar">
+    <div class="screen-badge">Screen 1 / 6</div>
+    <div>
+      <div class="screen-title-lbl">Basic Information</div>
+      <div class="screen-sub-lbl">Project name · Category · Status · Description · Objectives · SDG Goals · Vision Pillars · Tags</div>
+    </div>
+    <div class="screen-rule"></div>
+  </div>
+
+  <div class="screen-frame">
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <div class="s-logo">
+        <div class="s-logo-box">CSR</div>
+        <div><div class="s-logo-name">CSR Platform</div><div class="s-logo-sub">Oman · Admin Portal</div></div>
+      </div>
+      <div class="s-section">
+        <div class="s-lbl">Analytics</div>
+        <div class="s-item"><span class="s-item-icon">▦</span> Dashboard</div>
+        <div class="s-item"><span class="s-item-icon">▤</span> Reports</div>
+        <div class="s-item"><span class="s-item-icon">⚑</span> Early Warning <span class="s-badge">3</span></div>
+        <div class="s-item"><span class="s-item-icon">◎</span> Map View</div>
+      </div>
+      <div class="s-section">
+        <div class="s-lbl">Projects</div>
+        <div class="s-item"><span class="s-item-icon">☰</span> All Projects</div>
+        <div class="s-item active"><span class="s-item-icon">＋</span> Add Project</div>
+        <div class="s-item"><span class="s-item-icon">⊘</span> Archived</div>
+      </div>
+      <div class="s-section">
+        <div class="s-lbl">Intelligence</div>
+        <div class="s-item"><span class="s-item-icon">◈</span> Future Portal</div>
+        <div class="s-item"><span class="s-item-icon">❋</span> Ideas Hub <span class="s-badge">12</span></div>
+        <div class="s-item"><span class="s-item-icon">◉</span> Social Analytics</div>
+      </div>
+      <div class="s-section">
+        <div class="s-lbl">Admin</div>
+        <div class="s-item"><span class="s-item-icon">◫</span> Users</div>
+        <div class="s-item"><span class="s-item-icon">◻</span> Partners</div>
+        <div class="s-item"><span class="s-item-icon">◼</span> Categories</div>
+        <div class="s-item"><span class="s-item-icon">⚙</span> Settings</div>
+      </div>
+      <div class="s-user">
+        <div class="s-av">S</div>
+        <div><div class="s-nm">Sultan Al-Busaidi</div><div class="s-rl">Administrator</div></div>
+      </div>
+    </nav>
+
+    <!-- Main -->
+    <div class="main">
+      <div class="topbar">
+        <div class="breadcrumb">Projects / <b>Add New Project</b></div>
+        <div class="tb-right">
+          <div class="tb-icon-btn">☀</div>
+          <div class="tb-icon-btn">🔔<span class="tb-notif-dot">6</span></div>
+          <div class="tb-user-btn">👤 Sultan ▾</div>
+        </div>
+      </div>
+
+      <div class="body-area">
+        <!-- Page Header -->
+        <div class="pg-header">
+          <div class="pg-header-l">
+            <button class="back-btn">← Back to Projects</button>
+            <div>
+              <div class="pg-title">Add New Project</div>
+              <div class="pg-subtitle">Complete all 6 steps to create a new CSR project</div>
+            </div>
+          </div>
+          <div class="pg-header-r">
+            <button class="hdr-btn">[ ] Save Draft</button>
+            <button class="hdr-btn">[ ] Preview</button>
+          </div>
+        </div>
+
+        <!-- Stepper -->
+        <div class="stepper">
+          <div class="stepper-track">
+            <div class="step-item">
+              <div class="step-circle active">1</div>
+              <div class="step-lbl active">Basic Info</div>
+              <div class="step-sublbl active">Name · Category</div>
+            </div>
+            <div class="step-conn"></div>
+            <div class="step-item">
+              <div class="step-circle">2</div>
+              <div class="step-lbl">Budget</div>
+              <div class="step-sublbl">Dates · Budget</div>
+            </div>
+            <div class="step-conn"></div>
+            <div class="step-item">
+              <div class="step-circle">3</div>
+              <div class="step-lbl">Beneficiaries</div>
+              <div class="step-sublbl">Target · Count</div>
+            </div>
+            <div class="step-conn"></div>
+            <div class="step-item">
+              <div class="step-circle">4</div>
+              <div class="step-lbl">Location</div>
+              <div class="step-sublbl">Governorate · Map</div>
+            </div>
+            <div class="step-conn"></div>
+            <div class="step-item">
+              <div class="step-circle">5</div>
+              <div class="step-lbl">Media</div>
+              <div class="step-sublbl">Images · Docs</div>
+            </div>
+            <div class="step-conn"></div>
+            <div class="step-item">
+              <div class="step-circle">6</div>
+              <div class="step-lbl">Review</div>
+              <div class="step-sublbl">Confirm · Save</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card -->
+        <div class="card">
+          <div class="card-hd">
+            <div class="card-icon">[ ]</div>
+            <div>
+              <div class="card-ttl">Basic Information</div>
+              <div class="card-dsc">Define project fundamentals, objectives, and strategic alignment</div>
+            </div>
+          </div>
+
+          <!-- Row 1: Name + Category + Status -->
+          <div class="g2" style="grid-template-columns:1fr 1fr;">
+            <div class="fg">
+              <div class="lbl">Project Name <span class="req">*</span></div>
+              <div class="inp-icon">
+                <span class="ico">[ ]</span>
+                <input class="inp placeholder" placeholder="Enter project name…" />
+              </div>
+            </div>
+            <div class="gh">
+              <div class="fg" style="margin-bottom:0">
+                <div class="lbl">Category <span class="req">*</span></div>
+                <div class="sel-box"><span class="ph">Select category</span><span>▾</span></div>
+              </div>
+              <div class="fg" style="margin-bottom:0">
+                <div class="lbl">Status <span class="req">*</span></div>
+                <div class="sel-box">Planning <span>▾</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Short Description -->
+          <div class="fg">
+            <div class="lbl">Short Description <span class="req">*</span> <span class="hint">Brief summary · max 200 chars</span></div>
+            <input class="inp placeholder" placeholder="Brief summary of the project for listings…" />
+            <div class="char-c">0 / 200</div>
+          </div>
+
+          <!-- Full Description -->
+          <div class="fg">
+            <div class="lbl">Full Description</div>
+            <textarea class="textarea" rows="3" placeholder="Detailed description of scope, methodology, and expected impact…"></textarea>
+          </div>
+
+          <!-- Objectives + Outputs -->
+          <div class="sec-ttl">[ ] Project Objectives &amp; Expected Outputs</div>
+          <div class="g2" style="margin-bottom:18px;">
+            <div>
+              <div class="lbl">[ ] Objectives <span class="req">*</span></div>
+              <div class="field-hint" style="margin-bottom:8px;">Define clear, measurable objectives</div>
+              <div class="dyn-list">
+                <div class="dyn-item"><div class="dyn-num">1</div><input class="dyn-inp" placeholder="e.g., Improve literacy rate by 20%"/><div class="dyn-rm">✕</div></div>
+                <div class="dyn-item"><div class="dyn-num">2</div><input class="dyn-inp" placeholder="e.g., Train 500 youth in digital skills"/><div class="dyn-rm">✕</div></div>
+                <div class="dyn-item"><div class="dyn-num">3</div><input class="dyn-inp" placeholder="e.g., Establish 3 learning centers"/><div class="dyn-rm">✕</div></div>
+              </div>
+              <div class="dyn-add" style="margin-top:6px;">+ Add Objective</div>
+            </div>
+            <div>
+              <div class="lbl">[ ] Expected Outputs</div>
+              <div class="field-hint" style="margin-bottom:8px;">Tangible deliverables and results</div>
+              <div class="dyn-list">
+                <div class="dyn-item"><div class="dyn-num">1</div><input class="dyn-inp" placeholder="e.g., 5 renovated classrooms"/><div class="dyn-rm">✕</div></div>
+                <div class="dyn-item"><div class="dyn-num">2</div><input class="dyn-inp" placeholder="e.g., 200 scholarship recipients"/><div class="dyn-rm">✕</div></div>
+              </div>
+              <div class="dyn-add" style="margin-top:6px;">+ Add Output</div>
+            </div>
+          </div>
+
+          <!-- SDG Goals -->
+          <div class="sec-ttl">[ ] SDG Goals <span style="font-size:9px;font-weight:400;color:#aaa;margin-left:4px;">Select relevant UN Sustainable Development Goals</span></div>
+          <div class="sdg-grid">
+            <div class="sdg-cell"><span class="sdg-n">1</span><span class="sdg-t">No Poverty</span></div>
+            <div class="sdg-cell"><span class="sdg-n">2</span><span class="sdg-t">Zero Hunger</span></div>
+            <div class="sdg-cell"><span class="sdg-n">3</span><span class="sdg-t">Good Health</span></div>
+            <div class="sdg-cell sel"><span class="sdg-n">4</span><span class="sdg-t">Quality Edu.</span></div>
+            <div class="sdg-cell"><span class="sdg-n">5</span><span class="sdg-t">Gender Equal.</span></div>
+            <div class="sdg-cell"><span class="sdg-n">6</span><span class="sdg-t">Clean Water</span></div>
+            <div class="sdg-cell"><span class="sdg-n">7</span><span class="sdg-t">Clean Energy</span></div>
+            <div class="sdg-cell"><span class="sdg-n">8</span><span class="sdg-t">Decent Work</span></div>
+            <div class="sdg-cell"><span class="sdg-n">9</span><span class="sdg-t">Industry</span></div>
+            <div class="sdg-cell sel"><span class="sdg-n">10</span><span class="sdg-t">Reduced Ineq.</span></div>
+            <div class="sdg-cell"><span class="sdg-n">11</span><span class="sdg-t">Sust. Cities</span></div>
+            <div class="sdg-cell"><span class="sdg-n">12</span><span class="sdg-t">Resp. Cons.</span></div>
+            <div class="sdg-cell"><span class="sdg-n">13</span><span class="sdg-t">Climate Act.</span></div>
+            <div class="sdg-cell"><span class="sdg-n">14</span><span class="sdg-t">Life Water</span></div>
+            <div class="sdg-cell"><span class="sdg-n">15</span><span class="sdg-t">Life Land</span></div>
+            <div class="sdg-cell"><span class="sdg-n">16</span><span class="sdg-t">Peace &amp; Just.</span></div>
+            <div class="sdg-cell sel"><span class="sdg-n">17</span><span class="sdg-t">Partnerships</span></div>
+            <div class="sdg-cell" style="border-color:transparent;background:transparent;"></div>
+          </div>
+
+          <!-- Vision Pillars -->
+          <div class="sec-ttl">[ ] Oman Vision 2040 Pillars</div>
+          <div class="pills">
+            <div class="pill sel">Economic Diversification</div>
+            <div class="pill">Human Capital Development</div>
+            <div class="pill">Environmental Sustainability</div>
+            <div class="pill sel">Innovation &amp; Technology</div>
+            <div class="pill">Social Well-being</div>
+            <div class="pill">Governance Excellence</div>
+          </div>
+
+          <!-- Tags -->
+          <div class="fg" style="margin-bottom:0;">
+            <div class="lbl">[ ] Tags <span class="hint">Press Enter to add — for discoverability</span></div>
+            <div class="tags">
+              <div class="tag">Youth <span class="tag-x">✕</span></div>
+              <div class="tag">Education <span class="tag-x">✕</span></div>
+              <div class="tag">Rural <span class="tag-x">✕</span></div>
+            </div>
+            <input class="tag-inp" placeholder="Type and press Enter to add a tag…" />
+          </div>
+        </div>
+
+        <!-- Bottom Nav -->
+        <div class="bottom-nav">
+          <div style="display:flex;align-items:center;">
+            <div class="bn-dots">
+              <div class="bn-dot active"></div>
+              <div class="bn-dot"></div><div class="bn-dot"></div>
+              <div class="bn-dot"></div><div class="bn-dot"></div><div class="bn-dot"></div>
+            </div>
+            <span class="bn-progress">Step 1 of 6</span>
+          </div>
+          <div class="nav-btn-grp">
+            <button class="nav-btn ghost">Cancel</button>
+            <button class="nav-btn primary">Next: Budget &amp; Alerts →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="flow-arrow">↓</div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════
+     SCREEN 2 — BUDGET & ALERTS
+══════════════════════════════════════════════════════ -->
+<div class="screen-wrap">
+  <div class="screen-label-bar">
+    <div class="screen-badge">Screen 2 / 6</div>
+    <div>
+      <div class="screen-title-lbl">Budget &amp; Alerts</div>
+      <div class="screen-sub-lbl">Start/end dates · Total budget (OMR) · Duration info · Early warning thresholds (budget · delay · quality)</div>
+    </div>
+    <div class="screen-rule"></div>
+  </div>
+
+  <div class="screen-frame">
+    <nav class="sidebar">
+      <div class="s-logo"><div class="s-logo-box">CSR</div><div><div class="s-logo-name">CSR Platform</div><div class="s-logo-sub">Oman · Admin Portal</div></div></div>
+      <div class="s-section"><div class="s-lbl">Analytics</div>
+        <div class="s-item"><span class="s-item-icon">▦</span> Dashboard</div>
+        <div class="s-item"><span class="s-item-icon">▤</span> Reports</div>
+        <div class="s-item"><span class="s-item-icon">⚑</span> Early Warning <span class="s-badge">3</span></div>
+        <div class="s-item"><span class="s-item-icon">◎</span> Map View</div>
+      </div>
+      <div class="s-section"><div class="s-lbl">Projects</div>
+        <div class="s-item"><span class="s-item-icon">☰</span> All Projects</div>
+        <div class="s-item active"><span class="s-item-icon">＋</span> Add Project</div>
+        <div class="s-item"><span class="s-item-icon">⊘</span> Archived</div>
+      </div>
+      <div class="s-section"><div class="s-lbl">Intelligence</div>
+        <div class="s-item"><span class="s-item-icon">◈</span> Future Portal</div>
+        <div class="s-item"><span class="s-item-icon">❋</span> Ideas Hub <span class="s-badge">12</span></div>
+      </div>
+      <div class="s-section"><div class="s-lbl">Admin</div>
+        <div class="s-item"><span class="s-item-icon">◫</span> Users</div>
+        <div class="s-item"><span class="s-item-icon">◻</span> Partners</div>
+        <div class="s-item"><span class="s-item-icon">⚙</span> Settings</div>
+      </div>
+      <div class="s-user"><div class="s-av">S</div><div><div class="s-nm">Sultan Al-Busaidi</div><div class="s-rl">Administrator</div></div></div>
+    </nav>
+
+    <div class="main">
+      <div class="topbar">
+        <div class="breadcrumb">Projects / <b>Add New Project</b> / Step 2</div>
+        <div class="tb-right">
+          <div class="tb-icon-btn">☀</div>
+          <div class="tb-icon-btn">🔔<span class="tb-notif-dot">6</span></div>
+          <div class="tb-user-btn">👤 Sultan ▾</div>
+        </div>
+      </div>
+
+      <div class="body-area">
+        <div class="pg-header">
+          <div class="pg-header-l">
+            <button class="back-btn">← Back</button>
+            <div><div class="pg-title">Add New Project</div><div class="pg-subtitle">Step 2 of 6 — Budget &amp; Alerts</div></div>
+          </div>
+          <div class="pg-header-r">
+            <button class="hdr-btn">[ ] Save Draft</button>
+          </div>
+        </div>
+
+        <!-- Stepper -->
+        <div class="stepper">
+          <div class="stepper-track">
+            <div class="step-item"><div class="step-circle done">✓</div><div class="step-lbl done">Basic Info</div><div class="step-sublbl done">Completed</div></div>
+            <div class="step-conn done"></div>
+            <div class="step-item"><div class="step-circle active">2</div><div class="step-lbl active">Budget</div><div class="step-sublbl active">Dates · Budget</div></div>
+            <div class="step-conn"></div>
+            <div class="step-item"><div class="step-circle">3</div><div class="step-lbl">Beneficiaries</div><div class="step-sublbl">Target · Count</div></div>
+            <div class="step-conn"></div>
+            <div class="step-item"><div class="step-circle">4</div><div class="step-lbl">Location</div><div class="step-sublbl">Governorate · Map</div></div>
+            <div class="step-conn"></div>
+            <div class="step-item"><div class="step-circle">5</div><div class="step-lbl">Media</div><div class="step-sublbl">Images · Docs</div></div>
+            <div class="step-conn"></div>
+            <div class="step-item"><div class="step-circle">6</div><div class="step-lbl">Review</div><div class="step-sublbl">Confirm · Save</div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-hd">
+            <div class="card-icon">[ ]</div>
+            <div><div class="card-ttl">Budget &amp; Timeline</div><div class="card-dsc">Set financial parameters, project duration, and early warning thresholds</div></div>
+          </div>
+
+          <!-- Dates + Budget -->
+          <div class="sec-ttl">[ ] Project Timeline &amp; Budget</div>
+          <div class="g3" style="margin-bottom:12px;">
+            <div class="fg" style="margin-bottom:0;">
+              <div class="lbl">[ ] Start Date <span class="req">*</span></div>
+              <input class="inp placeholder" placeholder="DD / MM / YYYY" />
+            </div>
+            <div class="fg" style="margin-bottom:0;">
+              <div class="lbl">[ ] End Date <span class="req">*</span></div>
+              <input class="inp placeholder" placeholder="DD / MM / YYYY" />
+            </div>
+            <div class="fg" style="margin-bottom:0;">
+              <div class="lbl">[ ] Total Budget (OMR) <span class="req">*</span></div>
+              <input class="inp placeholder" placeholder="e.g., 150,000" />
+            </div>
+          </div>
+
+          <!-- Duration summary chips -->
+          <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;">
+            <div class="stat-pill">[ ] Duration: 12 months (365 days)</div>
+            <div class="stat-pill">[ ] Budget rate: ~12,500 OMR / month</div>
+            <div class="stat-pill">[ ] Ends: 31 Mar 2027</div>
+          </div>
+
+          <!-- Early Warning Config -->
+          <div class="sec-ttl">[ ] Early Warning Configuration</div>
+          <div class="inset-box">
+            <div class="toggle-row" style="margin-bottom:14px;">
+              <div>
+                <div style="font-size:13px;font-weight:700;color:#1a1a1a;">[ ] Enable Early Warning Alerts</div>
+                <div style="font-size:10px;color:#888;margin-top:2px;">Automatically generate alerts when thresholds are exceeded</div>
+              </div>
+              <div class="toggle-sw"><div class="toggle-knob"></div></div>
+            </div>
+            <div class="g3" style="margin-bottom:0;">
+              <!-- Budget Threshold -->
+              <div>
+                <div class="lbl">[ ] Budget Threshold</div>
+                <div class="slider-cur">80%</div>
+                <div class="slider-wrap">
+                  <div class="slider-track">
+                    <div class="slider-fill" style="width:60%;"></div>
+                    <div class="slider-thumb" style="left:calc(60% - 9px);"></div>
+                  </div>
+                  <div class="slider-lbls"><span>50%</span><span>100%</span></div>
+                </div>
+                <div class="field-hint">Alert when spending exceeds this %</div>
+              </div>
+              <!-- Delay Threshold -->
+              <div>
+                <div class="lbl">[ ] Delay Threshold</div>
+                <div class="slider-cur">14 days</div>
+                <div class="slider-wrap">
+                  <div class="slider-track">
+                    <div class="slider-fill" style="width:22%;"></div>
+                    <div class="slider-thumb" style="left:calc(22% - 9px);"></div>
+                  </div>
+                  <div class="slider-lbls"><span>3 days</span><span>60 days</span></div>
+                </div>
+                <div class="field-hint">Alert when project is delayed</div>
+              </div>
+              <!-- Quality Threshold -->
+              <div>
+                <div class="lbl">[ ] Quality Threshold</div>
+                <div class="slider-cur">3.5 ★</div>
+                <div class="slider-wrap">
+                  <div class="slider-track">
+                    <div class="slider-fill" style="width:50%;"></div>
+                    <div class="slider-thumb" style="left:calc(50% - 9px);"></div>
+                  </div>
+                  <div class="slider-lbls"><span>1.0 ★</span><span>5.0 ★</span></div>
+                </div>
+                <div class="field-hint">Alert when review rating drops below</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Alert preview note -->
+          <div class="annotation">
+            <span class="ann-ico">ℹ</span>
+            <div class="ann-txt">
+              <b>When alerts are enabled:</b> The system will automatically create Early Warning records when budget utilization exceeds 80%, the project is delayed more than 14 days, or the average review rating falls below 3.5 stars. Alerts appear in the Early Warning dashboard.
+            </div>
+          </div>
+        </div>
+
+        <div class="bottom-nav">
+          <div style="display:flex;align-items:center;">
+            <div class="bn-dots">
+              <div class="bn-dot done"></div>
+              <div class="bn-dot active"></div>
+              <div class="bn-dot"></div><div class="bn-dot"></div><div class="bn-dot"></div><div class="bn-dot"></div>
+            </div>
+            <span class="bn-progress">Step 2 of 6</span>
+          </div>
+          <div class="nav-btn-grp">
+            <button class="nav-btn">← Previous</button>
+            <button class="nav-btn primary">Next: Beneficiaries →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="flow-arrow">↓</div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════
+     SCREEN 3 — BENEFICIARIES
+══════════════════════════════════════════════════════ -->
+<div class="screen-wrap">
+  <div class="screen-label-bar">
+    <div class="screen-badge">Screen 3 / 6</div>
+    <div>
+      <div class="screen-title-lbl">Beneficiaries</div>
+      <div class="screen-sub-lbl">Target group selector · Population estimate · Male/female split with bar · Age group pills · Beneficiary description</div>
+    </div>
+    <div class="screen-rule"></div>
+  </div>
+
+  <div class="screen-frame">
+    <nav class="sidebar">
+      <div class="s-logo"><div class="s-logo-box">CSR</div><div><div class="s-logo-name">CSR Platform</div><div class="s-logo-sub">Oman · Admin Portal</div></div></div>
+      <div class="s-section"><div class="s-lbl">Analytics</div>
+        <div class="s-item"><span class="s-item-icon">▦</span> Dashboard</div>
+        <div class="s-item"><span class="s-item-icon">▤</span> Reports</div>
+        <div class="s-item"><span class="s-item-icon">⚑</span> Early Warning <span class="s-badge">3</span></div>
+      </div>
+      <div class="s-section"><div class="s-lbl">Projects</div>
+        <div class="s-item"><span class="s-item-icon">☰</span> All Projects</div>
+        <div class="s-item active"><span class="s-item-icon">＋</span> Add Project</div>
+        <div class="s-item"><span class="s-item-icon">⊘</span> Archived</div>
+      </div>
+      <div class="s-section"><div class="s-lbl">Admin</div>
+        <div class="s-item"><span class="s-item-icon">◫</span> Users</div>
+        <div class="s-item"><span class="s-item-icon">⚙</span> Settings</div>
+      </div>
+      <div class="s-user"><div class="s-av">S</div><div><div class="s-nm">Sultan Al-Busaidi</div><div class="s-rl">Administrator</div></div></div>
+    </nav>
+
+    <div class="main">
+      <div class="topbar">
+        <div class="breadcrumb">Projects / <b>Add New Project</b> / Step 3</div>
+        <div class="tb-right">
+          <div class="tb-icon-btn">☀</div>
+          <div class="tb-icon-btn">🔔<span class="tb-notif-dot">6</span></div>
+          <div class="tb-user-btn">👤 Sultan ▾</div>
+        </div>
+      </div>
+
+      <div class="body-area">
+        <div class="pg-header">
+          <div class="pg-header-l">
+            <button class="back-btn">← Back</button>
+            <div><div class="pg-title">Add New Project</div><div class="pg-subtitle">Step 3 of 6 — Beneficiaries</div></div>
+          </div>
+          <div class="pg-header-r"><button class="hdr-btn">[ ] Save Draft</button></div>
+        </div>
+
+        <div class="stepper">
+          <div class="stepper-track">
+            <div class="step-item"><div class="step-circle done">✓</div><div class="step-lbl done">Basic Info</div></div>
+            <div class="step-conn done"></div>
+            <div class="step-item"><div class="step-circle done">✓</div><div class="step-lbl done">Budget</div></div>
+            <div class="step-conn done"></div>
+            <div class="step-item"><div class="step-circle active">3</div><div class="step-lbl active">Beneficiaries</div></div>
+            <div class="step-conn"></div>
+            <div class="step-item"><div class="step-circle">4</div><div class="step-lbl">Location</div></div>
+            <div class="step-conn"></div>
+            <div class="step-item"><div class="step-circle">5</div><div class="step-lbl">Media</div></div>
+            <div class="step-conn"></div>
+            <div class="step-item"><div class="step-circle">6</div><div class="step-lbl">Review</div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-hd">
+            <div class="card-icon">[ ]</div>
+            <div><div class="card-ttl">Beneficiaries</div><div class="card-dsc">Define the target population, demographics, and expected reach</div></div>
+          </div>
+
+          <!-- Target Group -->
+          <div class="fg">
+            <div class="lbl">[ ] Target Group <span class="req">*</span></div>
+            <div class="tgt-grid">
+              <div class="tgt-btn"><span class="tb-ico">👦</span>Children</div>
+              <div class="tgt-btn sel"><span class="tb-ico">🧑</span>Youth</div>
+              <div class="tgt-btn"><span class="tb-ico">🧔</span>Adults</div>
+              <div class="tgt-btn"><span class="tb-ico">🧓</span>Elderly</div>
+              <div class="tgt-btn"><span class="tb-ico">👩</span>Women</div>
+              <div class="tgt-btn"><span class="tb-ico">♿</span>Disabled</div>
+              <div class="tgt-btn"><span class="tb-ico">👥</span>General Public</div>
+              <div class="tgt-btn" style="border:2px dashed #ccc;color:#bbb;"><span class="tb-ico" style="color:#ccc;">＋</span>Custom</div>
+            </div>
+          </div>
+
+          <!-- Population + Demographics -->
+          <div class="g2" style="margin-bottom:0;">
+            <!-- Population Estimate -->
+            <div class="inset-box">
+              <div class="inset-box-ttl">[ ] Population Estimate</div>
+              <div class="fg">
+                <div class="lbl">Total Expected Beneficiaries <span class="req">*</span></div>
+                <div class="inp-icon">
+                  <span class="ico">[ ]</span>
+                  <input class="inp" value="1,200" />
+                </div>
+              </div>
+              <div class="gh" style="margin-bottom:10px;">
+                <div class="fg" style="margin-bottom:0;">
+                  <div class="lbl">[ ] Male</div>
+                  <input class="inp" value="720" />
+                </div>
+                <div class="fg" style="margin-bottom:0;">
+                  <div class="lbl">[ ] Female</div>
+                  <input class="inp" value="480" />
+                </div>
+              </div>
+              <!-- Gender split bar -->
+              <div style="display:flex;justify-content:space-between;font-size:9px;color:#888;margin-bottom:3px;">
+                <span>Male 60%</span><span>Female 40%</span>
+              </div>
+              <div class="gender-bar">
+                <div class="g-male" style="width:60%;"></div>
+                <div class="g-female" style="width:40%;"></div>
+              </div>
+              <div style="display:flex;gap:14px;font-size:9px;color:#888;justify-content:center;margin-top:5px;">
+                <span>[ ] Male: 720</span><span>[ ] Female: 480</span>
+              </div>
+            </div>
+
+            <!-- Demographics -->
+            <div class="inset-box">
+              <div class="inset-box-ttl">[ ] Demographics</div>
+              <div class="fg">
+                <div class="lbl">[ ] Age Group</div>
+                <div class="pills" style="gap:5px;margin-bottom:0;">
+                  <div class="pill" style="padding:4px 9px;font-size:10px;">0–5</div>
+                  <div class="pill" style="padding:4px 9px;font-size:10px;">6–12</div>
+                  <div class="pill sel" style="padding:4px 9px;font-size:10px;">13–17</div>
+                  <div class="pill sel" style="padding:4px 9px;font-size:10px;">18–25</div>
+                  <div class="pill" style="padding:4px 9px;font-size:10px;">26–35</div>
+                  <div class="pill" style="padding:4px 9px;font-size:10px;">36–50</div>
+                  <div class="pill" style="padding:4px 9px;font-size:10px;">51–65</div>
+                  <div class="pill" style="padding:4px 9px;font-size:10px;">65+</div>
+                  <div class="pill" style="padding:4px 9px;font-size:10px;">All Ages</div>
+                </div>
+              </div>
+              <div class="fg" style="margin-bottom:0;margin-top:14px;">
+                <div class="lbl">Beneficiary Description</div>
+                <textarea class="textarea" rows="5" placeholder="Describe the beneficiary profile, their needs, and how they will benefit from this project…"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bottom-nav">
+          <div style="display:flex;align-items:center;">
+            <div class="bn-dots">
+              <div class="bn-dot done"></div><div class="bn-dot done"></div>
+              <div class="bn-dot active"></div>
+              <div class="bn-dot"></div><div class="bn-dot"></div><div class="bn-dot"></div>
+            </div>
+            <span class="bn-progress">Step 3 of 6</span>
+          </div>
+          <div class="nav-btn-grp">
+            <button class="nav-btn">← Previous</button>
+            <button class="nav-btn primary">Next: Location →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="flow-arrow">↓</div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════
+     SCREEN 4 — LOCATION & PARTNERS
+══════════════════════════════════════════════════════ -->
+<div class="screen-wrap">
+  <div class="screen-label-bar">
+    <div class="screen-badge">Screen 4 / 6</div>
+    <div>
+      <div class="screen-title-lbl">Location &amp; Partners</div>
+      <div class="screen-sub-lbl">Governorate dropdown · District / Wilayat · Detailed address · GPS coordinates · Map preview · Partners multi-select</div>
+    </div>
+    <div class="screen-rule"></div>
+  </div>
+
+  <div class="screen-frame">
+    <nav class="sidebar">
+      <div class="s-logo"><div class="s-logo-box">CSR</div><div><div class="s-logo-name">CSR Platform</div><div class="s-logo-sub">Oman · Admin Portal</div></div></div>
+      <div class="s-section"><div class="s-lbl">Projects</div>
+        <div class="s-item"><span class="s-item-icon">☰</span> All Projects</div>
+        <div class="s-item active"><span class="s-item-icon">＋</span> Add Project</div>
+        <div class="s-item"><span class="s-item-icon">⊘</span> Archived</div>
+      </div>
+      <div class="s-section"><div class="s-lbl">Analytics</div>
+        <div class="s-item"><span class="s-item-icon">▦</span> Dashboard</div>
+        <div class="s-item"><span class="s-item-icon">◎</span> Map View</div>
+      </div>
+      <div class="s-section"><div class="s-lbl">Admin</div>
+        <div class="s-item"><span class="s-item-icon">◻</span> Partners</div>
+        <div class="s-item"><span class="s-item-icon">⚙</span> Settings</div>
+      </div>
+      <div class="s-user"><div class="s-av">S</div><div><div class="s-nm">Sultan Al-Busaidi</div><div class="s-rl">Administrator</div></div></div>
+    </nav>
+
+    <div class="main">
+      <div class="topbar">
+        <div class="breadcrumb">Projects / <b>Add New Project</b> / Step 4</div>
+        <div class="tb-right">
+          <div class="tb-icon-btn">☀</div>
+          <div class="tb-icon-btn">🔔<span class="tb-notif-dot">6</span></div>
+          <div class="tb-user-btn">👤 Sultan ▾</div>
+        </div>
+      </div>
+
+      <div class="body-area">
+        <div class="pg-header">
+          <div class="pg-header-l">
+            <button class="back-btn">← Back</button>
+            <div><div class="pg-title">Add New Project</div><div class="pg-subtitle">Step 4 of 6 — Location &amp; Partners</div></div>
+          </div>
+          <div class="pg-header-r"><button class="hdr-btn">[ ] Save Draft</button></div>
+        </div>
+
+        <div class="stepper">
+          <div class="stepper-track">
+            <div class="step-item"><div class="step-circle done">✓</div><div class="step-lbl done">Basic Info</div></div>
+            <div class="step-conn done"></div>
+            <div class="step-item"><div class="step-circle done">✓</div><div class="step-lbl done">Budget</div></div>
+            <div class="step-conn done"></div>
+            <div class="step-item"><div class="step-circle done">✓</div><div class="step-lbl done">Beneficiaries</div></div>
+            <div class="step-conn done"></div>
+            <div class="step-item"><div class="step-circle active">4</div><div class="step-lbl active">Location</div></div>
+            <div class="step-conn"></div>
+            <div class="step-item"><div class="step-circle">5</div><div class="step-lbl">Media</div></div>
+            <div class="step-conn"></div>
+            <div class="step-item"><div class="step-circle">6</div><div class="step-lbl">Review</div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-hd">
+            <div class="card-icon">[ ]</div>
+            <div><div class="card-ttl">Location &amp; Partners</div><div class="card-dsc">Specify project location across Oman's 11 governorates and tag collaborating organizations</div></div>
+          </div>
+
+          <div class="g2" style="margin-bottom:0;">
+            <!-- Location form -->
+            <div class="inset-box">
+              <div class="inset-box-ttl">[ ] Project Location</div>
+              <div class="fg">
+                <div class="lbl">[ ] Governorate <span class="req">*</span></div>
+                <div class="sel-box">Muscat <span>▾</span></div>
+              </div>
+              <div class="fg">
+                <div class="lbl">[ ] District / Wilayat <span class="req">*</span></div>
+                <div class="sel-box"><span class="ph">Select district…</span><span>▾</span></div>
+              </div>
+              <div class="fg">
+                <div class="lbl">Detailed Address</div>
+                <textarea class="textarea" rows="2" placeholder="Street, building, or landmark details…"></textarea>
+              </div>
+              <div class="gh" style="margin-bottom:0;">
+                <div class="fg" style="margin-bottom:0;">
+                  <div class="lbl">Latitude <span class="hint">Optional</span></div>
+                  <input class="inp placeholder" placeholder="e.g., 23.5880" />
+                </div>
+                <div class="fg" style="margin-bottom:0;">
+                  <div class="lbl">Longitude <span class="hint">Optional</span></div>
+                  <input class="inp placeholder" placeholder="e.g., 58.3829" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Map + Partners -->
+            <div>
+              <div class="inset-box" style="margin-bottom:12px;">
+                <div class="inset-box-ttl">[ ] Map Preview</div>
+                <div class="map-ph">
+                  <span class="map-ph-ico">📍</span>
+                  <div class="map-ph-txt">Select a location to preview on the map<br/><span style="font-size:9px;color:#ccc;">Muscat, Oman — lat/lng required for pin</span></div>
+                </div>
+                <div style="display:flex;gap:6px;margin-top:0;">
+                  <button class="hdr-btn" style="flex:1;justify-content:center;font-size:10px;padding:6px;">[ ] Use Current Location</button>
+                  <button class="hdr-btn" style="flex:1;justify-content:center;font-size:10px;padding:6px;">[ ] Pick on Map</button>
+                </div>
+              </div>
+
+              <div class="inset-box">
+                <div class="inset-box-ttl">[ ] Partners &amp; Collaborators</div>
+                <div class="partner-row sel"><div class="p-chk sel">✓</div>Ministry of Social Development</div>
+                <div class="partner-row"><div class="p-chk"></div>Ministry of Education</div>
+                <div class="partner-row sel"><div class="p-chk sel">✓</div>PDO (Petroleum Development Oman)</div>
+                <div class="partner-row"><div class="p-chk"></div>UNICEF Oman</div>
+                <div class="partner-row"><div class="p-chk"></div>Bank Muscat</div>
+                <div style="font-size:9px;color:#bbb;padding:5px 10px;">+ 7 more available…</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bottom-nav">
+          <div style="display:flex;align-items:center;">
+            <div class="bn-dots">
+              <div class="bn-dot done"></div><div class="bn-dot done"></div>
+              <div class="bn-dot done"></div>
+              <div class="bn-dot active"></div>
+              <div class="bn-dot"></div><div class="bn-dot"></div>
+            </div>
+            <span class="bn-progress">Step 4 of 6</span>
+          </div>
+          <div class="nav-btn-grp">
+            <button class="nav-btn">← Previous</button>
+            <button class="nav-btn primary">Next: Media &amp; Docs →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="flow-arrow">↓</div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════
+     SCREEN 5 — MEDIA & DOCUMENTS
+══════════════════════════════════════════════════════ -->
+<div class="screen-wrap">
+  <div class="screen-label-bar">
+    <div class="screen-badge">Screen 5 / 6</div>
+    <div>
+      <div class="screen-title-lbl">Media &amp; Documents</div>
+      <div class="screen-sub-lbl">Image dropzone with thumbnails (Before/During/After tags) · Document dropzone with file type badges</div>
+    </div>
+    <div class="screen-rule"></div>
+  </div>
+
+  <div class="screen-frame">
+    <nav class="sidebar">
+      <div class="s-logo"><div class="s-logo-box">CSR</div><div><div class="s-logo-name">CSR Platform</div><div class="s-logo-sub">Oman · Admin Portal</div></div></div>
+      <div class="s-section"><div class="s-lbl">Projects</div>
+        <div class="s-item"><span class="s-item-icon">☰</span> All Projects</div>
+        <div class="s-item active"><span class="s-item-icon">＋</span> Add Project</div>
+        <div class="s-item"><span class="s-item-icon">⊘</span> Archived</div>
+      </div>
+      <div class="s-section"><div class="s-lbl">Analytics</div>
+        <div class="s-item"><span class="s-item-icon">▦</span> Dashboard</div>
+      </div>
+      <div class="s-section"><div class="s-lbl">Admin</div>
+        <div class="s-item"><span class="s-item-icon">⚙</span> Settings</div>
+      </div>
+      <div class="s-user"><div class="s-av">S</div><div><div class="s-nm">Sultan Al-Busaidi</div><div class="s-rl">Administrator</div></div></div>
+    </nav>
+
+    <div class="main">
+      <div class="topbar">
+        <div class="breadcrumb">Projects / <b>Add New Project</b> / Step 5</div>
+        <div class="tb-right">
+          <div class="tb-icon-btn">☀</div>
+          <div class="tb-icon-btn">🔔<span class="tb-notif-dot">6</span></div>
+          <div class="tb-user-btn">👤 Sultan ▾</div>
+        </div>
+      </div>
+
+      <div class="body-area">
+        <div class="pg-header">
+          <div class="pg-header-l">
+            <button class="back-btn">← Back</button>
+            <div><div class="pg-title">Add New Project</div><div class="pg-subtitle">Step 5 of 6 — Media &amp; Documents</div></div>
+          </div>
+          <div class="pg-header-r"><button class="hdr-btn">[ ] Save Draft</button></div>
+        </div>
+
+        <div class="stepper">
+          <div class="stepper-track">
+            <div class="step-item"><div class="step-circle done">✓</div><div class="step-lbl done">Basic Info</div></div>
+            <div class="step-conn done"></div>
+            <div class="step-item"><div class="step-circle done">✓</div><div class="step-lbl done">Budget</div></div>
+            <div class="step-conn done"></div>
+            <div class="step-item"><div class="step-circle done">✓</div><div class="step-lbl done">Beneficiaries</div></div>
+            <div class="step-conn done"></div>
+            <div class="step-item"><div class="step-circle done">✓</div><div class="step-lbl done">Location</div></div>
+            <div class="step-conn done"></div>
+            <div class="step-item"><div class="step-circle active">5</div><div class="step-lbl active">Media</div></div>
+            <div class="step-conn"></div>
+            <div class="step-item"><div class="step-circle">6</div><div class="step-lbl">Review</div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-hd">
+            <div class="card-icon">[ ]</div>
+            <div><div class="card-ttl">Media &amp; Documents</div><div class="card-dsc">Upload project images and supporting documents — all uploads are optional</div></div>
+          </div>
+
+          <!-- Images Section -->
+          <div class="sec-ttl">[ ] Project Images
+            <span style="font-size:9px;font-weight:400;color:#aaa;margin-left:4px;">PNG, JPG, WebP · Max 10MB each</span>
+            <span class="badge-sm" style="font-size:9px;padding:1px 8px;margin-left:auto;">2 files</span>
+          </div>
+
+          <div class="dropzone">
+            <span class="dz-ico">[ ]</span>
+            <div class="dz-ttl">Drag &amp; drop images here, or click to browse</div>
+            <div class="dz-sub">Supports PNG, JPG, WebP · Max 10MB per file</div>
+            <div class="dz-btn">Browse Files</div>
+          </div>
+
+          <div class="img-grid">
+            <div class="img-thumb">
+              <span class="img-thumb-ico">🖼</span>
+              <div class="img-thumb-nm">site_photo_01.jpg</div>
+              <div class="img-cats">
+                <div class="img-cat sel">Before</div>
+                <div class="img-cat">During</div>
+                <div class="img-cat">After</div>
+              </div>
+            </div>
+            <div class="img-thumb">
+              <span class="img-thumb-ico">🖼</span>
+              <div class="img-thumb-nm">overview_02.png</div>
+              <div class="img-cats">
+                <div class="img-cat">Before</div>
+                <div class="img-cat sel">During</div>
+                <div class="img-cat">After</div>
+              </div>
+            </div>
+            <div class="img-add">
+              <span class="img-add-ico">＋</span>
+              <div class="img-add-txt">Add more…</div>
+            </div>
+            <div class="img-add">
+              <span class="img-add-ico" style="font-size:14px;color:#d0d0d0;">[ ]</span>
+              <div class="img-add-txt">Slot available</div>
+            </div>
+          </div>
+
+          <!-- Documents Section -->
+          <div class="sec-ttl" style="margin-top:6px;">[ ] Documents
+            <span style="font-size:9px;font-weight:400;color:#aaa;margin-left:4px;">PDF, DOC, XLS · Max 25MB each</span>
+            <span class="badge-sm" style="font-size:9px;padding:1px 8px;margin-left:auto;">1 file</span>
+          </div>
+
+          <div class="dropzone" style="padding:18px 20px;">
+            <span class="dz-ico">📎</span>
+            <div class="dz-ttl">Drag &amp; drop documents here, or click to browse</div>
+            <div class="dz-sub">PDF, DOC, DOCX, XLS, XLSX · Max 25MB per file</div>
+            <div class="dz-btn">Browse Files</div>
+          </div>
+
+          <div class="doc-row">
+            <div class="doc-ico">📄</div>
+            <div>
+              <div class="doc-nm">project_plan_v2.pdf</div>
+              <div class="doc-sz">248 KB · Uploaded just now</div>
+            </div>
+            <div class="doc-tags">
+              <div class="doc-tag sel">Plan</div>
+              <div class="doc-tag">Contract</div>
+              <div class="doc-tag">Report</div>
+              <div class="doc-tag">Other</div>
+            </div>
+            <div class="doc-del">🗑</div>
+          </div>
+        </div>
+
+        <div class="bottom-nav">
+          <div style="display:flex;align-items:center;">
+            <div class="bn-dots">
+              <div class="bn-dot done"></div><div class="bn-dot done"></div>
+              <div class="bn-dot done"></div><div class="bn-dot done"></div>
+              <div class="bn-dot active"></div>
+              <div class="bn-dot"></div>
+            </div>
+            <span class="bn-progress">Step 5 of 6</span>
+          </div>
+          <div class="nav-btn-grp">
+            <button class="nav-btn">← Previous</button>
+            <button class="nav-btn primary">Next: Review &amp; Save →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="flow-arrow">↓</div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════
+     SCREEN 6 — REVIEW & SAVE
+══════════════════════════════════════════════════════ -->
+<div class="screen-wrap">
+  <div class="screen-label-bar">
+    <div class="screen-badge">Screen 6 / 6</div>
+    <div>
+      <div class="screen-title-lbl">Review &amp; Save</div>
+      <div class="screen-sub-lbl">Completeness bar · Summary panels (Basic, Budget, Beneficiaries, Location, Media) · Terms checkbox · Submit button</div>
+    </div>
+    <div class="screen-rule"></div>
+  </div>
+
+  <div class="screen-frame">
+    <nav class="sidebar">
+      <div class="s-logo"><div class="s-logo-box">CSR</div><div><div class="s-logo-name">CSR Platform</div><div class="s-logo-sub">Oman · Admin Portal</div></div></div>
+      <div class="s-section"><div class="s-lbl">Projects</div>
+        <div class="s-item"><span class="s-item-icon">☰</span> All Projects</div>
+        <div class="s-item active"><span class="s-item-icon">＋</span> Add Project</div>
+        <div class="s-item"><span class="s-item-icon">⊘</span> Archived</div>
+      </div>
+      <div class="s-section"><div class="s-lbl">Analytics</div>
+        <div class="s-item"><span class="s-item-icon">▦</span> Dashboard</div>
+      </div>
+      <div class="s-section"><div class="s-lbl">Admin</div>
+        <div class="s-item"><span class="s-item-icon">⚙</span> Settings</div>
+      </div>
+      <div class="s-user"><div class="s-av">S</div><div><div class="s-nm">Sultan Al-Busaidi</div><div class="s-rl">Administrator</div></div></div>
+    </nav>
+
+    <div class="main">
+      <div class="topbar">
+        <div class="breadcrumb">Projects / <b>Add New Project</b> / Step 6 — Final Review</div>
+        <div class="tb-right">
+          <div class="tb-icon-btn">☀</div>
+          <div class="tb-icon-btn">🔔<span class="tb-notif-dot">6</span></div>
+          <div class="tb-user-btn">👤 Sultan ▾</div>
+        </div>
+      </div>
+
+      <div class="body-area">
+        <div class="pg-header">
+          <div class="pg-header-l">
+            <button class="back-btn">← Back</button>
+            <div><div class="pg-title">Review &amp; Submit</div><div class="pg-subtitle">Step 6 of 6 — Confirm all details before creating the project</div></div>
+          </div>
+          <div class="pg-header-r">
+            <button class="hdr-btn">[ ] Edit Step 1</button>
+          </div>
+        </div>
+
+        <div class="stepper">
+          <div class="stepper-track">
+            <div class="step-item"><div class="step-circle done">✓</div><div class="step-lbl done">Basic Info</div></div>
+            <div class="step-conn done"></div>
+            <div class="step-item"><div class="step-circle done">✓</div><div class="step-lbl done">Budget</div></div>
+            <div class="step-conn done"></div>
+            <div class="step-item"><div class="step-circle done">✓</div><div class="step-lbl done">Beneficiaries</div></div>
+            <div class="step-conn done"></div>
+            <div class="step-item"><div class="step-circle done">✓</div><div class="step-lbl done">Location</div></div>
+            <div class="step-conn done"></div>
+            <div class="step-item"><div class="step-circle done">✓</div><div class="step-lbl done">Media</div></div>
+            <div class="step-conn done"></div>
+            <div class="step-item"><div class="step-circle active">6</div><div class="step-lbl active">Review</div></div>
+          </div>
+        </div>
+
+        <!-- Completeness Bar -->
+        <div class="completeness-bar">
+          <div class="c-bar-lbl">
+            <span>[ ] Project Completeness</span>
+            <span>100% — Ready to Submit</span>
+          </div>
+          <div class="c-bar-track"><div class="c-bar-fill" style="width:100%;"></div></div>
+          <div class="c-bar-steps">
+            <div class="c-step-pill done">✓ Basic Info</div>
+            <div class="c-step-pill done">✓ Budget</div>
+            <div class="c-step-pill done">✓ Beneficiaries</div>
+            <div class="c-step-pill done">✓ Location</div>
+            <div class="c-step-pill done">✓ Media</div>
+          </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="review-grid">
+          <!-- Left: Basic + Budget -->
+          <div>
+            <div class="review-panel">
+              <div class="review-ttl">Basic Information</div>
+              <div class="review-row"><span class="rv-lbl">Project Name</span><span class="rv-val">Youth Skills Hub — Muscat</span></div>
+              <div class="review-row"><span class="rv-lbl">Category</span><span class="rv-val">Education &amp; Training</span></div>
+              <div class="review-row"><span class="rv-lbl">Status</span><span class="rv-val"><span class="badge-sm">Planning</span></span></div>
+              <div class="review-row"><span class="rv-lbl">Objectives</span><span class="rv-val">3 defined</span></div>
+              <div class="review-row"><span class="rv-lbl">SDG Goals</span><span class="rv-val">SDG 4, 10, 17</span></div>
+              <div class="review-row"><span class="rv-lbl">Vision Pillars</span><span class="rv-val">2 selected</span></div>
+              <div class="review-row"><span class="rv-lbl">Tags</span><span class="rv-val">Youth, Education, Rural</span></div>
+            </div>
+            <div class="review-panel" style="margin-top:12px;">
+              <div class="review-ttl">Budget &amp; Timeline</div>
+              <div class="review-row"><span class="rv-lbl">Start Date</span><span class="rv-val">01 Apr 2026</span></div>
+              <div class="review-row"><span class="rv-lbl">End Date</span><span class="rv-val">31 Mar 2027</span></div>
+              <div class="review-row"><span class="rv-lbl">Duration</span><span class="rv-val">12 months</span></div>
+              <div class="review-row"><span class="rv-lbl">Total Budget</span><span class="rv-val">OMR 150,000</span></div>
+              <div class="review-row"><span class="rv-lbl">Budget Rate</span><span class="rv-val">~12,500 OMR/mo</span></div>
+              <div class="review-row"><span class="rv-lbl">Early Warning</span><span class="rv-val"><span class="badge-sm">Enabled</span></span></div>
+            </div>
+          </div>
+          <!-- Right: Beneficiaries + Location + Media -->
+          <div>
+            <div class="review-panel">
+              <div class="review-ttl">Beneficiaries</div>
+              <div class="review-row"><span class="rv-lbl">Target Group</span><span class="rv-val">Youth (13–25 yrs)</span></div>
+              <div class="review-row"><span class="rv-lbl">Total Expected</span><span class="rv-val">1,200 people</span></div>
+              <div class="review-row"><span class="rv-lbl">Gender Split</span><span class="rv-val">60% Male / 40% Female</span></div>
+              <div class="review-row"><span class="rv-lbl">Age Group</span><span class="rv-val">13–17, 18–25</span></div>
+            </div>
+            <div class="review-panel" style="margin-top:12px;">
+              <div class="review-ttl">Location</div>
+              <div class="review-row"><span class="rv-lbl">Governorate</span><span class="rv-val">Muscat</span></div>
+              <div class="review-row"><span class="rv-lbl">District</span><span class="rv-val">Bawshar</span></div>
+              <div class="review-row"><span class="rv-lbl">Address</span><span class="rv-val">Near Al Noor Mall</span></div>
+              <div class="review-row"><span class="rv-lbl">Partners</span><span class="rv-val">2 selected</span></div>
+            </div>
+            <div class="review-panel" style="margin-top:12px;">
+              <div class="review-ttl">Media &amp; Documents</div>
+              <div class="review-row"><span class="rv-lbl">Images</span><span class="rv-val">2 uploaded</span></div>
+              <div class="review-row"><span class="rv-lbl">Documents</span><span class="rv-val">1 uploaded (PDF)</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Terms Agreement -->
+        <div class="agree-box">
+          <div class="checkbox">✓</div>
+          <div style="font-size:11px;color:#555;line-height:1.6;">
+            I confirm that all information provided is accurate and complete. I agree to the <b>CSR Platform Terms of Use</b> and authorize the creation of this project record in the system.
+          </div>
+        </div>
+
+        <div class="bottom-nav">
+          <div style="display:flex;align-items:center;">
+            <div class="bn-dots">
+              <div class="bn-dot done"></div><div class="bn-dot done"></div>
+              <div class="bn-dot done"></div><div class="bn-dot done"></div>
+              <div class="bn-dot done"></div>
+              <div class="bn-dot active"></div>
+            </div>
+            <span class="bn-progress">Step 6 of 6 — All steps complete</span>
+          </div>
+          <div class="nav-btn-grp">
+            <button class="nav-btn">← Previous</button>
+            <button class="nav-btn primary" style="font-size:13px;padding:10px 24px;">[ ] Create Project →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

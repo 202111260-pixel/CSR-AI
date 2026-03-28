@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Social Media Analytics — n8n Integration Wireframe</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Balsamiq+Sans:ital,wght@0,400;0,700;1,400&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Balsamiq Sans', cursive;
+    background: #f4f4f4;
+    color: #1a1a1a;
+    min-height: 100vh;
+    display: flex;
+  }
+
+  /* ─── SIDEBAR ─────────────────────────────────────── */
+  .sidebar {
+    width: 215px;
+    min-height: 100vh;
+    background: #fff;
+    border-right: 2px solid #1a1a1a;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+  .sidebar-logo {
+    padding: 20px 18px 16px;
+    border-bottom: 2px solid #1a1a1a;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .sidebar-logo span { font-size: 11px; display: block; color: #555; font-weight: 400; margin-top: 2px; }
+  .nav-section { padding: 10px 0; border-bottom: 1px solid #ddd; }
+  .nav-label { font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: #888; padding: 6px 18px 4px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 18px; font-size: 13px; color: #555; cursor: pointer;
+  }
+  .nav-item.active { background: #1a1a1a; color: #fff; }
+  .nav-item .icon { width: 16px; text-align: center; font-size: 13px; }
+  .nav-bottom { margin-top: auto; padding: 14px 18px; border-top: 2px solid #1a1a1a; }
+  .nav-bottom .nav-item { padding: 6px 0; }
+
+  /* ─── MAIN ─────────────────────────────────────────── */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  /* top bar */
+  .topbar {
+    height: 56px;
+    background: #fff;
+    border-bottom: 2px solid #1a1a1a;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    flex-shrink: 0;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 14px; }
+  .topbar-title { font-size: 16px; font-weight: 700; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; padding: 3px 9px;
+    border: 1.5px solid #1a1a1a; border-radius: 3px;
+  }
+  .badge.connected { border-color: #1a1a1a; background: #1a1a1a; color: #fff; }
+  .badge.disconnected { background: #fff; color: #888; border-color: #888; }
+  .badge.running { border-style: dashed; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; display: inline-block; }
+  .topbar-right { display: flex; align-items: center; gap: 10px; }
+  .btn {
+    font-family: 'Balsamiq Sans', cursive;
+    font-size: 12px; padding: 6px 14px;
+    border: 2px solid #1a1a1a; border-radius: 3px;
+    background: #fff; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn.primary { background: #1a1a1a; color: #fff; }
+  .btn.ghost { border-color: #888; color: #888; }
+  .btn.danger { border-color: #1a1a1a; }
+
+  /* ─── CONTENT ─────────────────────────────────────── */
+  .content {
+    flex: 1;
+    padding: 24px 28px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* card base */
+  .card {
+    background: #fff;
+    border: 2px solid #1a1a1a;
+    border-radius: 4px;
+    padding: 20px;
+  }
+  .card-title {
+    font-size: 13px; font-weight: 700; margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card-title .icon { font-size: 14px; }
+
+  /* ─── CONNECTION CARD ──────────────────────────────── */
+  .connection-card {
+    background: #fff;
+    border: 2px solid #1a1a1a;
+    border-radius: 4px;
+    padding: 20px 24px;
+  }
+  .conn-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .conn-title-row { display: flex; align-items: center; gap: 10px; }
+  .n8n-logo-box {
+    width: 38px; height: 38px; border: 2px solid #1a1a1a; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; background: #fff;
+  }
+  .conn-info h3 { font-size: 14px; font-weight: 700; }
+  .conn-info p { font-size: 11px; color: #555; margin-top: 2px; }
+
+  .conn-form { display: flex; flex-direction: column; gap: 12px; }
+  .form-row { display: flex; gap: 14px; align-items: flex-end; }
+  .form-group { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+  .form-group label { font-size: 11px; color: #555; }
+  .form-group input, .form-group select {
+    font-family: 'Balsamiq Sans', cursive;
+    font-size: 12px; padding: 7px 10px;
+    border: 1.5px solid #1a1a1a; border-radius: 3px; background: #fff;
+    width: 100%;
+  }
+  .form-group input.mono { font-family: monospace; font-size: 11px; }
+  .form-group .hint { font-size: 10px; color: #888; margin-top: 2px; }
+
+  /* status row */
+  .status-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px;
+    border: 1.5px solid #1a1a1a; border-radius: 3px;
+    background: #f9f9f9;
+    font-size: 12px;
+  }
+  .status-icon { font-size: 14px; }
+  .status-text { flex: 1; }
+  .status-time { font-size: 11px; color: #888; }
+
+  /* ─── TRIGGER CARD ─────────────────────────────────── */
+  .trigger-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px;
+    margin-bottom: 16px;
+  }
+  .trigger-option {
+    border: 2px solid #1a1a1a; border-radius: 4px; padding: 14px;
+    cursor: pointer; display: flex; flex-direction: column; gap: 6px;
+  }
+  .trigger-option.selected { background: #1a1a1a; color: #fff; }
+  .trigger-option .t-icon { font-size: 18px; }
+  .trigger-option .t-label { font-size: 12px; font-weight: 700; }
+  .trigger-option .t-desc { font-size: 10px; opacity: 0.7; }
+
+  .run-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .run-info { font-size: 11px; color: #555; }
+  .run-info strong { color: #1a1a1a; }
+
+  /* ─── WORKFLOW STATUS ──────────────────────────────── */
+  .workflow-steps {
+    display: flex; align-items: center; gap: 0;
+    margin: 14px 0;
+  }
+  .wf-step {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    flex: 1;
+  }
+  .wf-node {
+    width: 46px; height: 46px; border: 2px solid #1a1a1a; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; background: #fff; position: relative;
+  }
+  .wf-node.done { background: #1a1a1a; color: #fff; }
+  .wf-node.active { border-style: dashed; }
+  .wf-node.waiting { border-color: #888; color: #888; }
+  .wf-label { font-size: 10px; text-align: center; color: #555; max-width: 70px; }
+  .wf-arrow {
+    flex: 0 0 28px; height: 2px; background: #1a1a1a;
+    position: relative; top: -14px;
+  }
+  .wf-arrow.dashed { border-top: 2px dashed #888; background: transparent; }
+
+  .progress-bar-outer {
+    height: 8px; border: 1.5px solid #1a1a1a; border-radius: 4px;
+    background: #f4f4f4; margin: 8px 0;
+    overflow: hidden;
+  }
+  .progress-bar-inner {
+    height: 100%; background: #1a1a1a; border-radius: 2px;
+  }
+
+  /* ─── RESULTS ──────────────────────────────────────── */
+  .results-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px;
+    margin-bottom: 18px;
+  }
+  .metric-box {
+    border: 2px solid #1a1a1a; border-radius: 4px; padding: 14px;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .metric-box .m-platform { font-size: 10px; color: #555; text-transform: uppercase; letter-spacing: 0.5px; }
+  .metric-box .m-value { font-size: 22px; font-weight: 700; }
+  .metric-box .m-label { font-size: 11px; color: #555; }
+  .metric-box .m-delta { font-size: 10px; color: #1a1a1a; display: flex; align-items: center; gap: 3px; margin-top: 2px; }
+
+  /* sentiment bars */
+  .sentiment-row { display: flex; flex-direction: column; gap: 8px; }
+  .sentiment-item { display: flex; align-items: center; gap: 10px; }
+  .sentiment-label { font-size: 11px; width: 70px; flex-shrink: 0; }
+  .sent-bar-outer { flex: 1; height: 16px; border: 1.5px solid #1a1a1a; border-radius: 3px; background: #f4f4f4; overflow: hidden; }
+  .sent-bar-inner { height: 100%; background: #1a1a1a; }
+  .sent-bar-inner.light { background: #aaa; }
+  .sent-bar-inner.lighter { background: #ddd; }
+  .sentiment-pct { font-size: 11px; width: 35px; text-align: right; flex-shrink: 0; }
+
+  /* top posts table */
+  .data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .data-table th {
+    text-align: left; padding: 8px 10px; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.8px; color: #555;
+    border-bottom: 2px solid #1a1a1a;
+  }
+  .data-table td { padding: 9px 10px; border-bottom: 1px solid #ddd; vertical-align: middle; }
+  .data-table tr:last-child td { border-bottom: none; }
+  .platform-pill {
+    display: inline-block; font-size: 10px; padding: 2px 7px;
+    border: 1.5px solid #1a1a1a; border-radius: 3px;
+  }
+  .trend-up { font-size: 11px; color: #1a1a1a; }
+  .trend-dn { font-size: 11px; color: #888; }
+
+  /* mini bar chart placeholder */
+  .mini-chart {
+    border: 2px solid #1a1a1a; border-radius: 4px;
+    background: #f9f9f9; padding: 14px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .mini-chart-label { font-size: 10px; color: #555; }
+  .bars-row { display: flex; align-items: flex-end; gap: 4px; height: 60px; }
+  .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .bar-fill { width: 100%; background: #1a1a1a; border-radius: 2px 2px 0 0; }
+  .bar-fill.light { background: #bbb; }
+  .bar-bl { font-size: 9px; color: #888; }
+
+  /* ─── LOG / RAW OUTPUT ─────────────────────────────── */
+  .log-box {
+    border: 2px solid #1a1a1a; border-radius: 4px; background: #f9f9f9;
+    padding: 14px; font-family: monospace; font-size: 11px;
+    line-height: 1.7; color: #1a1a1a;
+    max-height: 160px; overflow: hidden;
+  }
+  .log-line { display: flex; gap: 10px; }
+  .log-time { color: #888; flex-shrink: 0; }
+  .log-ok { color: #1a1a1a; font-weight: 700; }
+  .log-warn { color: #555; }
+  .log-dim { color: #aaa; }
+
+  /* ─── TWO-COL LAYOUT ───────────────────────────────── */
+  .two-col { display: grid; grid-template-columns: 1fr 320px; gap: 18px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════
+     SIDEBAR
+═══════════════════════════════════════════════════ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    ◈ CSR Platform
+    <span>Oman National CSR</span>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Main</div>
+    <div class="nav-item"><span class="icon">⊞</span> Dashboard</div>
+    <div class="nav-item"><span class="icon">◫</span> Projects</div>
+    <div class="nav-item"><span class="icon">◎</span> Map View</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Analytics</div>
+    <div class="nav-item"><span class="icon">≡</span> Reports</div>
+    <div class="nav-item active"><span class="icon">◈</span> Social Media</div>
+    <div class="nav-item"><span class="icon">◌</span> Future Portal</div>
+    <div class="nav-item"><span class="icon">⚑</span> Early Warning</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Community</div>
+    <div class="nav-item"><span class="icon">♡</span> Partners</div>
+    <div class="nav-item"><span class="icon">✦</span> Ideas Hub</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Admin</div>
+    <div class="nav-item"><span class="icon">◉</span> Users</div>
+    <div class="nav-item"><span class="icon">⊛</span> Categories</div>
+    <div class="nav-item"><span class="icon">◎</span> Settings</div>
+  </div>
+
+  <div class="nav-bottom">
+    <div class="nav-item"><span class="icon">◷</span> Activity Log</div>
+    <div class="nav-item"><span class="icon">☺</span> Ahmed Al-Rashdi</div>
+  </div>
+</aside>
+
+<!-- ═══════════════════════════════════════════════════
+     MAIN
+═══════════════════════════════════════════════════ -->
+<div class="main">
+
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title">Social Media Analytics</div>
+      <div class="badge connected"><span class="dot"></span> n8n Connected</div>
+      <div class="badge" style="font-size:10px; color:#555; border-color:#888;">Last run: 2 hours ago</div>
+    </div>
+    <div class="topbar-right">
+      <button class="btn ghost">⚙ Configure Webhook</button>
+      <button class="btn ghost">↓ Export Results</button>
+      <button class="btn primary">▷ Run Analysis Now</button>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- ── ROW 1: Connection Setup ─────────────────── -->
+    <div class="connection-card">
+      <div class="conn-header">
+        <div class="conn-title-row">
+          <div class="n8n-logo-box">n8n</div>
+          <div class="conn-info">
+            <h3>n8n Workflow Integration</h3>
+            <p>Connect to your n8n instance to automate social media data collection and analysis</p>
+          </div>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn">Test Connection</button>
+          <button class="btn primary">Save Config</button>
+        </div>
+      </div>
+
+      <div class="conn-form">
+        <div class="form-row">
+          <div class="form-group" style="flex:2">
+            <label>n8n Webhook URL</label>
+            <input type="text" class="mono" value="https://n8n.your-domain.com/webhook/csr-social-media" />
+            <div class="hint">The webhook endpoint from your n8n workflow trigger node</div>
+          </div>
+          <div class="form-group" style="flex:1">
+            <label>Authentication</label>
+            <select><option>Bearer Token</option><option>Basic Auth</option><option>None</option></select>
+          </div>
+          <div class="form-group" style="flex:1">
+            <label>Token / Secret</label>
+            <input type="text" class="mono" value="••••••••••••••••••" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Platforms to Analyze</label>
+            <div style="display:flex; gap:8px; margin-top:4px; flex-wrap:wrap;">
+              <label style="display:flex;align-items:center;gap:5px;font-size:12px;"><input type="checkbox" checked> Twitter / X</label>
+              <label style="display:flex;align-items:center;gap:5px;font-size:12px;"><input type="checkbox" checked> Instagram</label>
+              <label style="display:flex;align-items:center;gap:5px;font-size:12px;"><input type="checkbox" checked> LinkedIn</label>
+              <label style="display:flex;align-items:center;gap:5px;font-size:12px;"><input type="checkbox"> Facebook</label>
+              <label style="display:flex;align-items:center;gap:5px;font-size:12px;"><input type="checkbox"> TikTok</label>
+              <label style="display:flex;align-items:center;gap:5px;font-size:12px;"><input type="checkbox"> YouTube</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Auto-Run Schedule</label>
+            <select><option>Every 2 hours</option><option>Every 6 hours</option><option>Daily at 08:00</option><option>Manual only</option></select>
+          </div>
+          <div class="form-group">
+            <label>Analysis Depth</label>
+            <select><option>Full Analysis (Sentiment + Topics + Trends)</option><option>Quick Scan (Counts only)</option><option>Custom</option></select>
+          </div>
+        </div>
+
+        <div class="status-row">
+          <span class="status-icon">●</span>
+          <span class="status-text"><strong>Connected</strong> — n8n instance is reachable and workflow is active</span>
+          <span class="status-time">Verified 14 min ago</span>
+          <button class="btn" style="padding:4px 10px; font-size:11px;">Re-check</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ROW 2: Workflow Status + Trigger ───────── -->
+    <div class="two-col">
+
+      <!-- Workflow Pipeline -->
+      <div class="card">
+        <div class="card-title"><span class="icon">⟳</span> Workflow Pipeline Status</div>
+
+        <div class="workflow-steps">
+          <div class="wf-step">
+            <div class="wf-node done">✓</div>
+            <div class="wf-label">Trigger<br>Webhook</div>
+          </div>
+          <div class="wf-arrow"></div>
+          <div class="wf-step">
+            <div class="wf-node done">✓</div>
+            <div class="wf-label">Fetch<br>Social Data</div>
+          </div>
+          <div class="wf-arrow"></div>
+          <div class="wf-step">
+            <div class="wf-node done">✓</div>
+            <div class="wf-label">AI<br>Sentiment</div>
+          </div>
+          <div class="wf-arrow"></div>
+          <div class="wf-step">
+            <div class="wf-node done">✓</div>
+            <div class="wf-label">Topic<br>Extraction</div>
+          </div>
+          <div class="wf-arrow"></div>
+          <div class="wf-step">
+            <div class="wf-node done">✓</div>
+            <div class="wf-label">Format<br>Results</div>
+          </div>
+          <div class="wf-arrow"></div>
+          <div class="wf-step">
+            <div class="wf-node done">✓</div>
+            <div class="wf-label">Return<br>to CSR</div>
+          </div>
+        </div>
+
+        <div style="font-size:11px; color:#555; margin-bottom:6px;">Last run completed in <strong>47 seconds</strong> — 3,241 posts processed</div>
+        <div class="progress-bar-outer">
+          <div class="progress-bar-inner" style="width:100%"></div>
+        </div>
+
+        <div class="log-box" style="margin-top:12px;">
+          <div class="log-line"><span class="log-time">14:22:01</span><span class="log-ok">[OK]</span><span>Webhook triggered by CSR Platform</span></div>
+          <div class="log-line"><span class="log-time">14:22:03</span><span class="log-ok">[OK]</span><span>Twitter API: fetched 1,847 posts (hashtag: #CSROman)</span></div>
+          <div class="log-line"><span class="log-time">14:22:08</span><span class="log-ok">[OK]</span><span>Instagram API: fetched 892 posts (mentions + hashtags)</span></div>
+          <div class="log-line"><span class="log-time">14:22:11</span><span class="log-ok">[OK]</span><span>LinkedIn API: fetched 502 posts (company page + tags)</span></div>
+          <div class="log-line"><span class="log-time">14:22:19</span><span class="log-ok">[OK]</span><span>Sentiment analysis complete — OpenAI node processed 3,241 posts</span></div>
+          <div class="log-line"><span class="log-time">14:22:44</span><span class="log-ok">[OK]</span><span>Topic extraction complete — 12 trending topics identified</span></div>
+          <div class="log-line"><span class="log-time">14:22:48</span><span class="log-ok">[OK]</span><span>Results returned to CSR Platform via webhook response</span></div>
+          <div class="log-line"><span class="log-time">14:22:48</span><span class="log-dim">────── Workflow completed in 47s ──────</span></div>
+        </div>
+      </div>
+
+      <!-- Run Controls -->
+      <div style="display:flex; flex-direction:column; gap:16px;">
+
+        <div class="card">
+          <div class="card-title"><span class="icon">▷</span> Run Analysis</div>
+          <div class="trigger-grid" style="grid-template-columns:1fr 1fr;">
+            <div class="trigger-option selected">
+              <div class="t-icon">⚡</div>
+              <div class="t-label">Full Analysis</div>
+              <div class="t-desc">Sentiment, topics, trends, influencers</div>
+            </div>
+            <div class="trigger-option">
+              <div class="t-icon">⟳</div>
+              <div class="t-label">Quick Scan</div>
+              <div class="t-desc">Counts & reach only (~10s)</div>
+            </div>
+          </div>
+          <div style="margin-bottom:10px;">
+            <label style="font-size:11px; color:#555; display:block; margin-bottom:4px;">Date Range</label>
+            <div style="display:flex; gap:8px;">
+              <input type="text" value="2026-03-06" style="font-family:'Balsamiq Sans',cursive; font-size:12px; padding:6px 8px; border:1.5px solid #1a1a1a; border-radius:3px; flex:1;">
+              <span style="align-self:center; color:#555;">→</span>
+              <input type="text" value="2026-03-13" style="font-family:'Balsamiq Sans',cursive; font-size:12px; padding:6px 8px; border:1.5px solid #1a1a1a; border-radius:3px; flex:1;">
+            </div>
+          </div>
+          <button class="btn primary" style="width:100%; justify-content:center; font-size:13px; padding:9px 0;">▷ Run Now via n8n</button>
+          <div style="font-size:10px; color:#888; margin-top:8px; text-align:center;">Next scheduled run: Today at 16:00</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><span class="icon">◷</span> Run History</div>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; padding:6px 0; border-bottom:1px solid #eee;">
+              <div><strong>Today 14:22</strong> — Full</div>
+              <div style="display:flex; gap:6px; align-items:center;"><span style="font-size:10px; color:#555;">47s</span><span class="badge connected" style="font-size:9px; padding:2px 6px;">✓ Done</span></div>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; padding:6px 0; border-bottom:1px solid #eee;">
+              <div><strong>Today 12:00</strong> — Full</div>
+              <div style="display:flex; gap:6px; align-items:center;"><span style="font-size:10px; color:#555;">52s</span><span class="badge connected" style="font-size:9px; padding:2px 6px;">✓ Done</span></div>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; padding:6px 0; border-bottom:1px solid #eee;">
+              <div><strong>Today 10:00</strong> — Quick</div>
+              <div style="display:flex; gap:6px; align-items:center;"><span style="font-size:10px; color:#555;">11s</span><span class="badge connected" style="font-size:9px; padding:2px 6px;">✓ Done</span></div>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; padding:6px 0;">
+              <div><strong>Yesterday 18:00</strong> — Full</div>
+              <div style="display:flex; gap:6px; align-items:center;"><span style="font-size:10px; color:#888;">timeout</span><span class="badge" style="font-size:9px; padding:2px 6px; border-color:#888; color:#888;">✕ Failed</span></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── ROW 3: Analysis Results ─────────────────── -->
+    <div class="card">
+      <div class="card-title"><span class="icon">◈</span> Analysis Results — Last Run (Today 14:22)</div>
+
+      <!-- KPI metrics row -->
+      <div class="results-grid">
+        <div class="metric-box">
+          <div class="m-platform">Twitter / X</div>
+          <div class="m-value">1,847</div>
+          <div class="m-label">Posts Analyzed</div>
+          <div class="m-delta">▲ +12% vs last run</div>
+        </div>
+        <div class="metric-box">
+          <div class="m-platform">Instagram</div>
+          <div class="m-value">892</div>
+          <div class="m-label">Posts Analyzed</div>
+          <div class="m-delta">▲ +5% vs last run</div>
+        </div>
+        <div class="metric-box">
+          <div class="m-platform">LinkedIn</div>
+          <div class="m-value">502</div>
+          <div class="m-label">Posts Analyzed</div>
+          <div class="m-delta">▼ -3% vs last run</div>
+        </div>
+        <div class="metric-box">
+          <div class="m-platform">Total Reach</div>
+          <div class="m-value">284K</div>
+          <div class="m-label">Estimated Impressions</div>
+          <div class="m-delta">▲ +8% vs last run</div>
+        </div>
+      </div>
+
+      <!-- Sentiment + Topics + Engagement -->
+      <div class="three-col">
+
+        <!-- Sentiment -->
+        <div style="border:2px solid #1a1a1a; border-radius:4px; padding:14px;">
+          <div style="font-size:12px; font-weight:700; margin-bottom:12px;">Sentiment Breakdown</div>
+          <div class="sentiment-row">
+            <div class="sentiment-item">
+              <div class="sentiment-label">Positive</div>
+              <div class="sent-bar-outer"><div class="sent-bar-inner" style="width:68%"></div></div>
+              <div class="sentiment-pct">68%</div>
+            </div>
+            <div class="sentiment-item">
+              <div class="sentiment-label">Neutral</div>
+              <div class="sent-bar-outer"><div class="sent-bar-inner light" style="width:21%"></div></div>
+              <div class="sentiment-pct">21%</div>
+            </div>
+            <div class="sentiment-item">
+              <div class="sentiment-label">Negative</div>
+              <div class="sent-bar-outer"><div class="sent-bar-inner lighter" style="width:11%"></div></div>
+              <div class="sentiment-pct">11%</div>
+            </div>
+          </div>
+          <div style="font-size:10px; color:#555; margin-top:10px;">AI model: GPT-4o (via n8n OpenAI node)</div>
+        </div>
+
+        <!-- Trending Topics -->
+        <div style="border:2px solid #1a1a1a; border-radius:4px; padding:14px;">
+          <div style="font-size:12px; font-weight:700; margin-bottom:10px;">Trending Topics</div>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <div style="display:flex; align-items:center; gap:8px; font-size:11px;">
+              <span style="font-size:13px;">1.</span>
+              <div style="flex:1; border:1px solid #1a1a1a; border-radius:2px; padding:4px 8px;">#CSROman Education</div>
+              <span style="font-size:10px; color:#555;">847</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px; font-size:11px;">
+              <span style="font-size:13px;">2.</span>
+              <div style="flex:1; border:1px solid #1a1a1a; border-radius:2px; padding:4px 8px;">#EnvironmentOman</div>
+              <span style="font-size:10px; color:#555;">623</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px; font-size:11px;">
+              <span style="font-size:13px;">3.</span>
+              <div style="flex:1; border:1px solid #1a1a1a; border-radius:2px; padding:4px 8px;">Youth Empowerment</div>
+              <span style="font-size:10px; color:#555;">501</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px; font-size:11px;">
+              <span style="font-size:13px;">4.</span>
+              <div style="flex:1; border:1px solid #1a1a1a; border-radius:2px; padding:4px 8px;">Community Health</div>
+              <span style="font-size:10px; color:#555;">389</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px; font-size:11px;">
+              <span style="font-size:13px;">5.</span>
+              <div style="flex:1; border:1px solid #1a1a1a; border-radius:2px; padding:4px 8px;">Muscat Projects</div>
+              <span style="font-size:10px; color:#555;">312</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Engagement Over Time (mini chart) -->
+        <div class="mini-chart">
+          <div style="font-size:12px; font-weight:700; margin-bottom:2px;">Engagement Trend</div>
+          <div class="mini-chart-label">Posts per day (last 7 days)</div>
+          <div class="bars-row">
+            <div class="bar-col"><div class="bar-fill light" style="height:30px;"></div><div class="bar-bl">Mo</div></div>
+            <div class="bar-col"><div class="bar-fill light" style="height:42px;"></div><div class="bar-bl">Tu</div></div>
+            <div class="bar-col"><div class="bar-fill" style="height:38px;"></div><div class="bar-bl">We</div></div>
+            <div class="bar-col"><div class="bar-fill light" style="height:25px;"></div><div class="bar-bl">Th</div></div>
+            <div class="bar-col"><div class="bar-fill" style="height:55px;"></div><div class="bar-bl">Fr</div></div>
+            <div class="bar-col"><div class="bar-fill light" style="height:48px;"></div><div class="bar-bl">Sa</div></div>
+            <div class="bar-col"><div class="bar-fill" style="height:60px;"></div><div class="bar-bl">Su</div></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── ROW 4: Top Posts Table ──────────────────── -->
+    <div class="card">
+      <div class="card-title"><span class="icon">≡</span> Top Posts by Engagement (Returned by n8n)</div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Platform</th>
+            <th>Post Excerpt</th>
+            <th>Author</th>
+            <th>Likes</th>
+            <th>Shares</th>
+            <th>Comments</th>
+            <th>Sentiment</th>
+            <th>Topic</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td><span class="platform-pill">Twitter</span></td>
+            <td style="max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Proud to see the new school built by @CSROman in Sur...</td>
+            <td>@ahmed_sur</td>
+            <td>1,204</td>
+            <td>387</td>
+            <td>92</td>
+            <td><span class="trend-up">● Positive</span></td>
+            <td>Education</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td><span class="platform-pill">Instagram</span></td>
+            <td style="max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Beach cleanup day — 500 volunteers joined #CSROman ♻️</td>
+            <td>@oman_green</td>
+            <td>987</td>
+            <td>214</td>
+            <td>67</td>
+            <td><span class="trend-up">● Positive</span></td>
+            <td>Environment</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td><span class="platform-pill">LinkedIn</span></td>
+            <td style="max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Our company contributed OMR 50,000 to the CSR education fund...</td>
+            <td>Al Safa Group</td>
+            <td>643</td>
+            <td>188</td>
+            <td>44</td>
+            <td><span class="trend-up">● Positive</span></td>
+            <td>Education</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td><span class="platform-pill">Twitter</span></td>
+            <td style="max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Why are CSR projects delayed in Dhofar? Need transparency...</td>
+            <td>@citizen_voice</td>
+            <td>512</td>
+            <td>241</td>
+            <td>138</td>
+            <td><span class="trend-dn">● Negative</span></td>
+            <td>Accountability</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td><span class="platform-pill">Instagram</span></td>
+            <td style="max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Youth coding bootcamp graduation — 120 students certified!</td>
+            <td>@tech_oman</td>
+            <td>489</td>
+            <td>156</td>
+            <td>53</td>
+            <td><span class="trend-up">● Positive</span></td>
+            <td>Youth</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; padding-top:10px; border-top:1px solid #ddd;">
+        <div style="font-size:11px; color:#555;">Showing 5 of 3,241 posts · Sorted by engagement</div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn ghost" style="font-size:11px; padding:4px 10px;">← Prev</button>
+          <button class="btn" style="font-size:11px; padding:4px 10px;">Next →</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+</body>
+</html>

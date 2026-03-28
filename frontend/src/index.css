@@ -1,0 +1,200 @@
+@import "tailwindcss";
+
+/* ── Button CSS Variables (dark theme default) ─────────────────────────────── */
+:root {
+  /* Accent = blue (dark theme) */
+  --btn-accent:              #4F8EF7;
+  --btn-accent-hover:        #7AADF9;
+  --btn-accent-fg:           #0F1117;
+  --btn-accent-shadow:       rgba(79,142,247,0.30);
+  --btn-accent-subtle:       rgba(79,142,247,0.12);
+  --btn-accent-subtle-hover: rgba(79,142,247,0.20);
+  /* Neutral */
+  --btn-neutral:             #2C2F42;
+  --btn-neutral-hover:       #3A3E55;
+  --btn-neutral-fg:          #E8E9F0;
+  --btn-neutral-shadow:      rgba(44,47,66,0.40);
+  --btn-neutral-subtle:      rgba(44,47,66,0.50);
+  --btn-neutral-subtle-hover:rgba(44,47,66,0.70);
+  --btn-border:              #2C2F42;
+  --btn-text:                #8B8FA8;
+}
+
+/* Light theme overrides */
+html:not(.dark) {
+  /* Accent = forest green (light theme) */
+  --btn-accent:              #2D5A27;
+  --btn-accent-hover:        #234820;
+  --btn-accent-fg:           #ffffff;
+  --btn-accent-shadow:       rgba(45,90,39,0.25);
+  --btn-accent-subtle:       rgba(45,90,39,0.09);
+  --btn-accent-subtle-hover: rgba(45,90,39,0.15);
+  /* Neutral */
+  --btn-neutral:             #E5E2DA;
+  --btn-neutral-hover:       #D0CCC2;
+  --btn-neutral-fg:          #1C2B1C;
+  --btn-neutral-shadow:      rgba(0,0,0,0.10);
+  --btn-neutral-subtle:      rgba(0,0,0,0.05);
+  --btn-neutral-subtle-hover:rgba(0,0,0,0.09);
+  --btn-border:              #D0CCC2;
+  --btn-text:                #4A5C4A;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #09090b;
+  color: #9f9fa9;
+  font-family: 'Inter', 'Space Grotesk', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Light mode body overrides */
+html:not(.dark) body {
+  background-color: #F5F3EE;
+  color: #4A5C4A;
+}
+
+/* Custom scrollbar — dark theme */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: #09090b;
+}
+::-webkit-scrollbar-thumb {
+  background: #323237;
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
+}
+
+/* Light mode scrollbar */
+html:not(.dark) ::-webkit-scrollbar-track {
+  background: #F5F3EE;
+}
+html:not(.dark) ::-webkit-scrollbar-thumb {
+  background: #D0CCC2;
+}
+html:not(.dark) ::-webkit-scrollbar-thumb:hover {
+  background: #B0ACA2;
+}
+
+/* Smooth number-flow transitions */
+number-flow-react {
+  --number-flow-char-height: 1em;
+}
+
+/* Animated gradient border utility */
+@keyframes borderPulse {
+  0%, 100% { opacity: 0.5; }
+  50%       { opacity: 1;   }
+}
+.border-pulse {
+  animation: borderPulse 3s ease-in-out infinite;
+}
+
+/* Selection */
+::selection {
+  background: rgba(251, 44, 54, 0.25);
+  color: #fafafa;
+}
+html:not(.dark) ::selection {
+  background: rgba(45, 90, 39, 0.20);
+  color: #1C2B1C;
+}
+
+/* ── Leaflet custom popup ── */
+.custom-popup .leaflet-popup-content-wrapper {
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+}
+.custom-popup .leaflet-popup-content {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: auto !important;
+}
+.custom-popup .leaflet-popup-tip-container {
+  display: none !important;
+}
+.leaflet-container {
+  background: #09090b !important;
+  font-family: 'Inter', sans-serif !important;
+}
+html:not(.dark) .leaflet-container {
+  background: #F5F3EE !important;
+}
+
+/* Pulse animation for map markers */
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50%      { transform: scale(1.5); opacity: 0; }
+}
+
+/* Online status pulse for user avatar */
+@keyframes onlinePulse {
+  0% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(52, 211, 153, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
+}
+
+/* ── Landing page animations ── */
+.landing-page {
+  --lp-gold: #C8A44E;
+  --lp-gold-light: #DFC170;
+  --lp-cyan: #00B4D8;
+  --lp-cyan-light: #22D3EE;
+}
+
+/* Slow floating orbs */
+.hero-orb {
+  animation: heroFloat 20s ease-in-out infinite;
+}
+.hero-orb-delayed {
+  animation: heroFloat 25s ease-in-out infinite reverse;
+}
+@keyframes heroFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(30px, -20px) scale(1.05); }
+  50% { transform: translate(-20px, 30px) scale(0.95); }
+  75% { transform: translate(15px, 15px) scale(1.02); }
+}
+
+/* Aceternity animate-move */
+@keyframes moveUp {
+  0% { transform: translateY(100%); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: translateY(-100%); opacity: 0; }
+}
+.animate-move {
+  animation: moveUp 8s ease-in-out infinite;
+}
+
+/* Lenis smooth scroll */
+html.lenis, html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}

@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Category Management — Wireframe</title>
+  <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+  <link href="https://fonts.googleapis.com/css2?family=Balsamiq+Sans:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Balsamiq Sans', cursive;
+      background: #f4f4f4;
+      display: flex;
+      width: 1500px;
+      min-height: 100vh;
+    }
+
+    /* ── App Sidebar ── */
+    .app-sidebar {
+      width: 215px; min-width: 215px;
+      background: #fff;
+      border-right: 2px solid #1a1a1a;
+      display: flex; flex-direction: column;
+      min-height: 100vh;
+    }
+    .app-logo { padding: 14px 16px; border-bottom: 2px solid #1a1a1a; display: flex; align-items: center; gap: 10px; }
+    .logo-box { width: 34px; height: 34px; background: #1a1a1a; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 13px; font-weight: 700; }
+    .logo-text { font-size: 12px; font-weight: 700; color: #1a1a1a; }
+    .logo-sub { font-size: 9px; color: #888; }
+    .nav-section { padding: 6px 0; }
+    .nav-label { font-size: 9px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.1em; padding: 5px 15px 3px; }
+    .nav-item { display: flex; align-items: center; gap: 8px; padding: 6px 15px; font-size: 11px; color: #555; cursor: pointer; border-left: 3px solid transparent; position: relative; }
+    .nav-item.active { background: #f4f4f4; color: #1a1a1a; font-weight: 700; border-left: 3px solid #1a1a1a; }
+    .nav-badge { margin-left: auto; background: #1a1a1a; color: #fff; border-radius: 99px; font-size: 8px; padding: 1px 5px; font-weight: 700; }
+    .app-user { margin-top: auto; padding: 11px 15px; border-top: 2px solid #1a1a1a; display: flex; align-items: center; gap: 8px; }
+    .user-av { width: 28px; height: 28px; border-radius: 50%; background: #1a1a1a; color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .user-nm { font-size: 10px; font-weight: 700; color: #1a1a1a; }
+    .user-rl { font-size: 8px; color: #888; }
+
+    /* ── Category Panel Sidebar ── */
+    .cat-panel {
+      width: 258px; min-width: 258px;
+      background: #fff;
+      border-right: 2px solid #1a1a1a;
+      display: flex; flex-direction: column;
+      min-height: 100vh;
+    }
+    .cat-panel-head { padding: 14px 14px 10px; border-bottom: 2px solid #1a1a1a; }
+    .cat-panel-title-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .cat-panel-icon-title { display: flex; align-items: center; gap: 8px; }
+    .cat-icon-wrap { width: 30px; height: 30px; border: 2px solid #1a1a1a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; background: #f4f4f4; }
+    .cat-panel-title-text { font-size: 12px; font-weight: 700; color: #1a1a1a; }
+    .cat-panel-count { font-size: 9px; color: #888; }
+    .cat-panel-collapse { width: 24px; height: 24px; border: 1px solid #d0d0d0; border-radius: 4px; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #888; cursor: pointer; }
+    .cat-search { position: relative; margin-bottom: 8px; }
+    .cat-search input { width: 100%; padding: 7px 10px 7px 28px; border: 2px solid #1a1a1a; border-radius: 6px; font-family: 'Balsamiq Sans', cursive; font-size: 10px; color: #555; background: #f4f4f4; outline: none; }
+    .cat-search-icon { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); font-size: 10px; color: #888; }
+    .cat-filters { display: flex; gap: 4px; }
+    .cat-filter-btn { flex: 1; padding: 4px 6px; border: 2px solid #1a1a1a; border-radius: 6px; font-family: 'Balsamiq Sans', cursive; font-size: 9px; font-weight: 700; color: #555; background: #fff; cursor: pointer; text-align: center; }
+    .cat-filter-btn.active { background: #1a1a1a; color: #fff; }
+    .cat-list { flex: 1; overflow-y: auto; padding: 6px 8px; }
+    .cat-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 6px; cursor: pointer; margin-bottom: 2px; position: relative; border-left: 3px solid transparent; }
+    .cat-item.selected { background: #f4f4f4; border-left: 3px solid #1a1a1a; }
+    .cat-item-icon { width: 30px; height: 30px; border: 2px solid #1a1a1a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; background: #fff; flex-shrink: 0; }
+    .cat-item-name { font-size: 11px; font-weight: 700; color: #1a1a1a; }
+    .cat-item-sub { font-size: 9px; color: #888; display: flex; align-items: center; gap: 4px; }
+    .cat-item-dot { width: 5px; height: 5px; border-radius: 50%; background: #555; flex-shrink: 0; }
+    .cat-item-impact { margin-left: auto; text-align: right; flex-shrink: 0; }
+    .cat-item-impact-val { font-size: 11px; font-weight: 700; color: #1a1a1a; }
+    .cat-item-impact-lbl { font-size: 8px; color: #888; text-transform: uppercase; }
+    .cat-add-btn { margin: 8px; }
+    .cat-add-btn button { width: 100%; padding: 9px; border: 2px dashed #1a1a1a; border-radius: 6px; background: #fff; font-family: 'Balsamiq Sans', cursive; font-size: 11px; font-weight: 700; color: #1a1a1a; cursor: pointer; }
+
+    /* ── Main Content ── */
+    .main { flex: 1; display: flex; flex-direction: column; background: #f4f4f4; }
+    .main-topbar { background: #fff; border-bottom: 2px solid #1a1a1a; padding: 0 20px; height: 50px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+    .breadcrumb { font-size: 10px; color: #888; }
+    .breadcrumb b { color: #1a1a1a; }
+    .topbar-right { display: flex; align-items: center; gap: 8px; }
+    .topbar-btn { font-family: 'Balsamiq Sans', cursive; width: 30px; height: 30px; border: 2px solid #1a1a1a; border-radius: 6px; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; position: relative; cursor: pointer; }
+    .notif-badge { position: absolute; top: -4px; right: -4px; background: #1a1a1a; color: #fff; border-radius: 50%; width: 13px; height: 13px; font-size: 7px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .topbar-user-btn { font-family: 'Balsamiq Sans', cursive; border: 2px solid #1a1a1a; border-radius: 6px; padding: 4px 10px; background: #fff; font-size: 10px; font-weight: 700; color: #1a1a1a; cursor: pointer; }
+    .main-body { flex: 1; padding: 18px 20px; }
+
+    /* Title row */
+    .page-title-row { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
+    .page-title { font-size: 20px; font-weight: 700; color: #1a1a1a; line-height: 1.2; }
+    .page-subtitle { font-size: 10px; color: #888; margin-top: 3px; }
+    .title-actions { display: flex; align-items: center; gap: 8px; }
+    .export-btn { font-family: 'Balsamiq Sans', cursive; display: flex; align-items: center; gap: 5px; padding: 6px 12px; border: 2px solid #1a1a1a; border-radius: 20px; background: #fff; font-size: 10px; font-weight: 700; color: #1a1a1a; cursor: pointer; }
+    .tab-group { display: flex; gap: 4px; padding: 3px; background: #fff; border: 2px solid #1a1a1a; border-radius: 10px; }
+    .tab-btn { font-family: 'Balsamiq Sans', cursive; padding: 5px 12px; border-radius: 7px; font-size: 10px; font-weight: 700; cursor: pointer; border: none; background: transparent; color: #888; display: flex; align-items: center; gap: 5px; }
+    .tab-btn.active { background: #1a1a1a; color: #fff; }
+
+    /* ── Category Header Card ── */
+    .cat-header-card { background: #fff; border: 2px solid #1a1a1a; border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; }
+    .cat-header-left { display: flex; align-items: center; gap: 12px; }
+    .cat-big-icon { width: 52px; height: 52px; border: 3px solid #1a1a1a; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; background: #f4f4f4; flex-shrink: 0; }
+    .cat-big-name { font-size: 17px; font-weight: 700; color: #1a1a1a; }
+    .cat-big-badges { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+    .badge-rank { font-size: 9px; font-weight: 700; padding: 2px 7px; border: 2px solid #1a1a1a; border-radius: 4px; background: #f4f4f4; color: #1a1a1a; }
+    .badge-status { font-size: 9px; font-weight: 700; padding: 2px 8px; border: 2px solid #1a1a1a; border-radius: 20px; background: #fff; color: #1a1a1a; display: flex; align-items: center; gap: 4px; }
+    .badge-status-dot { width: 5px; height: 5px; border-radius: 50%; background: #555; }
+    .cat-big-sub { font-size: 10px; color: #888; }
+    .cat-header-actions { display: flex; align-items: center; gap: 7px; }
+    .action-btn { font-family: 'Balsamiq Sans', cursive; display: flex; align-items: center; gap: 5px; padding: 6px 12px; border: 2px solid #1a1a1a; border-radius: 20px; background: #fff; font-size: 10px; font-weight: 700; color: #1a1a1a; cursor: pointer; }
+    .action-btn-icon { font-family: 'Balsamiq Sans', cursive; width: 30px; height: 30px; border: 2px solid #1a1a1a; border-radius: 6px; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; }
+
+    /* ── KPI Cards ── */
+    .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
+    .kpi-card { background: #fff; border: 2px solid #1a1a1a; border-radius: 10px; padding: 14px; position: relative; overflow: hidden; }
+    .kpi-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .kpi-icon-wrap { width: 30px; height: 30px; border: 2px solid #1a1a1a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; background: #f4f4f4; }
+    .kpi-trend { font-size: 9px; color: #888; padding: 2px 6px; background: #f4f4f4; border: 1px solid #d0d0d0; border-radius: 4px; }
+    .kpi-val { font-size: 22px; font-weight: 700; color: #1a1a1a; line-height: 1; }
+    .kpi-prefix { font-size: 10px; color: #888; display: inline; vertical-align: middle; margin-right: 2px; }
+    .kpi-suffix { font-size: 12px; font-weight: 700; color: #555; }
+    .kpi-label { font-size: 9px; color: #888; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 4px; }
+    .kpi-accent-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: repeating-linear-gradient(90deg, #1a1a1a 0, #1a1a1a 8px, transparent 8px, transparent 14px); opacity: 0.15; }
+
+    /* ── Bento Grid ── */
+    .bento-grid { display: grid; grid-template-columns: 220px 1fr 200px; grid-template-rows: auto auto; gap: 10px; margin-bottom: 14px; }
+    .bento-card { background: #fff; border: 2px solid #1a1a1a; border-radius: 10px; padding: 14px; }
+    .bento-card-title { font-size: 9px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+    /* Budget donut — tall, spans 2 rows */
+    .bento-budget { grid-row: span 2; display: flex; flex-direction: column; }
+
+    /* SVG donut */
+    .donut-wrap { display: flex; align-items: center; justify-content: center; margin: 8px 0 12px; position: relative; }
+    .donut-center { position: absolute; text-align: center; }
+    .donut-pct { font-size: 20px; font-weight: 700; color: #1a1a1a; }
+    .donut-lbl { font-size: 8px; color: #888; text-transform: uppercase; }
+    .budget-rows { margin-top: auto; }
+    .budget-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid #e0e0e0; }
+    .budget-row:last-child { border-bottom: none; }
+    .budget-row-lbl { font-size: 10px; color: #888; }
+    .budget-row-val { font-size: 10px; font-weight: 700; color: #1a1a1a; }
+
+    /* Trend chart */
+    .bento-trend { }
+    .trend-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .trend-badge { font-size: 9px; padding: 2px 7px; border: 1px solid #1a1a1a; border-radius: 4px; color: #1a1a1a; }
+
+    /* Projects breakdown */
+    .bento-projects { }
+    .proj-breakdown-row { margin-bottom: 8px; }
+    .proj-breakdown-header { display: flex; justify-content: space-between; margin-bottom: 3px; }
+    .proj-breakdown-lbl { font-size: 10px; color: #555; }
+    .proj-breakdown-val { font-size: 10px; font-weight: 700; color: #1a1a1a; }
+    .prog-bar { height: 6px; background: #e0e0e0; border-radius: 3px; overflow: hidden; border: 1px solid #d0d0d0; }
+    .prog-fill { height: 100%; background: #555; border-radius: 3px; }
+    .proj-total-row { display: flex; justify-content: space-between; padding-top: 8px; border-top: 1px solid #e0e0e0; }
+    .proj-total-lbl { font-size: 10px; font-weight: 700; color: #555; }
+    .proj-total-val { font-size: 14px; font-weight: 700; color: #1a1a1a; }
+
+    /* Risk + Partners (row 2, middle-left) */
+    .bento-risk-partners { }
+    .risk-section { margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #e0e0e0; }
+    .risk-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border: 2px solid #1a1a1a; border-radius: 20px; font-size: 11px; font-weight: 700; color: #1a1a1a; background: #f4f4f4; }
+    .risk-dot { width: 8px; height: 8px; border-radius: 50%; background: #888; }
+    .partner-count { font-size: 20px; font-weight: 700; color: #1a1a1a; }
+    .partner-lbl { font-size: 10px; color: #888; }
+
+    /* ── SDG + Regions row ── */
+    .bento-row2 { display: grid; grid-template-columns: 1fr 200px; gap: 10px; margin-bottom: 14px; }
+    .sdg-grid { display: flex; flex-wrap: wrap; gap: 4px; }
+    .sdg-tag { font-size: 9px; padding: 3px 7px; border: 2px solid #1a1a1a; border-radius: 6px; color: #1a1a1a; background: #fff; font-weight: 700; }
+    .sdg-tag.dim { border-color: #d0d0d0; color: #aaa; font-weight: 400; background: #f4f4f4; }
+    .sdg-count { font-size: 9px; font-weight: 700; padding: 2px 7px; border: 1px solid #1a1a1a; border-radius: 4px; }
+    .region-row { display: flex; align-items: center; gap: 6px; padding: 3px 0; }
+    .region-dot { width: 6px; height: 6px; border-radius: 50%; background: #555; flex-shrink: 0; }
+    .region-dot.dim { background: #d0d0d0; }
+    .region-lbl { font-size: 9px; color: #1a1a1a; }
+    .region-lbl.dim { color: #bbb; }
+    .region-count { font-size: 9px; font-weight: 700; padding: 2px 6px; border: 1px solid #1a1a1a; border-radius: 4px; margin-left: auto; }
+
+    /* ── Description ── */
+    .desc-card { background: #fff; border: 2px solid #1a1a1a; border-radius: 10px; padding: 14px; }
+    .desc-text { font-size: 11px; color: #555; line-height: 1.6; }
+  </style>
+</head>
+<body>
+
+<!-- ── App Sidebar ── -->
+<nav class="app-sidebar">
+  <div class="app-logo">
+    <div class="logo-box">CSR</div>
+    <div>
+      <div class="logo-text">CSR Platform</div>
+      <div class="logo-sub">Corp. Social Responsibility</div>
+    </div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Analytics</div>
+    <div class="nav-item">[ ] Dashboard</div>
+    <div class="nav-item">[ ] General Reports</div>
+    <div class="nav-item">[ ] Impact Reports</div>
+    <div class="nav-item">[ ] Financial</div>
+    <div class="nav-item">[ ] Early Warning <span class="nav-badge">3</span></div>
+    <div class="nav-item">[ ] Map View</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">AI &amp; Intelligence</div>
+    <div class="nav-item">[ ] Future Portal</div>
+    <div class="nav-item">[ ] Social Analytics</div>
+    <div class="nav-item">[ ] Ideas Hub <span class="nav-badge">12</span></div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Projects</div>
+    <div class="nav-item">[ ] All Projects</div>
+    <div class="nav-item">[ ] Add Project</div>
+    <div class="nav-item">[ ] Archived</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Administration</div>
+    <div class="nav-item">[ ] Users</div>
+    <div class="nav-item">[ ] Partners</div>
+    <div class="nav-item active">[ ] Categories</div>
+    <div class="nav-item">[ ] Settings</div>
+  </div>
+  <div class="app-user">
+    <div class="user-av">S</div>
+    <div>
+      <div class="user-nm">Sultan Al-Busaidi</div>
+      <div class="user-rl">Administrator</div>
+    </div>
+  </div>
+</nav>
+
+<!-- ── Category Panel Sidebar ── -->
+<aside class="cat-panel">
+  <div class="cat-panel-head">
+    <div class="cat-panel-title-row">
+      <div class="cat-panel-icon-title">
+        <div class="cat-icon-wrap">#</div>
+        <div>
+          <div class="cat-panel-title-text">Categories</div>
+          <div class="cat-panel-count">6 total</div>
+        </div>
+      </div>
+      <div class="cat-panel-collapse">«</div>
+    </div>
+    <div class="cat-search">
+      <span class="cat-search-icon">🔍</span>
+      <input type="text" placeholder="Search..." />
+    </div>
+    <div class="cat-filters">
+      <div class="cat-filter-btn">all</div>
+      <div class="cat-filter-btn active">active</div>
+      <div class="cat-filter-btn">inactive</div>
+    </div>
+  </div>
+
+  <div class="cat-list">
+
+    <!-- Selected category -->
+    <div class="cat-item selected">
+      <div class="cat-item-icon">[#]</div>
+      <div style="flex:1">
+        <div class="cat-item-name">Education</div>
+        <div class="cat-item-sub">
+          <span class="cat-item-dot"></span>
+          8 projects
+        </div>
+      </div>
+      <div class="cat-item-impact">
+        <div class="cat-item-impact-val">72%</div>
+        <div class="cat-item-impact-lbl">impact</div>
+      </div>
+    </div>
+
+    <div class="cat-item">
+      <div class="cat-item-icon">[ ]</div>
+      <div style="flex:1">
+        <div class="cat-item-name">Healthcare</div>
+        <div class="cat-item-sub"><span class="cat-item-dot"></span>5 projects</div>
+      </div>
+      <div class="cat-item-impact">
+        <div class="cat-item-impact-val">65%</div>
+        <div class="cat-item-impact-lbl">impact</div>
+      </div>
+    </div>
+
+    <div class="cat-item">
+      <div class="cat-item-icon">[ ]</div>
+      <div style="flex:1">
+        <div class="cat-item-name">Environment</div>
+        <div class="cat-item-sub"><span class="cat-item-dot"></span>6 projects</div>
+      </div>
+      <div class="cat-item-impact">
+        <div class="cat-item-impact-val">80%</div>
+        <div class="cat-item-impact-lbl">impact</div>
+      </div>
+    </div>
+
+    <div class="cat-item">
+      <div class="cat-item-icon">[ ]</div>
+      <div style="flex:1">
+        <div class="cat-item-name">Infrastructure</div>
+        <div class="cat-item-sub"><span class="cat-item-dot"></span>4 projects</div>
+      </div>
+      <div class="cat-item-impact">
+        <div class="cat-item-impact-val">55%</div>
+        <div class="cat-item-impact-lbl">impact</div>
+      </div>
+    </div>
+
+    <div class="cat-item">
+      <div class="cat-item-icon">[ ]</div>
+      <div style="flex:1">
+        <div class="cat-item-name">Community Dev.</div>
+        <div class="cat-item-sub"><span class="cat-item-dot"></span>7 projects</div>
+      </div>
+      <div class="cat-item-impact">
+        <div class="cat-item-impact-val">68%</div>
+        <div class="cat-item-impact-lbl">impact</div>
+      </div>
+    </div>
+
+    <div class="cat-item">
+      <div class="cat-item-icon">[ ]</div>
+      <div style="flex:1">
+        <div class="cat-item-name">Agriculture</div>
+        <div class="cat-item-sub"><span class="cat-item-dot"></span>3 projects</div>
+      </div>
+      <div class="cat-item-impact">
+        <div class="cat-item-impact-val">45%</div>
+        <div class="cat-item-impact-lbl">impact</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="cat-add-btn">
+    <button>+ New Category</button>
+  </div>
+</aside>
+
+<!-- ── Main Content ── -->
+<div class="main">
+  <!-- Topbar -->
+  <div class="main-topbar">
+    <div class="breadcrumb">Admin / <b>Category Management</b></div>
+    <div class="topbar-right">
+      <div class="topbar-btn">☀</div>
+      <div class="topbar-btn">[ ] <span class="notif-badge">6</span></div>
+      <div class="topbar-user-btn">👤 Sultan ▾</div>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="main-body">
+
+    <!-- Title + Actions row -->
+    <div class="page-title-row">
+      <div>
+        <div class="page-title">Category Management</div>
+        <div class="page-subtitle">6 active categories &middot; 33 projects &middot; OMR 2.84M total budget</div>
+      </div>
+      <div class="title-actions">
+        <button class="export-btn">[ ] Excel</button>
+        <button class="export-btn">[ ] PDF</button>
+        <button class="export-btn">[ ] Print</button>
+        <div class="tab-group">
+          <button class="tab-btn active">[ ] Dashboard</button>
+          <button class="tab-btn">[ ] Analytics</button>
+          <button class="tab-btn">[ ] Details</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── DASHBOARD TAB ── -->
+
+    <!-- Category Header Card -->
+    <div class="cat-header-card">
+      <div class="cat-header-left">
+        <div class="cat-big-icon">[#]</div>
+        <div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <div class="cat-big-name">Education</div>
+            <div class="cat-big-badges">
+              <div class="badge-rank">#1</div>
+              <div class="badge-status"><span class="badge-status-dot"></span> Active</div>
+            </div>
+          </div>
+          <div class="cat-big-sub">التعليم &middot; Created Jan 2026</div>
+        </div>
+      </div>
+      <div class="cat-header-actions">
+        <button class="action-btn">[ ] View Projects (8)</button>
+        <button class="action-btn">+ Add Project</button>
+        <button class="action-btn">✎ Edit</button>
+        <div class="action-btn-icon">🗑</div>
+      </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-card-top">
+          <div class="kpi-icon-wrap">[ ]</div>
+          <div class="kpi-trend">+3.2%</div>
+        </div>
+        <div><span class="kpi-val">72</span><span class="kpi-suffix">%</span></div>
+        <div class="kpi-label">Impact Score</div>
+        <div class="kpi-accent-bar"></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-card-top">
+          <div class="kpi-icon-wrap">[ ]</div>
+          <div class="kpi-trend">61% used</div>
+        </div>
+        <div><span class="kpi-prefix">OMR</span><span class="kpi-val">245</span><span class="kpi-suffix">k</span></div>
+        <div class="kpi-label">Total Budget</div>
+        <div class="kpi-accent-bar"></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-card-top">
+          <div class="kpi-icon-wrap">[ ]</div>
+          <div class="kpi-trend">4 regions</div>
+        </div>
+        <div><span class="kpi-val">380</span></div>
+        <div class="kpi-label">Beneficiaries</div>
+        <div class="kpi-accent-bar"></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-card-top">
+          <div class="kpi-icon-wrap">[ ]</div>
+          <div class="kpi-trend">3 partners</div>
+        </div>
+        <div><span class="kpi-val">78</span><span class="kpi-suffix">%</span></div>
+        <div class="kpi-label">Satisfaction</div>
+        <div class="kpi-accent-bar"></div>
+      </div>
+    </div>
+
+    <!-- ── BENTO GRID (row 1: Budget | Trend | Projects) ── -->
+    <div class="bento-grid">
+
+      <!-- Budget Utilization (spans 2 rows) -->
+      <div class="bento-card bento-budget">
+        <div class="bento-card-title">Budget Utilization</div>
+        <div class="donut-wrap">
+          <svg width="120" height="120">
+            <!-- Background circle -->
+            <circle cx="60" cy="60" r="50" fill="none" stroke="#e0e0e0" stroke-width="10"/>
+            <!-- Progress: 61% → dashoffset = 314*(1-0.61) = 122 -->
+            <circle cx="60" cy="60" r="50" fill="none" stroke="#1a1a1a" stroke-width="10"
+              stroke-dasharray="314" stroke-dashoffset="122"
+              stroke-linecap="round" transform="rotate(-90 60 60)"/>
+          </svg>
+          <div class="donut-center">
+            <div class="donut-pct">61%</div>
+            <div class="donut-lbl">Used</div>
+          </div>
+        </div>
+        <div class="budget-rows">
+          <div class="budget-row">
+            <span class="budget-row-lbl">Allocated</span>
+            <span class="budget-row-val">245k OMR</span>
+          </div>
+          <div class="budget-row">
+            <span class="budget-row-lbl">Spent</span>
+            <span class="budget-row-val">149k OMR</span>
+          </div>
+          <div class="budget-row">
+            <span class="budget-row-lbl">Remaining</span>
+            <span class="budget-row-val">96k OMR</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Growth Trend Chart -->
+      <div class="bento-card bento-trend">
+        <div class="trend-header">
+          <div class="bento-card-title" style="margin-bottom:0">Growth Trend</div>
+          <div class="trend-badge">2026</div>
+        </div>
+        <svg width="100%" height="140" viewBox="0 0 560 140" preserveAspectRatio="none">
+          <!-- Grid lines -->
+          <line x1="0" y1="20" x2="560" y2="20" stroke="#e0e0e0" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="0" y1="50" x2="560" y2="50" stroke="#e0e0e0" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="0" y1="80" x2="560" y2="80" stroke="#e0e0e0" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="0" y1="110" x2="560" y2="110" stroke="#e0e0e0" stroke-width="1" stroke-dasharray="4,4"/>
+          <!-- Area fill -->
+          <path d="M0,120 L47,110 L93,105 L140,95 L187,100 L233,85 L280,80 L327,70 L373,75 L420,60 L467,55 L513,45 L560,40 L560,140 L0,140 Z"
+            fill="#1a1a1a" opacity="0.07"/>
+          <!-- Line -->
+          <polyline points="0,120 47,110 93,105 140,95 187,100 233,85 280,80 327,70 373,75 420,60 467,55 513,45 560,40"
+            fill="none" stroke="#1a1a1a" stroke-width="2" stroke-linejoin="round"/>
+          <!-- Dots -->
+          <circle cx="0" cy="120" r="3" fill="#1a1a1a"/>
+          <circle cx="140" cy="95" r="3" fill="#1a1a1a"/>
+          <circle cx="280" cy="80" r="3" fill="#1a1a1a"/>
+          <circle cx="420" cy="60" r="3" fill="#1a1a1a"/>
+          <circle cx="560" cy="40" r="3" fill="#1a1a1a"/>
+          <!-- X axis labels -->
+          <text x="0"   y="138" font-family="Balsamiq Sans,cursive" font-size="9" fill="#888" text-anchor="middle">Jan</text>
+          <text x="47"  y="138" font-family="Balsamiq Sans,cursive" font-size="9" fill="#888" text-anchor="middle">Feb</text>
+          <text x="93"  y="138" font-family="Balsamiq Sans,cursive" font-size="9" fill="#888" text-anchor="middle">Mar</text>
+          <text x="140" y="138" font-family="Balsamiq Sans,cursive" font-size="9" fill="#888" text-anchor="middle">Apr</text>
+          <text x="187" y="138" font-family="Balsamiq Sans,cursive" font-size="9" fill="#888" text-anchor="middle">May</text>
+          <text x="233" y="138" font-family="Balsamiq Sans,cursive" font-size="9" fill="#888" text-anchor="middle">Jun</text>
+          <text x="280" y="138" font-family="Balsamiq Sans,cursive" font-size="9" fill="#888" text-anchor="middle">Jul</text>
+          <text x="327" y="138" font-family="Balsamiq Sans,cursive" font-size="9" fill="#888" text-anchor="middle">Aug</text>
+          <text x="373" y="138" font-family="Balsamiq Sans,cursive" font-size="9" fill="#888" text-anchor="middle">Sep</text>
+          <text x="420" y="138" font-family="Balsamiq Sans,cursive" font-size="9" fill="#888" text-anchor="middle">Oct</text>
+          <text x="467" y="138" font-family="Balsamiq Sans,cursive" font-size="9" fill="#888" text-anchor="middle">Nov</text>
+          <text x="513" y="138" font-family="Balsamiq Sans,cursive" font-size="9" fill="#888" text-anchor="middle">Dec</text>
+        </svg>
+      </div>
+
+      <!-- Projects Breakdown -->
+      <div class="bento-card bento-projects">
+        <div class="bento-card-title">Projects</div>
+        <div class="proj-breakdown-row">
+          <div class="proj-breakdown-header">
+            <span class="proj-breakdown-lbl">Active</span>
+            <span class="proj-breakdown-val">3</span>
+          </div>
+          <div class="prog-bar"><div class="prog-fill" style="width:38%"></div></div>
+        </div>
+        <div class="proj-breakdown-row">
+          <div class="proj-breakdown-header">
+            <span class="proj-breakdown-lbl">Completed</span>
+            <span class="proj-breakdown-val">4</span>
+          </div>
+          <div class="prog-bar"><div class="prog-fill" style="width:50%"></div></div>
+        </div>
+        <div class="proj-breakdown-row">
+          <div class="proj-breakdown-header">
+            <span class="proj-breakdown-lbl">Planning</span>
+            <span class="proj-breakdown-val">1</span>
+          </div>
+          <div class="prog-bar"><div class="prog-fill" style="width:12%"></div></div>
+        </div>
+        <div class="proj-total-row">
+          <span class="proj-total-lbl">Total</span>
+          <span class="proj-total-val">8</span>
+        </div>
+      </div>
+
+      <!-- Risk + Partners (row 2, left of bento) -->
+      <div class="bento-card bento-risk-partners">
+        <div class="bento-card-title">Risk Level</div>
+        <div class="risk-section">
+          <div class="risk-badge">
+            <span class="risk-dot"></span>
+            Low
+          </div>
+        </div>
+        <div class="bento-card-title">Partners</div>
+        <div>
+          <div class="partner-count">3</div>
+          <div class="partner-lbl">organizations</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── ROW 2: SDG + Regions ── -->
+    <div class="bento-row2">
+
+      <!-- SDG Alignment -->
+      <div class="bento-card">
+        <div class="trend-header" style="margin-bottom:10px">
+          <div class="bento-card-title" style="margin-bottom:0">SDG Alignment</div>
+          <div class="sdg-count">4 goals</div>
+        </div>
+        <div class="sdg-grid">
+          <span class="sdg-tag">1. No Poverty</span>
+          <span class="sdg-tag dim">2. Zero Hunger</span>
+          <span class="sdg-tag dim">3. Good Health</span>
+          <span class="sdg-tag">4. Quality Education</span>
+          <span class="sdg-tag dim">5. Gender Equality</span>
+          <span class="sdg-tag dim">6. Clean Water</span>
+          <span class="sdg-tag dim">7. Clean Energy</span>
+          <span class="sdg-tag dim">8. Decent Work</span>
+          <span class="sdg-tag dim">9. Industry</span>
+          <span class="sdg-tag">10. Reduced Inequalities</span>
+          <span class="sdg-tag dim">11. Sustainable Cities</span>
+          <span class="sdg-tag dim">12. Responsible Consump.</span>
+          <span class="sdg-tag dim">13. Climate Action</span>
+          <span class="sdg-tag dim">14. Life Below Water</span>
+          <span class="sdg-tag dim">15. Life on Land</span>
+          <span class="sdg-tag dim">16. Peace &amp; Justice</span>
+          <span class="sdg-tag">17. Partnerships</span>
+        </div>
+      </div>
+
+      <!-- Regions -->
+      <div class="bento-card">
+        <div class="trend-header" style="margin-bottom:8px">
+          <div class="bento-card-title" style="margin-bottom:0">Regions</div>
+          <div class="region-count">4/11</div>
+        </div>
+        <div class="region-row"><span class="region-dot"></span><span class="region-lbl">Muscat</span></div>
+        <div class="region-row"><span class="region-dot dim"></span><span class="region-lbl dim">Dhofar</span></div>
+        <div class="region-row"><span class="region-dot dim"></span><span class="region-lbl dim">Musandam</span></div>
+        <div class="region-row"><span class="region-dot dim"></span><span class="region-lbl dim">Al Buraimi</span></div>
+        <div class="region-row"><span class="region-dot"></span><span class="region-lbl">Ad Dakhiliyah</span></div>
+        <div class="region-row"><span class="region-dot"></span><span class="region-lbl">Al Batinah N.</span></div>
+        <div class="region-row"><span class="region-dot dim"></span><span class="region-lbl dim">Al Batinah S.</span></div>
+        <div class="region-row"><span class="region-dot"></span><span class="region-lbl">Ash Sharqiyah N.</span></div>
+        <div class="region-row"><span class="region-dot dim"></span><span class="region-lbl dim">Ash Sharqiyah S.</span></div>
+        <div class="region-row"><span class="region-dot dim"></span><span class="region-lbl dim">Ad Dhahirah</span></div>
+        <div class="region-row"><span class="region-dot dim"></span><span class="region-lbl dim">Al Wusta</span></div>
+      </div>
+
+    </div>
+
+    <!-- ── Description ── -->
+    <div class="desc-card">
+      <div class="bento-card-title">Description</div>
+      <div class="desc-text">
+        The Education category encompasses all CSR initiatives focused on improving access to quality education across Oman's governorates. Projects include building and renovating schools, providing scholarships, digital literacy programs, vocational training centers, and supporting university partnerships. Aligned with Vision 2040 and SDG Goal 4, this category prioritizes sustainable learning outcomes and community capacity building.
+      </div>
+    </div>
+
+  </div><!-- /main-body -->
+</div><!-- /main -->
+
+</body>
+</html>

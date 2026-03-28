@@ -1,0 +1,15 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy frontend to Vercel
+        run: echo "TODO: configure Vercel deploy"
+      - name: Deploy backend to Railway
+        run: echo "TODO: configure Railway deploy"

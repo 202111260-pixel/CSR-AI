@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project Details — Wireframe</title>
+  <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+  <link href="https://fonts.googleapis.com/css2?family=Balsamiq+Sans:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Balsamiq Sans', cursive;
+      background: #f4f4f4;
+      display: flex;
+      width: 1500px;
+      min-height: 100vh;
+    }
+
+    /* ── App Sidebar ── */
+    .app-sidebar {
+      width: 215px; min-width: 215px;
+      background: #fff;
+      border-right: 2px solid #1a1a1a;
+      display: flex; flex-direction: column;
+      min-height: 100vh;
+    }
+    .app-logo { padding: 14px 16px; border-bottom: 2px solid #1a1a1a; display: flex; align-items: center; gap: 10px; }
+    .logo-box { width: 34px; height: 34px; background: #1a1a1a; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 13px; font-weight: 700; }
+    .logo-text { font-size: 12px; font-weight: 700; color: #1a1a1a; }
+    .logo-sub { font-size: 9px; color: #888; }
+    .nav-section { padding: 6px 0; }
+    .nav-label { font-size: 9px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.1em; padding: 5px 15px 3px; }
+    .nav-item { display: flex; align-items: center; gap: 8px; padding: 6px 15px; font-size: 11px; color: #555; cursor: pointer; border-left: 3px solid transparent; position: relative; }
+    .nav-item.active { background: #f4f4f4; color: #1a1a1a; font-weight: 700; border-left: 3px solid #1a1a1a; }
+    .nav-badge { margin-left: auto; background: #1a1a1a; color: #fff; border-radius: 99px; font-size: 8px; padding: 1px 5px; font-weight: 700; }
+    .nav-icon { width: 16px; height: 16px; border: 1.5px solid currentColor; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 8px; flex-shrink: 0; }
+    .app-user { margin-top: auto; padding: 11px 15px; border-top: 2px solid #1a1a1a; display: flex; align-items: center; gap: 8px; }
+    .user-av { width: 28px; height: 28px; border-radius: 50%; background: #1a1a1a; color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .user-nm { font-size: 10px; font-weight: 700; color: #1a1a1a; }
+    .user-rl { font-size: 8px; color: #888; }
+
+    /* ── Main ── */
+    .main { flex: 1; display: flex; flex-direction: column; background: #f4f4f4; overflow: hidden; }
+
+    /* ── Topbar ── */
+    .topbar { background: #fff; border-bottom: 2px solid #1a1a1a; padding: 0 22px; height: 50px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+    .breadcrumb { font-size: 10px; color: #888; display: flex; align-items: center; gap: 5px; }
+    .breadcrumb b { color: #1a1a1a; }
+    .breadcrumb .sep { color: #ccc; }
+    .topbar-right { display: flex; align-items: center; gap: 8px; }
+    .topbar-btn { width: 30px; height: 30px; border: 1.5px solid #d0d0d0; border-radius: 6px; background: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 11px; color: #888; }
+    .notif-dot { position: relative; }
+    .notif-dot::after { content: '6'; position: absolute; top: -3px; right: -3px; background: #1a1a1a; color: #fff; border-radius: 50%; font-size: 7px; width: 13px; height: 13px; display: flex; align-items: center; justify-content: center; font-family: 'Balsamiq Sans', cursive; }
+    .user-pill { display: flex; align-items: center; gap: 6px; padding: 4px 10px 4px 4px; border: 1.5px solid #d0d0d0; border-radius: 99px; background: #fff; cursor: pointer; }
+    .user-pill-av { width: 22px; height: 22px; border-radius: 50%; background: #1a1a1a; color: #fff; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .user-pill-name { font-size: 10px; font-weight: 700; color: #1a1a1a; }
+    .status-live { display: flex; align-items: center; gap: 5px; font-size: 9px; color: #555; }
+    .live-dot { width: 6px; height: 6px; border-radius: 50%; background: #1a1a1a; }
+
+    /* ── Hero Section ── */
+    .hero {
+      background: #fff;
+      border-bottom: 2px solid #1a1a1a;
+      padding: 18px 22px 0;
+      position: relative;
+      flex-shrink: 0;
+    }
+    .hero-bg-pattern {
+      position: absolute; inset: 0;
+      background-image: repeating-linear-gradient(45deg, #f4f4f4 0, #f4f4f4 1px, transparent 0, transparent 50%);
+      background-size: 12px 12px;
+      opacity: 0.5;
+    }
+    .hero-inner { position: relative; }
+    .hero-breadcrumb { font-size: 10px; color: #888; display: flex; align-items: center; gap: 5px; margin-bottom: 14px; }
+    .hero-breadcrumb .sep { color: #ccc; font-size: 9px; }
+    .hero-breadcrumb .current { color: #1a1a1a; font-weight: 700; }
+    .hero-top { display: flex; align-items: flex-start; justify-content: space-between; }
+    .hero-left { flex: 1; }
+    .hero-badges { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border: 2px solid #1a1a1a; border-radius: 99px; font-size: 10px; font-weight: 700; color: #1a1a1a; background: #fff; }
+    .badge.active-badge { background: #f4f4f4; }
+    .badge.category-badge { border-style: dashed; color: #555; }
+    .badge.risk-badge { border-style: dotted; color: #555; }
+    .badge-dot { width: 7px; height: 7px; border-radius: 50%; background: #1a1a1a; flex-shrink: 0; }
+    .hero-title { font-size: 22px; font-weight: 700; color: #1a1a1a; margin-bottom: 10px; }
+    .hero-meta { display: flex; align-items: center; gap: 18px; font-size: 10px; color: #888; }
+    .hero-meta span { display: flex; align-items: center; gap: 5px; }
+    .meta-icon { width: 13px; height: 13px; border: 1.5px solid #aaa; border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 7px; }
+
+    /* Hero Progress Circle */
+    .hero-right { display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
+    .progress-circle-wrap { position: relative; width: 80px; height: 80px; }
+    .progress-circle-wrap svg { width: 80px; height: 80px; }
+    .progress-circle-inner { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .progress-pct { font-size: 16px; font-weight: 700; color: #1a1a1a; line-height: 1; }
+    .progress-lbl { font-size: 8px; color: #888; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
+
+    /* Hero Action Buttons */
+    .hero-actions { display: flex; align-items: center; gap: 5px; position: absolute; top: 0; right: 0; }
+    .action-btn { width: 30px; height: 30px; border: 1.5px solid #1a1a1a; border-radius: 6px; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 9px; color: #1a1a1a; cursor: pointer; font-family: 'Balsamiq Sans', cursive; }
+    .action-btn.danger { border-color: #888; color: #888; }
+
+    /* ── Tab Bar ── */
+    .tab-bar { background: #fff; border-bottom: 2px solid #1a1a1a; padding: 0 22px; display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
+    .tab { display: flex; align-items: center; gap: 7px; padding: 12px 16px; font-size: 11px; color: #888; cursor: pointer; position: relative; border-bottom: 3px solid transparent; }
+    .tab.active { color: #1a1a1a; font-weight: 700; border-bottom: 3px solid #1a1a1a; }
+    .tab-icon { width: 14px; height: 14px; border: 1.5px solid currentColor; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 7px; flex-shrink: 0; }
+
+    /* ── Content Area ── */
+    .content-area { flex: 1; padding: 22px; display: flex; gap: 20px; align-items: flex-start; }
+    .main-col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 18px; }
+    .right-sidebar { width: 268px; flex-shrink: 0; display: flex; flex-direction: column; gap: 14px; }
+
+    /* ── Cards ── */
+    .card { background: #fff; border: 2px solid #1a1a1a; border-radius: 10px; overflow: hidden; }
+    .card-body { padding: 16px; }
+    .card-header { padding: 13px 16px; border-bottom: 2px solid #1a1a1a; display: flex; align-items: center; justify-content: space-between; }
+    .card-title { font-size: 12px; font-weight: 700; color: #1a1a1a; display: flex; align-items: center; gap: 7px; }
+    .card-icon { width: 20px; height: 20px; border: 1.5px solid #1a1a1a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; }
+    .small-btn { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border: 2px solid #1a1a1a; border-radius: 99px; font-family: 'Balsamiq Sans', cursive; font-size: 10px; font-weight: 700; color: #1a1a1a; background: #fff; cursor: pointer; }
+    .small-btn.filled { background: #1a1a1a; color: #fff; }
+
+    /* ── 4 Info Cards grid ── */
+    .info-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .info-card { background: #fff; border: 2px solid #1a1a1a; border-radius: 10px; padding: 14px; }
+    .info-card-title { font-size: 9px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+    .info-icon { width: 18px; height: 18px; border: 1.5px solid #1a1a1a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; }
+    .info-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; font-size: 10px; }
+    .info-row:last-child { margin-bottom: 0; }
+    .info-label { color: #888; }
+    .info-value { color: #1a1a1a; font-weight: 700; }
+
+    /* ── Description card ── */
+    .desc-text { font-size: 11px; color: #555; line-height: 1.6; }
+
+    /* ── Two-col grid ── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    /* ── Objectives list ── */
+    .obj-list { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+    .obj-item { display: flex; gap: 10px; align-items: flex-start; font-size: 10px; color: #555; line-height: 1.5; }
+    .obj-num { width: 20px; height: 20px; border: 2px solid #1a1a1a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; color: #1a1a1a; flex-shrink: 0; }
+    .out-item { display: flex; gap: 8px; align-items: flex-start; font-size: 10px; color: #555; line-height: 1.5; margin-bottom: 8px; }
+    .out-dot { width: 6px; height: 6px; border-radius: 50%; background: #1a1a1a; flex-shrink: 0; margin-top: 4px; }
+
+    /* ── SDG ── */
+    .sdg-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+    .sdg-pill { display: flex; align-items: center; gap: 7px; padding: 5px 10px; border: 2px solid #1a1a1a; border-radius: 99px; }
+    .sdg-num { width: 26px; height: 26px; border: 2px solid #1a1a1a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #1a1a1a; background: #f4f4f4; }
+    .sdg-label { font-size: 10px; color: #555; font-weight: 700; }
+
+    /* ── Map placeholder ── */
+    .map-box { height: 140px; background: #f4f4f4; border: 2px dashed #aaa; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+    .map-box-icon { width: 28px; height: 28px; border: 2px solid #aaa; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #aaa; }
+    .map-box-text { font-size: 10px; color: #888; }
+    .map-box-sub { font-size: 9px; color: #aaa; }
+
+    /* ── Right Sidebar Cards ── */
+    .sb-card { background: #fff; border: 2px solid #1a1a1a; border-radius: 10px; padding: 13px; }
+    .sb-title { font-size: 11px; font-weight: 700; color: #1a1a1a; margin-bottom: 11px; display: flex; align-items: center; gap: 6px; }
+    .sb-icon { width: 16px; height: 16px; border: 1.5px solid #1a1a1a; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 7px; }
+
+    /* Sidebar Actions */
+    .sb-action-btn { width: 100%; display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 2px solid #1a1a1a; border-radius: 7px; font-family: 'Balsamiq Sans', cursive; font-size: 10px; font-weight: 700; color: #1a1a1a; background: #fff; cursor: pointer; margin-bottom: 7px; }
+    .sb-action-btn:last-child { margin-bottom: 0; }
+    .sb-action-btn.primary { background: #1a1a1a; color: #fff; }
+    .sb-action-btn.ghost { border-style: dashed; color: #888; }
+    .sb-btn-icon { width: 18px; height: 18px; border: 1.5px solid currentColor; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 8px; flex-shrink: 0; }
+
+    /* Quick Info */
+    .qi-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 10px; }
+    .qi-row:last-child { margin-bottom: 0; }
+    .qi-label { color: #888; }
+    .qi-value { color: #1a1a1a; font-weight: 700; display: flex; align-items: center; gap: 4px; }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #1a1a1a; }
+
+    /* Team */
+    .team-member { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
+    .team-member:last-child { margin-bottom: 0; }
+    .team-av { width: 26px; height: 26px; border-radius: 50%; background: #1a1a1a; color: #fff; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .team-name { font-size: 10px; font-weight: 700; color: #1a1a1a; }
+    .team-role { font-size: 8px; color: #888; }
+
+    /* Tags */
+    .tag-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag-pill { padding: 4px 9px; border: 2px solid #1a1a1a; border-radius: 99px; font-size: 9px; font-weight: 700; color: #1a1a1a; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     APP SIDEBAR
+════════════════════════════════════════════════════════════ -->
+<aside class="app-sidebar">
+  <div class="app-logo">
+    <div class="logo-box">CSR</div>
+    <div>
+      <div class="logo-text">CSR Platform</div>
+      <div class="logo-sub">Corp. Social Responsibility</div>
+    </div>
+  </div>
+
+  <!-- Analytics -->
+  <div class="nav-section">
+    <div class="nav-label">Analytics</div>
+    <div class="nav-item"><div class="nav-icon">▦</div> Dashboard</div>
+    <div class="nav-item"><div class="nav-icon">◈</div> General</div>
+    <div class="nav-item"><div class="nav-icon">❤</div> Impact</div>
+    <div class="nav-item"><div class="nav-icon">$</div> Financial</div>
+    <div class="nav-item"><div class="nav-icon">⚠</div> Early Warning <span class="nav-badge">3</span></div>
+    <div class="nav-item"><div class="nav-icon">◎</div> Map View</div>
+    <div class="nav-item"><div class="nav-icon">⊞</div> Categories</div>
+  </div>
+
+  <!-- AI -->
+  <div class="nav-section">
+    <div class="nav-label">AI & Intelligence</div>
+    <div class="nav-item"><div class="nav-icon">✦</div> Future Portal</div>
+    <div class="nav-item"><div class="nav-icon">⊕</div> Social Analytics</div>
+    <div class="nav-item"><div class="nav-icon">💡</div> Ideas Hub <span class="nav-badge">12</span></div>
+  </div>
+
+  <!-- Projects -->
+  <div class="nav-section">
+    <div class="nav-label">Projects</div>
+    <div class="nav-item active"><div class="nav-icon">◫</div> All Projects</div>
+    <div class="nav-item"><div class="nav-icon">+</div> Add Project</div>
+    <div class="nav-item"><div class="nav-icon">▣</div> Archived</div>
+  </div>
+
+  <!-- Admin -->
+  <div class="nav-section">
+    <div class="nav-label">Administration</div>
+    <div class="nav-item"><div class="nav-icon">◉</div> Users</div>
+    <div class="nav-item"><div class="nav-icon">⊗</div> Partners</div>
+  </div>
+
+  <!-- Tools -->
+  <div class="nav-section">
+    <div class="nav-label">Tools</div>
+    <div class="nav-item"><div class="nav-icon">⚙</div> Settings</div>
+  </div>
+
+  <div class="app-user">
+    <div class="user-av">S</div>
+    <div>
+      <div class="user-nm">Sultan Al-Busaidi</div>
+      <div class="user-rl">Administrator</div>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MAIN CONTENT
+════════════════════════════════════════════════════════════ -->
+<div class="main">
+
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:14px;">
+      <div class="status-live"><div class="live-dot"></div> Live</div>
+      <div class="breadcrumb">
+        <span>Dashboard</span><span class="sep">›</span>
+        <span>Projects</span><span class="sep">›</span>
+        <b>Bahla Solar Electrification Project</b>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-btn">🔍</div>
+      <div class="topbar-btn">☀</div>
+      <div class="topbar-btn notif-dot">🔔</div>
+      <div class="user-pill">
+        <div class="user-pill-av">S</div>
+        <div class="user-pill-name">Sultan</div>
+        <span style="font-size:9px;color:#888;">▾</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ HERO SECTION ═══ -->
+  <div class="hero">
+    <div class="hero-bg-pattern"></div>
+    <div class="hero-inner">
+
+      <!-- Breadcrumb inside hero -->
+      <div class="hero-breadcrumb">
+        <span>Dashboard</span><span class="sep">›</span>
+        <span>Projects</span><span class="sep">›</span>
+        <span>Infrastructure</span><span class="sep">›</span>
+        <span class="current">Bahla Solar Electrification Project</span>
+      </div>
+
+      <!-- Action buttons top-right -->
+      <div class="hero-actions">
+        <div class="action-btn">✎</div>
+        <div class="action-btn">⇗</div>
+        <div class="action-btn">↓</div>
+        <div class="action-btn">🔖</div>
+        <div class="action-btn">⎙</div>
+        <div class="action-btn danger">⚑</div>
+        <div class="action-btn danger">⊡</div>
+        <div class="action-btn danger">✕</div>
+      </div>
+
+      <div class="hero-top">
+        <div class="hero-left">
+          <!-- Status badges -->
+          <div class="hero-badges">
+            <div class="badge active-badge"><div class="badge-dot"></div> Active</div>
+            <div class="badge category-badge">Infrastructure</div>
+            <div class="badge risk-badge">Low Risk</div>
+          </div>
+
+          <!-- Project title -->
+          <div class="hero-title">Bahla Solar Electrification Project</div>
+
+          <!-- Meta info -->
+          <div class="hero-meta">
+            <span><div class="meta-icon">📍</div> Bahla, Ad Dakhiliyah</span>
+            <span><div class="meta-icon">📅</div> Jan 2025 → Dec 2026</span>
+            <span><div class="meta-icon">👥</div> 2,400 beneficiaries</span>
+          </div>
+        </div>
+
+        <!-- Progress circle -->
+        <div class="hero-right">
+          <div class="progress-circle-wrap">
+            <svg viewBox="0 0 36 36" style="transform:rotate(-90deg)">
+              <circle cx="18" cy="18" r="15.5" fill="none" stroke="#e0e0e0" stroke-width="2.5"/>
+              <circle cx="18" cy="18" r="15.5" fill="none" stroke="#1a1a1a" stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-dasharray="55 100"/>
+            </svg>
+            <div class="progress-circle-inner">
+              <div class="progress-pct">55%</div>
+              <div class="progress-lbl">Complete</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab bar (inside hero bottom border) -->
+      <div style="margin-top:18px;">
+        <div class="tab-bar" style="border-bottom:none;padding:0;margin-left:-22px;margin-right:-22px;padding:0 22px;">
+          <div class="tab active"><div class="tab-icon">◎</div> Overview</div>
+          <div class="tab"><div class="tab-icon">⏱</div> Timeline</div>
+          <div class="tab"><div class="tab-icon">$</div> Budget &amp; Beneficiaries</div>
+          <div class="tab"><div class="tab-icon">🖼</div> Media &amp; Documents</div>
+          <div class="tab"><div class="tab-icon">★</div> Reviews &amp; Log</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab underline separator -->
+  <div style="height:2px;background:#1a1a1a;flex-shrink:0;"></div>
+
+  <!-- ═══ CONTENT + SIDEBAR ═══ -->
+  <div class="content-area">
+
+    <!-- MAIN COLUMN -->
+    <div class="main-col">
+
+      <!-- 4 Info Cards -->
+      <div class="info-grid">
+        <!-- General Info -->
+        <div class="info-card">
+          <div class="info-card-title"><div class="info-icon">🏢</div> General Info</div>
+          <div class="info-row"><span class="info-label">Category</span><span class="info-value">Infrastructure</span></div>
+          <div class="info-row"><span class="info-label">Manager</span><span class="info-value">Ali Al-Hinai</span></div>
+          <div class="info-row"><span class="info-label">Region</span><span class="info-value">Ad Dakhiliyah</span></div>
+          <div class="info-row"><span class="info-label">Location</span><span class="info-value">Bahla, Oman</span></div>
+        </div>
+
+        <!-- Dates -->
+        <div class="info-card">
+          <div class="info-card-title"><div class="info-icon">📅</div> Dates</div>
+          <div class="info-row"><span class="info-label">Start</span><span class="info-value">Jan 15, 2025</span></div>
+          <div class="info-row"><span class="info-label">End</span><span class="info-value">Dec 31, 2026</span></div>
+          <div class="info-row"><span class="info-label">Duration</span><span class="info-value">716 days</span></div>
+          <div class="info-row"><span class="info-label">Days Left</span><span class="info-value">285 days</span></div>
+        </div>
+
+        <!-- Budget -->
+        <div class="info-card">
+          <div class="info-card-title"><div class="info-icon">💰</div> Budget</div>
+          <div class="info-row"><span class="info-label">Total</span><span class="info-value">OMR 480k</span></div>
+          <div class="info-row"><span class="info-label">Spent</span><span class="info-value">OMR 264k</span></div>
+          <div class="info-row"><span class="info-label">Remaining</span><span class="info-value">OMR 216k</span></div>
+          <div class="info-row"><span class="info-label">Utilization</span><span class="info-value">55%</span></div>
+        </div>
+
+        <!-- Beneficiaries -->
+        <div class="info-card">
+          <div class="info-card-title"><div class="info-icon">👥</div> Beneficiaries</div>
+          <div class="info-row"><span class="info-label">Total</span><span class="info-value">2,400</span></div>
+          <div class="info-row"><span class="info-label">Male</span><span class="info-value">1,180</span></div>
+          <div class="info-row"><span class="info-label">Female</span><span class="info-value">1,220</span></div>
+          <div class="info-row"><span class="info-label">Children</span><span class="info-value">640</span></div>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><div class="card-icon">📄</div> Project Description</div>
+        </div>
+        <div class="card-body">
+          <p class="desc-text">
+            This initiative provides solar-powered electricity to 420 rural households in the Bahla governorate that
+            previously lacked reliable access to the national grid. The project covers installation of 1,200 photovoltaic
+            panels, battery storage units, and micro-grid infrastructure. Expected to reduce diesel generator usage by 90%
+            and cut household energy costs by an average of OMR 85 per month. The project also includes capacity-building
+            workshops for local technicians to ensure long-term operational sustainability.
+          </p>
+        </div>
+      </div>
+
+      <!-- Objectives + Expected Outputs -->
+      <div class="two-col">
+        <!-- Objectives -->
+        <div class="card" style="height:100%;">
+          <div class="card-header">
+            <div class="card-title"><div class="card-icon">◎</div> Objectives</div>
+          </div>
+          <div class="card-body">
+            <ol class="obj-list">
+              <li class="obj-item"><div class="obj-num">1</div> Provide clean electricity to 420 rural households in Bahla district</li>
+              <li class="obj-item"><div class="obj-num">2</div> Reduce reliance on diesel generators by at least 90%</li>
+              <li class="obj-item"><div class="obj-num">3</div> Train 30 local technicians in solar panel maintenance</li>
+              <li class="obj-item"><div class="obj-num">4</div> Lower household energy costs by minimum OMR 85/month</li>
+              <li class="obj-item"><div class="obj-num">5</div> Achieve zero-carbon energy production for participating villages</li>
+            </ol>
+          </div>
+        </div>
+
+        <!-- Expected Outputs -->
+        <div class="card" style="height:100%;">
+          <div class="card-header">
+            <div class="card-title"><div class="card-icon">✓</div> Expected Outputs</div>
+          </div>
+          <div class="card-body">
+            <div class="out-item"><div class="out-dot"></div> 1,200 photovoltaic panels installed and operational</div>
+            <div class="out-item"><div class="out-dot"></div> 420 households connected to solar micro-grid</div>
+            <div class="out-item"><div class="out-dot"></div> 3 battery storage facilities constructed</div>
+            <div class="out-item"><div class="out-dot"></div> 30 certified solar technicians trained</div>
+            <div class="out-item"><div class="out-dot"></div> Community energy management committee established</div>
+            <div class="out-item"><div class="out-dot"></div> Annual impact report published for 3 consecutive years</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SDG Alignment -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><div class="card-icon">🌐</div> SDG Alignment</div>
+        </div>
+        <div class="card-body">
+          <div class="sdg-wrap">
+            <div class="sdg-pill"><div class="sdg-num">7</div><div class="sdg-label">SDG 7 — Affordable &amp; Clean Energy</div></div>
+            <div class="sdg-pill"><div class="sdg-num">11</div><div class="sdg-label">SDG 11 — Sustainable Communities</div></div>
+            <div class="sdg-pill"><div class="sdg-num">13</div><div class="sdg-label">SDG 13 — Climate Action</div></div>
+            <div class="sdg-pill"><div class="sdg-num">17</div><div class="sdg-label">SDG 17 — Partnerships</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Location Map placeholder -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><div class="card-icon">📍</div> Location</div>
+        </div>
+        <div class="card-body">
+          <div class="map-box">
+            <div class="map-box-icon">📍</div>
+            <div class="map-box-text">Bahla, Ad Dakhiliyah Governorate, Oman</div>
+            <div class="map-box-sub">22.9641° N, 57.2975° E</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /main-col -->
+
+    <!-- RIGHT SIDEBAR -->
+    <div class="right-sidebar">
+
+      <!-- Actions -->
+      <div class="sb-card">
+        <div class="sb-title"><div class="sb-icon">⚡</div> Actions</div>
+        <button class="sb-action-btn primary"><div class="sb-btn-icon">✎</div> Edit Project</button>
+        <button class="sb-action-btn"><div class="sb-btn-icon">⇗</div> Share Project</button>
+        <button class="sb-action-btn"><div class="sb-btn-icon">↓</div> Export PDF</button>
+        <button class="sb-action-btn ghost"><div class="sb-btn-icon">⊡</div> Archive Project</button>
+      </div>
+
+      <!-- Quick Info -->
+      <div class="sb-card">
+        <div class="sb-title"><div class="sb-icon">ℹ</div> Quick Info</div>
+        <div class="qi-row"><span class="qi-label">Status</span><span class="qi-value"><div class="status-dot"></div> Active</span></div>
+        <div class="qi-row"><span class="qi-label">Risk</span><span class="qi-value">Low Risk</span></div>
+        <div class="qi-row"><span class="qi-label">Progress</span><span class="qi-value">55%</span></div>
+        <div class="qi-row"><span class="qi-label">Rating</span><span class="qi-value">4.2 / 5</span></div>
+        <div class="qi-row"><span class="qi-label">Created</span><span class="qi-value">Jan 10, 2025</span></div>
+        <div class="qi-row"><span class="qi-label">Updated</span><span class="qi-value">Mar 12, 2026</span></div>
+      </div>
+
+      <!-- Budget Progress Bar -->
+      <div class="sb-card">
+        <div class="sb-title"><div class="sb-icon">$</div> Budget Usage</div>
+        <div style="margin-bottom:6px;">
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin-bottom:5px;">
+            <span>Spent</span><span style="color:#1a1a1a;font-weight:700;">55%</span>
+          </div>
+          <div style="height:8px;background:#f4f4f4;border:1.5px solid #1a1a1a;border-radius:99px;overflow:hidden;">
+            <div style="width:55%;height:100%;background:#1a1a1a;border-radius:99px;"></div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:9px;color:#888;margin-top:8px;">
+          <span>OMR 264k spent</span><span>OMR 480k total</span>
+        </div>
+      </div>
+
+      <!-- Team -->
+      <div class="sb-card">
+        <div class="sb-title" style="justify-content:space-between;">
+          <span style="display:flex;align-items:center;gap:6px;"><div class="sb-icon">👥</div> Team</span>
+          <button class="small-btn" style="font-size:9px;padding:3px 8px;">+ Add</button>
+        </div>
+        <div class="team-member"><div class="team-av">A</div><div><div class="team-name">Ali Al-Hinai</div><div class="team-role">Project Manager</div></div></div>
+        <div class="team-member"><div class="team-av">F</div><div><div class="team-name">Fatma Al-Rashdi</div><div class="team-role">Site Engineer</div></div></div>
+        <div class="team-member"><div class="team-av">K</div><div><div class="team-name">Khalid Al-Balushi</div><div class="team-role">Finance Officer</div></div></div>
+        <div class="team-member"><div class="team-av">M</div><div><div class="team-name">Maryam Al-Harthi</div><div class="team-role">Community Liaison</div></div></div>
+        <div class="team-member"><div class="team-av">S</div><div><div class="team-name">Said Al-Kindi</div><div class="team-role">Technical Advisor</div></div></div>
+      </div>
+
+      <!-- Tags -->
+      <div class="sb-card">
+        <div class="sb-title"><div class="sb-icon">🏷</div> Tags</div>
+        <div class="tag-wrap">
+          <div class="tag-pill">solar</div>
+          <div class="tag-pill">renewable</div>
+          <div class="tag-pill">rural</div>
+          <div class="tag-pill">energy</div>
+          <div class="tag-pill">bahla</div>
+          <div class="tag-pill">infrastructure</div>
+        </div>
+      </div>
+
+      <!-- Related Projects -->
+      <div class="sb-card">
+        <div class="sb-title"><div class="sb-icon">🔗</div> Related Projects</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div style="display:flex;align-items:center;gap:7px;font-size:10px;padding:5px 7px;border:1.5px solid #e0e0e0;border-radius:6px;">
+            <div class="status-dot"></div><span style="color:#1a1a1a;font-weight:700;">Sur Wind Farm Initiative</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:7px;font-size:10px;padding:5px 7px;border:1.5px solid #e0e0e0;border-radius:6px;">
+            <div class="status-dot" style="background:#aaa;"></div><span style="color:#555;">Nizwa Water Desalination</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:7px;font-size:10px;padding:5px 7px;border:1.5px solid #e0e0e0;border-radius:6px;">
+            <div class="status-dot"></div><span style="color:#1a1a1a;font-weight:700;">Muscat Green Corridor</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /right-sidebar -->
+
+  </div><!-- /content-area -->
+
+</div><!-- /main -->
+
+</body>
+</html>

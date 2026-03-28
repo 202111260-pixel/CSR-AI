@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Financial Reports — Wireframe</title>
+<link href="https://fonts.googleapis.com/css2?family=Balsamiq+Sans:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Balsamiq Sans', cursive; background: #f4f4f4; color: #1a1a1a; font-size: 13px; }
+.layout { display: flex; min-height: 100vh; }
+
+/* SIDEBAR */
+.sidebar { width: 210px; min-width: 210px; background: #fff; border-right: 2px solid #1a1a1a; display: flex; flex-direction: column; padding: 12px 0; }
+.sidebar-logo { display: flex; align-items: center; gap: 8px; padding: 8px 14px 16px; border-bottom: 2px solid #1a1a1a; margin-bottom: 10px; }
+.logo-box { width: 36px; height: 36px; border: 2px solid #1a1a1a; border-radius: 8px; background: #e0e0e0; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 11px; }
+.logo-text { font-weight: 700; font-size: 13px; line-height: 1.2; }
+.logo-text span { font-size: 10px; font-weight: 400; color: #555; display: block; }
+.sidebar-section { padding: 6px 14px 4px; }
+.sidebar-section-label { font-size: 9px; font-weight: 700; letter-spacing: 1px; color: #888; text-transform: uppercase; margin-bottom: 4px; }
+.sidebar-item { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 6px; margin-bottom: 2px; cursor: pointer; font-size: 12px; }
+.sidebar-item.active { background: #e0e0e0; border: 2px solid #1a1a1a; font-weight: 700; }
+.icon-box { width: 18px; height: 18px; background: #d0d0d0; border: 1.5px solid #888; border-radius: 3px; flex-shrink: 0; }
+.badge { margin-left: auto; background: #1a1a1a; color: #fff; border-radius: 10px; padding: 1px 6px; font-size: 9px; }
+.sidebar-user { margin-top: auto; padding: 10px 14px; border-top: 2px solid #1a1a1a; display: flex; align-items: center; gap: 8px; }
+.user-avatar { width: 30px; height: 30px; border-radius: 50%; background: #c0c0c0; border: 2px solid #1a1a1a; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 11px; }
+.user-info { font-size: 11px; line-height: 1.3; }
+.user-role { font-size: 9px; color: #666; }
+
+/* MAIN */
+.main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.topbar { height: 52px; background: #fff; border-bottom: 2px solid #1a1a1a; display: flex; align-items: center; padding: 0 20px; gap: 12px; }
+.breadcrumb { font-size: 12px; color: #555; flex: 1; }
+.breadcrumb span { color: #1a1a1a; font-weight: 700; }
+.icon-btn { width: 32px; height: 32px; border: 2px solid #1a1a1a; border-radius: 6px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; position: relative; }
+.notif-dot { position: absolute; top: -4px; right: -4px; width: 14px; height: 14px; background: #1a1a1a; border-radius: 50%; color: #fff; font-size: 8px; display: flex; align-items: center; justify-content: center; }
+.content { flex: 1; padding: 20px; background: #f4f4f4; display: flex; flex-direction: column; gap: 16px; }
+
+/* PAGE HEADER */
+.page-hdr { display: flex; align-items: flex-start; justify-content: space-between; }
+.page-hdr-left { display: flex; align-items: center; gap: 12px; }
+.page-hdr-icon { width: 44px; height: 44px; border: 2px solid #1a1a1a; border-radius: 10px; background: #e8e8e8; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+.page-title { font-size: 20px; font-weight: 700; }
+.page-subtitle { font-size: 11px; color: #666; margin-top: 3px; }
+.page-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.btn { border: 2px solid #1a1a1a; border-radius: 6px; padding: 6px 12px; font-family: inherit; font-size: 11px; background: #fff; cursor: pointer; font-weight: 700; display: flex; align-items: center; gap: 5px; }
+.btn-dark { background: #1a1a1a; color: #fff; }
+
+/* CARDS */
+.card { background: #fff; border: 2px solid #1a1a1a; border-radius: 8px; padding: 16px; }
+.card-title { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+.card-sub { font-size: 10px; color: #777; margin-bottom: 12px; }
+
+/* GRIDS */
+.grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.grid-2-1 { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; }
+.grid-1-1-2 { display: grid; grid-template-columns: 1fr 1fr 2fr; gap: 14px; }
+
+/* KPI CARDS */
+.kpi-card { background: #fff; border: 2px solid #1a1a1a; border-radius: 8px; padding: 16px; }
+.kpi-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.kpi-icon { width: 36px; height: 36px; border: 2px solid #888; border-radius: 8px; background: #e8e8e8; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.kpi-trend { font-size: 10px; font-weight: 700; background: #e8e8e8; border: 1.5px solid #888; border-radius: 10px; padding: 2px 7px; }
+.kpi-val { font-size: 22px; font-weight: 700; margin-bottom: 2px; }
+.kpi-label { font-size: 11px; color: #555; }
+.kpi-bar-wrap { height: 5px; background: #e8e8e8; border-radius: 3px; margin-top: 10px; overflow: hidden; border: 1px solid #ccc; }
+.kpi-bar-fill { height: 100%; background: #888; border-radius: 3px; }
+.kpi-note { font-size: 9px; color: #888; margin-top: 5px; }
+
+/* CHART HEADER */
+.chart-hdr { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+.chart-icon-wrap { width: 32px; height: 32px; border: 1.5px solid #888; border-radius: 7px; background: #e8e8e8; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+.chart-title-text { font-size: 12px; font-weight: 700; }
+.chart-sub-text { font-size: 9px; color: #777; }
+
+/* AREA/BAR CHART */
+.chart-box { border: 2px solid #c0c0c0; border-radius: 6px; background: #fafafa; padding: 8px 10px; }
+.bar-chart { display: flex; align-items: flex-end; gap: 5px; height: 90px; }
+.bar { flex: 1; border: 1.5px solid #888; border-bottom: none; border-radius: 3px 3px 0 0; }
+.bar.light { background: #d0d0d0; }
+.bar.dark { background: #888; }
+.bar.dashed { background: repeating-linear-gradient(45deg,#ccc,#ccc 3px,transparent 3px,transparent 7px); border-style: dashed; }
+.bar-axis { border-top: 2px solid #888; display: flex; gap: 5px; padding-top: 4px; margin-top: 0; }
+.bar-lbl { flex: 1; text-align: center; font-size: 8px; color: #666; }
+
+/* AREA CHART SVG */
+.area-wrap { position: relative; }
+
+/* DONUT */
+.donut-wrap { display: flex; align-items: center; gap: 20px; }
+.donut-legend { flex: 1; }
+.legend-row { display: flex; align-items: center; gap: 6px; margin-bottom: 7px; font-size: 10px; }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid #888; flex-shrink: 0; }
+.legend-bar-bg { flex: 1; height: 4px; background: #e8e8e8; border-radius: 2px; overflow: hidden; border: 1px solid #ccc; }
+.legend-bar-fill { height: 100%; background: #888; border-radius: 2px; }
+.legend-pct { font-size: 10px; font-weight: 700; width: 28px; text-align: right; }
+.legend-amt { font-size: 9px; color: #888; width: 55px; text-align: right; }
+
+/* TABLE */
+.table-wrap { border: 2px solid #1a1a1a; border-radius: 8px; overflow: hidden; }
+table { width: 100%; border-collapse: collapse; font-size: 11px; }
+th { padding: 8px 12px; text-align: left; font-size: 9px; font-weight: 700; color: #666; text-transform: uppercase; letter-spacing: .07em; background: #f0f0f0; border-bottom: 2px solid #1a1a1a; }
+td { padding: 9px 12px; border-bottom: 1.5px solid #e0e0e0; color: #444; vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #fafafa; }
+.proj-name { font-weight: 700; color: #1a1a1a; font-size: 11px; }
+.proj-meta { font-size: 9px; color: #888; }
+.util-bar-wrap { height: 5px; background: #e8e8e8; border-radius: 3px; margin-top: 4px; overflow: hidden; border: 1px solid #ccc; width: 70px; }
+.util-fill { height: 100%; background: #888; border-radius: 3px; }
+.util-fill.warn { background: #555; }
+.util-fill.over { background: #1a1a1a; }
+.status-pill { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 9px; font-weight: 700; border: 1.5px solid #888; background: #f0f0f0; }
+.status-pill.ok { background: #e8e8e8; border-color: #888; }
+.status-pill.warn { background: #d8d8d8; border-color: #555; }
+.status-pill.bad { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+
+/* TABS */
+.tabs { display: flex; background: #f0f0f0; border: 2px solid #1a1a1a; border-radius: 8px; padding: 3px; width: fit-content; gap: 2px; }
+.tab { padding: 5px 14px; border-radius: 5px; font-size: 10px; font-weight: 700; cursor: pointer; color: #666; }
+.tab.active { background: #1a1a1a; color: #fff; }
+
+/* HBAR (horizontal bar) */
+.hbar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
+.hbar-label { font-size: 10px; width: 80px; flex-shrink: 0; color: #444; }
+.hbar-track { flex: 1; height: 14px; background: #ebebeb; border: 1.5px solid #ccc; border-radius: 3px; overflow: hidden; position: relative; }
+.hbar-fill { height: 100%; border-radius: 2px; }
+.hbar-fill.light { background: #d0d0d0; }
+.hbar-fill.dark { background: #888; }
+.hbar-fill.over { background: #1a1a1a; }
+.hbar-val { font-size: 9px; color: #666; width: 70px; text-align: right; flex-shrink: 0; }
+
+/* ALERT ROWS */
+.alert-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 7px; border: 2px solid #d0d0d0; background: #f8f8f8; margin-bottom: 8px; }
+.alert-indicator { width: 12px; height: 12px; border-radius: 50%; border: 2px solid #1a1a1a; flex-shrink: 0; }
+.alert-indicator.solid { background: #1a1a1a; }
+.alert-indicator.gray { background: #888; }
+.alert-indicator.light { background: #d0d0d0; }
+.alert-text-col { flex: 1; }
+.alert-title { font-size: 11px; font-weight: 700; }
+.alert-desc { font-size: 9px; color: #888; }
+.alert-count { font-size: 18px; font-weight: 700; }
+
+/* EFFICIENCY CARDS */
+.eff-card { background: #fff; border: 2px solid #1a1a1a; border-radius: 8px; padding: 14px; }
+.eff-val { font-size: 20px; font-weight: 700; margin: 6px 0 2px; }
+.eff-label { font-size: 10px; color: #555; font-weight: 700; }
+.eff-note { font-size: 9px; color: #888; margin-top: 2px; }
+
+/* FORECAST */
+.forecast-card { background: #fff; border: 2px solid #1a1a1a; border-radius: 8px; padding: 14px; text-align: center; }
+.forecast-q { font-size: 9px; color: #888; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+.forecast-val { font-size: 18px; font-weight: 700; }
+.forecast-sub { font-size: 9px; color: #888; margin-top: 3px; }
+.forecast-conf { height: 5px; background: #e8e8e8; border-radius: 3px; margin-top: 10px; overflow: hidden; border: 1px solid #ccc; }
+.forecast-fill { height: 100%; background: #888; border-radius: 3px; }
+.forecast-label { font-size: 9px; color: #666; margin-top: 4px; }
+
+/* LEGEND ROW */
+.legend-row-h { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
+.leg-item { display: flex; align-items: center; gap: 5px; font-size: 9px; color: #666; }
+.leg-sq { width: 12px; height: 5px; border-radius: 2px; border: 1px solid #888; }
+
+/* PAGE FOOTER */
+.page-footer { padding: 14px 20px; border-top: 2px solid #d0d0d0; font-size: 10px; color: #888; text-align: center; background: #fff; }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-box">CSR</div>
+    <div class="logo-text">CSR Platform <span>Corp. Social Responsibility</span></div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Analytics</div>
+    <div class="sidebar-item"><div class="icon-box"></div> Dashboard</div>
+    <div class="sidebar-item"><div class="icon-box"></div> General Reports</div>
+    <div class="sidebar-item"><div class="icon-box"></div> Impact Reports</div>
+    <div class="sidebar-item active"><div class="icon-box"></div> Financial</div>
+    <div class="sidebar-item"><div class="icon-box"></div> Early Warning <span class="badge">3</span></div>
+    <div class="sidebar-item"><div class="icon-box"></div> Map View</div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">AI & Intelligence</div>
+    <div class="sidebar-item"><div class="icon-box"></div> Future Portal</div>
+    <div class="sidebar-item"><div class="icon-box"></div> Social Analytics</div>
+    <div class="sidebar-item"><div class="icon-box"></div> Ideas Hub <span class="badge">12</span></div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Projects</div>
+    <div class="sidebar-item"><div class="icon-box"></div> All Projects</div>
+    <div class="sidebar-item"><div class="icon-box"></div> Add Project</div>
+    <div class="sidebar-item"><div class="icon-box"></div> Archived</div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Administration</div>
+    <div class="sidebar-item"><div class="icon-box"></div> Users</div>
+    <div class="sidebar-item"><div class="icon-box"></div> Partners</div>
+    <div class="sidebar-item"><div class="icon-box"></div> Categories</div>
+    <div class="sidebar-item"><div class="icon-box"></div> Settings</div>
+  </div>
+  <div class="sidebar-user">
+    <div class="user-avatar">S</div>
+    <div class="user-info">Sultan Al-Busaidi <div class="user-role">Administrator</div></div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="breadcrumb">Home / Reports / <span>Financial</span></div>
+    <div class="icon-btn">☀</div>
+    <div class="icon-btn" style="position:relative">🔔<span class="notif-dot">6</span></div>
+    <div class="icon-btn">👤 Sultan ▾</div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- PAGE HEADER -->
+    <div class="page-hdr">
+      <div class="page-hdr-left">
+        <div class="page-hdr-icon">💰</div>
+        <div>
+          <div class="page-title">Financial Analytics</div>
+          <div class="page-subtitle">Comprehensive financial overview across all CSR projects</div>
+        </div>
+      </div>
+      <div class="page-actions">
+        <div class="btn">📅 Year to Date ▾</div>
+        <div class="btn">📊 Excel</div>
+        <div class="btn">📄 PDF</div>
+        <div class="btn">🖨 Print</div>
+      </div>
+    </div>
+
+    <!-- KPI CARDS -->
+    <div class="grid-4">
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <div class="kpi-icon">💼</div>
+          <div class="kpi-trend">↑ +12.4%</div>
+        </div>
+        <div class="kpi-val">OMR 2.84M</div>
+        <div class="kpi-label">Total Budget Allocated</div>
+        <div class="kpi-bar-wrap"><div class="kpi-bar-fill" style="width:100%"></div></div>
+        <div class="kpi-note">25 active projects · YTD 2026</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <div class="kpi-icon">📈</div>
+          <div class="kpi-trend">↑ +8.7%</div>
+        </div>
+        <div class="kpi-val">OMR 1.91M</div>
+        <div class="kpi-label">Total Amount Spent</div>
+        <div class="kpi-bar-wrap"><div class="kpi-bar-fill" style="width:67%"></div></div>
+        <div class="kpi-note">67.3% budget utilization</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <div class="kpi-icon">💵</div>
+          <div class="kpi-trend">✓ Safe</div>
+        </div>
+        <div class="kpi-val">OMR 930K</div>
+        <div class="kpi-label">Remaining Budget</div>
+        <div class="kpi-bar-wrap"><div class="kpi-bar-fill" style="width:33%"></div></div>
+        <div class="kpi-note">32.7% unspent · 3 months left</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <div class="kpi-icon">📉</div>
+          <div class="kpi-trend">↓ −3.2%</div>
+        </div>
+        <div class="kpi-val">OMR 76.5K</div>
+        <div class="kpi-label">Avg Spend per Project</div>
+        <div class="kpi-bar-wrap"><div class="kpi-bar-fill" style="width:55%"></div></div>
+        <div class="kpi-note">Across 25 active projects</div>
+      </div>
+    </div>
+
+    <!-- EFFICIENCY METRICS -->
+    <div class="grid-4">
+      <div class="eff-card">
+        <div class="chart-icon-wrap">👥</div>
+        <div class="eff-val">OMR 47</div>
+        <div class="eff-label">Cost per Beneficiary</div>
+        <div class="eff-note">↓ 12% vs last period · Good</div>
+      </div>
+      <div class="eff-card">
+        <div class="chart-icon-wrap">📊</div>
+        <div class="eff-val">67.3%</div>
+        <div class="eff-label">Budget Utilization</div>
+        <div class="eff-note">↑ 4% vs last period · On Track</div>
+      </div>
+      <div class="eff-card">
+        <div class="chart-icon-wrap">🎯</div>
+        <div class="eff-val">84.2%</div>
+        <div class="eff-label">Burn Rate Accuracy</div>
+        <div class="eff-note">↑ 2% vs last period · Good</div>
+      </div>
+      <div class="eff-card">
+        <div class="chart-icon-wrap">🛡</div>
+        <div class="eff-val">8%</div>
+        <div class="eff-label">Overrun Frequency</div>
+        <div class="eff-note">2 projects over budget · Low Risk</div>
+      </div>
+    </div>
+
+    <!-- MONTHLY CASH FLOW + EXPENSE BREAKDOWN -->
+    <div class="grid-2-1">
+
+      <!-- Monthly Cash Flow -->
+      <div class="card">
+        <div class="chart-hdr">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="chart-icon-wrap">〰</div>
+            <div>
+              <div class="chart-title-text">Monthly Cash Flow</div>
+              <div class="chart-sub-text">Budget vs Actual Spend — Jan–Mar 2026</div>
+            </div>
+          </div>
+          <div class="legend-row-h">
+            <div class="leg-item"><div class="leg-sq" style="background:#d0d0d0"></div>Budget</div>
+            <div class="leg-item"><div class="leg-sq" style="background:#888"></div>Spent</div>
+            <div class="leg-item"><div class="leg-sq" style="border-style:dashed;background:transparent"></div>Forecast</div>
+          </div>
+        </div>
+        <div class="chart-box">
+          <svg viewBox="0 0 560 120" style="width:100%;display:block">
+            <!-- Y axis grid -->
+            <line x1="40" y1="10" x2="550" y2="10" stroke="#e0e0e0" stroke-width="1"/>
+            <line x1="40" y1="35" x2="550" y2="35" stroke="#e0e0e0" stroke-width="1"/>
+            <line x1="40" y1="60" x2="550" y2="60" stroke="#e0e0e0" stroke-width="1"/>
+            <line x1="40" y1="85" x2="550" y2="85" stroke="#e0e0e0" stroke-width="1"/>
+            <line x1="40" y1="105" x2="550" y2="105" stroke="#888" stroke-width="1.5"/>
+            <!-- Y labels -->
+            <text x="35" y="13" text-anchor="end" font-family="Balsamiq Sans" font-size="8" fill="#888">600K</text>
+            <text x="35" y="38" text-anchor="end" font-family="Balsamiq Sans" font-size="8" fill="#888">450K</text>
+            <text x="35" y="63" text-anchor="end" font-family="Balsamiq Sans" font-size="8" fill="#888">300K</text>
+            <text x="35" y="88" text-anchor="end" font-family="Balsamiq Sans" font-size="8" fill="#888">150K</text>
+            <text x="35" y="108" text-anchor="end" font-family="Balsamiq Sans" font-size="8" fill="#888">0</text>
+            <!-- Budget area (light) -->
+            <path d="M60,38 C110,33 160,28 210,31 C260,34 310,25 360,22 C410,19 460,26 510,23 L510,105 L60,105 Z" fill="#d0d0d0" fill-opacity="0.5"/>
+            <path d="M60,38 C110,33 160,28 210,31 C260,34 310,25 360,22 C410,19 460,26 510,23" fill="none" stroke="#888" stroke-width="1.5" stroke-dasharray="5,3"/>
+            <!-- Spent area (dark) -->
+            <path d="M60,65 C110,58 160,52 210,56 C260,60 310,47 360,43 C410,39 460,50 510,47 L510,105 L60,105 Z" fill="#888" fill-opacity="0.2"/>
+            <path d="M60,65 C110,58 160,52 210,56 C260,60 310,47 360,43 C410,39 460,50 510,47" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+            <!-- Forecast line dashed from Mar onwards -->
+            <path d="M360,43 C410,39 460,44 510,40" fill="none" stroke="#555" stroke-width="1.5" stroke-dasharray="4,3"/>
+            <!-- Budget dots -->
+            <circle cx="60" cy="38" r="4" fill="#fff" stroke="#888" stroke-width="1.5"/>
+            <circle cx="160" cy="30" r="4" fill="#fff" stroke="#888" stroke-width="1.5"/>
+            <circle cx="260" cy="27" r="4" fill="#fff" stroke="#888" stroke-width="1.5"/>
+            <circle cx="360" cy="22" r="4" fill="#fff" stroke="#888" stroke-width="1.5"/>
+            <circle cx="460" cy="25" r="4" fill="#fff" stroke="#888" stroke-width="1.5"/>
+            <!-- Spent dots -->
+            <circle cx="60" cy="65" r="4" fill="#1a1a1a"/>
+            <circle cx="160" cy="55" r="4" fill="#1a1a1a"/>
+            <circle cx="260" cy="50" r="4" fill="#1a1a1a"/>
+            <circle cx="360" cy="43" r="4" fill="#1a1a1a"/>
+            <circle cx="460" cy="49" r="4" fill="#1a1a1a"/>
+            <!-- Tooltip -->
+            <rect x="240" y="30" width="100" height="40" rx="5" fill="#fff" stroke="#1a1a1a" stroke-width="1.5"/>
+            <text x="290" y="44" text-anchor="middle" font-family="Balsamiq Sans" font-size="8" fill="#888">Mar 2026</text>
+            <text x="290" y="55" text-anchor="middle" font-family="Balsamiq Sans" font-size="8" fill="#555">Budget: 435K OMR</text>
+            <text x="290" y="65" text-anchor="middle" font-family="Balsamiq Sans" font-size="8" fill="#1a1a1a" font-weight="700">Spent: 318K OMR</text>
+            <!-- X labels -->
+            <text x="60" y="118" text-anchor="middle" font-family="Balsamiq Sans" font-size="8" fill="#888">Jan</text>
+            <text x="160" y="118" text-anchor="middle" font-family="Balsamiq Sans" font-size="8" fill="#888">Feb</text>
+            <text x="260" y="118" text-anchor="middle" font-family="Balsamiq Sans" font-size="8" fill="#888">Mar</text>
+            <text x="360" y="118" text-anchor="middle" font-family="Balsamiq Sans" font-size="8" fill="#aaa">Apr ›</text>
+            <text x="460" y="118" text-anchor="middle" font-family="Balsamiq Sans" font-size="8" fill="#aaa">May ›</text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Expense Breakdown Donut -->
+      <div class="card">
+        <div class="chart-hdr">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="chart-icon-wrap">🥧</div>
+            <div>
+              <div class="chart-title-text">Expense Breakdown</div>
+              <div class="chart-sub-text">By category</div>
+            </div>
+          </div>
+        </div>
+        <div class="donut-wrap">
+          <svg viewBox="0 0 110 110" style="width:110px;height:110px;flex-shrink:0">
+            <circle cx="55" cy="55" r="40" fill="none" stroke="#e8e8e8" stroke-width="18"/>
+            <!-- Segments -->
+            <circle cx="55" cy="55" r="40" fill="none" stroke="#1a1a1a" stroke-width="18"
+              stroke-dasharray="75.4 176" stroke-dashoffset="0" transform="rotate(-90 55 55)"/>
+            <circle cx="55" cy="55" r="40" fill="none" stroke="#555" stroke-width="18"
+              stroke-dasharray="55.3 196" stroke-dashoffset="-75.4" transform="rotate(-90 55 55)"/>
+            <circle cx="55" cy="55" r="40" fill="none" stroke="#888" stroke-width="18"
+              stroke-dasharray="40.2 211" stroke-dashoffset="-130.7" transform="rotate(-90 55 55)"/>
+            <circle cx="55" cy="55" r="40" fill="none" stroke="#aaa" stroke-width="18"
+              stroke-dasharray="27.6 224" stroke-dashoffset="-170.9" transform="rotate(-90 55 55)"/>
+            <circle cx="55" cy="55" r="40" fill="none" stroke="#ccc" stroke-width="18"
+              stroke-dasharray="52.7 199" stroke-dashoffset="-198.5" transform="rotate(-90 55 55)"/>
+            <text x="55" y="51" text-anchor="middle" font-family="Balsamiq Sans" font-size="10" font-weight="700" fill="#1a1a1a">1.91M</text>
+            <text x="55" y="63" text-anchor="middle" font-family="Balsamiq Sans" font-size="7" fill="#888">Total OMR</text>
+          </svg>
+          <div class="donut-legend">
+            <div class="legend-row">
+              <div class="legend-dot" style="background:#1a1a1a"></div>
+              <span style="flex:1;font-size:10px">Infrastructure</span>
+              <span class="legend-pct">30%</span>
+              <span class="legend-amt">572K</span>
+            </div>
+            <div class="legend-row">
+              <div class="legend-dot" style="background:#555"></div>
+              <span style="flex:1;font-size:10px">Training</span>
+              <span class="legend-pct">22%</span>
+              <span class="legend-amt">420K</span>
+            </div>
+            <div class="legend-row">
+              <div class="legend-dot" style="background:#888"></div>
+              <span style="flex:1;font-size:10px">Operations</span>
+              <span class="legend-pct">16%</span>
+              <span class="legend-amt">305K</span>
+            </div>
+            <div class="legend-row">
+              <div class="legend-dot" style="background:#aaa"></div>
+              <span style="flex:1;font-size:10px">Equipment</span>
+              <span class="legend-pct">11%</span>
+              <span class="legend-amt">210K</span>
+            </div>
+            <div class="legend-row">
+              <div class="legend-dot" style="background:#ccc"></div>
+              <span style="flex:1;font-size:10px">Community</span>
+              <span class="legend-pct">21%</span>
+              <span class="legend-amt">403K</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMPARATIVE ANALYSIS + BUDGET ALERTS -->
+    <div class="grid-2-1">
+
+      <!-- Comparative Analysis -->
+      <div class="card">
+        <div class="chart-hdr">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="chart-icon-wrap">📊</div>
+            <div>
+              <div class="chart-title-text">Comparative Analysis</div>
+              <div class="chart-sub-text">Budget vs Spend by category</div>
+            </div>
+          </div>
+          <div class="tabs">
+            <div class="tab active">Yearly</div>
+            <div class="tab">Category</div>
+            <div class="tab">Region</div>
+          </div>
+        </div>
+        <div style="padding-top:4px">
+          <div class="hbar-row">
+            <div class="hbar-label">Education</div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:3px">
+              <div class="hbar-track"><div class="hbar-fill light" style="width:72%"></div></div>
+              <div class="hbar-track"><div class="hbar-fill dark" style="width:55%"></div></div>
+            </div>
+            <div class="hbar-val">550K / 420K</div>
+          </div>
+          <div class="hbar-row">
+            <div class="hbar-label">Environment</div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:3px">
+              <div class="hbar-track"><div class="hbar-fill light" style="width:60%"></div></div>
+              <div class="hbar-track"><div class="hbar-fill dark" style="width:48%"></div></div>
+            </div>
+            <div class="hbar-val">480K / 382K</div>
+          </div>
+          <div class="hbar-row">
+            <div class="hbar-label">Healthcare</div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:3px">
+              <div class="hbar-track"><div class="hbar-fill light" style="width:50%"></div></div>
+              <div class="hbar-track"><div class="hbar-fill dark" style="width:44%"></div></div>
+            </div>
+            <div class="hbar-val">400K / 350K</div>
+          </div>
+          <div class="hbar-row">
+            <div class="hbar-label">Heritage</div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:3px">
+              <div class="hbar-track"><div class="hbar-fill light" style="width:45%"></div></div>
+              <div class="hbar-track"><div class="hbar-fill dark" style="width:38%"></div></div>
+            </div>
+            <div class="hbar-val">360K / 305K</div>
+          </div>
+          <div class="hbar-row">
+            <div class="hbar-label">Youth</div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:3px">
+              <div class="hbar-track"><div class="hbar-fill light" style="width:42%"></div></div>
+              <div class="hbar-track"><div class="hbar-fill dark" style="width:35%"></div></div>
+            </div>
+            <div class="hbar-val">336K / 280K</div>
+          </div>
+          <div class="hbar-row">
+            <div class="hbar-label">Livestock</div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:3px">
+              <div class="hbar-track"><div class="hbar-fill light" style="width:36%"></div></div>
+              <div class="hbar-track"><div class="hbar-fill over" style="width:41%"></div></div>
+            </div>
+            <div class="hbar-val" style="font-weight:700">288K / 320K !</div>
+          </div>
+        </div>
+        <div class="legend-row-h" style="margin-top:10px">
+          <div class="leg-item"><div class="leg-sq" style="background:#d0d0d0"></div>Budget (light)</div>
+          <div class="leg-item"><div class="leg-sq" style="background:#888"></div>Spent (dark)</div>
+          <div class="leg-item"><div class="leg-sq" style="background:#1a1a1a"></div>Over Budget</div>
+        </div>
+      </div>
+
+      <!-- Budget Alerts -->
+      <div class="card">
+        <div class="chart-hdr" style="margin-bottom:14px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="chart-icon-wrap">⚠️</div>
+            <div>
+              <div class="chart-title-text">Budget Alerts</div>
+              <div class="chart-sub-text">Spending risk overview</div>
+            </div>
+          </div>
+        </div>
+        <div class="alert-row">
+          <div class="alert-indicator solid"></div>
+          <div class="alert-text-col">
+            <div class="alert-title">Critical Overrun</div>
+            <div class="alert-desc">2 projects over 100% budget</div>
+          </div>
+          <div class="alert-count">2</div>
+        </div>
+        <div class="alert-row">
+          <div class="alert-indicator gray"></div>
+          <div class="alert-text-col">
+            <div class="alert-title">At Risk</div>
+            <div class="alert-desc">5 projects &gt;85% utilized</div>
+          </div>
+          <div class="alert-count">5</div>
+        </div>
+        <div class="alert-row">
+          <div class="alert-indicator light"></div>
+          <div class="alert-text-col">
+            <div class="alert-title">Healthy</div>
+            <div class="alert-desc">18 projects on track</div>
+          </div>
+          <div class="alert-count">18</div>
+        </div>
+        <div style="margin-top:14px">
+          <div style="font-size:9px;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Overall Risk Score</div>
+          <div style="height:10px;border:2px solid #1a1a1a;border-radius:5px;overflow:hidden;display:flex">
+            <div style="width:72%;background:#d0d0d0;border-right:1.5px solid #888"></div>
+            <div style="width:20%;background:#888;border-right:1.5px solid #1a1a1a"></div>
+            <div style="width:8%;background:#1a1a1a"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:8px;color:#888">
+            <span>72% Healthy</span><span>20% At Risk</span><span>8% Critical</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROJECT BUDGET TABLE -->
+    <div class="card" style="padding:0">
+      <div style="padding:16px;border-bottom:2px solid #d0d0d0;display:flex;align-items:center;justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="chart-icon-wrap">📋</div>
+          <div>
+            <div class="chart-title-text">Project Budget Utilization</div>
+            <div class="chart-sub-text">All 25 projects — sorted by spend</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <div style="border:2px solid #ccc;border-radius:6px;padding:5px 10px;font-size:11px;color:#888;background:#fafafa">🔍 Search projects…</div>
+          <div class="btn">Export</div>
+        </div>
+      </div>
+      <div class="table-wrap" style="border:none;border-radius:0">
+        <table>
+          <thead>
+            <tr>
+              <th>☐  Project</th>
+              <th>Category</th>
+              <th>Budget</th>
+              <th>Spent</th>
+              <th>Remaining</th>
+              <th>Utilization</th>
+              <th>Status</th>
+              <th>Risk</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div style="display:flex;align-items:center;gap:8px"><span style="font-size:12px">☑</span><div><div class="proj-name">Al Batinah Youth Sports Dev.</div><div class="proj-meta">Al Batinah North</div></div></div></td>
+              <td style="font-size:10px">Education</td>
+              <td style="font-weight:700">OMR 2,000</td>
+              <td style="font-weight:700">OMR 1,850</td>
+              <td style="color:#888">OMR 150</td>
+              <td>
+                <div style="font-size:11px;font-weight:700">92.5%</div>
+                <div class="util-bar-wrap"><div class="util-fill over" style="width:92.5%"></div></div>
+              </td>
+              <td><span class="status-pill warn">At Risk</span></td>
+              <td style="font-size:10px;font-weight:700">● High</td>
+            </tr>
+            <tr>
+              <td><div style="display:flex;align-items:center;gap:8px"><span style="font-size:12px">☐</span><div><div class="proj-name">Family Empowerment Ibra Center</div><div class="proj-meta">Al Sharqiyah North</div></div></div></td>
+              <td style="font-size:10px">Community</td>
+              <td style="font-weight:700">OMR 4,000</td>
+              <td style="font-weight:700">OMR 3,400</td>
+              <td style="color:#888">OMR 600</td>
+              <td>
+                <div style="font-size:11px;font-weight:700">85%</div>
+                <div class="util-bar-wrap"><div class="util-fill warn" style="width:85%"></div></div>
+              </td>
+              <td><span class="status-pill warn">At Risk</span></td>
+              <td style="font-size:10px;font-weight:700">● High</td>
+            </tr>
+            <tr>
+              <td><div style="display:flex;align-items:center;gap:8px"><span style="font-size:12px">☐</span><div><div class="proj-name">Aflaj Preservation — Al Malki</div><div class="proj-meta">Ad Dakhiliyah</div></div></div></td>
+              <td style="font-size:10px">Heritage</td>
+              <td style="font-weight:700">OMR 6,000</td>
+              <td style="font-weight:700">OMR 4,200</td>
+              <td style="color:#888">OMR 1,800</td>
+              <td>
+                <div style="font-size:11px;font-weight:700">70%</div>
+                <div class="util-bar-wrap"><div class="util-fill" style="width:70%"></div></div>
+              </td>
+              <td><span class="status-pill ok">On Track</span></td>
+              <td style="font-size:10px;color:#888">○ Med</td>
+            </tr>
+            <tr>
+              <td><div style="display:flex;align-items:center;gap:8px"><span style="font-size:12px">☐</span><div><div class="proj-name">Solar Pumps Al Wusta Villages</div><div class="proj-meta">Al Wusta</div></div></div></td>
+              <td style="font-size:10px">Environment</td>
+              <td style="font-weight:700">OMR 8,500</td>
+              <td style="font-weight:700">OMR 4,080</td>
+              <td style="color:#888">OMR 4,420</td>
+              <td>
+                <div style="font-size:11px;font-weight:700">48%</div>
+                <div class="util-bar-wrap"><div class="util-fill" style="width:48%"></div></div>
+              </td>
+              <td><span class="status-pill ok">On Track</span></td>
+              <td style="font-size:10px;color:#aaa">○ Low</td>
+            </tr>
+            <tr>
+              <td><div style="display:flex;align-items:center;gap:8px"><span style="font-size:12px">☐</span><div><div class="proj-name">Khasab Community Nursery</div><div class="proj-meta">Musandam</div></div></div></td>
+              <td style="font-size:10px">Agriculture</td>
+              <td style="font-weight:700">OMR 5,200</td>
+              <td style="font-weight:700">OMR 1,820</td>
+              <td style="color:#888">OMR 3,380</td>
+              <td>
+                <div style="font-size:11px;font-weight:700">35%</div>
+                <div class="util-bar-wrap"><div class="util-fill" style="width:35%"></div></div>
+              </td>
+              <td><span class="status-pill ok">On Track</span></td>
+              <td style="font-size:10px;color:#aaa">○ Low</td>
+            </tr>
+            <tr>
+              <td colspan="8" style="text-align:center;font-size:10px;color:#888;padding:10px">+ 20 more projects · <span style="font-weight:700;text-decoration:underline">View all →</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TOP EXPENSES TABLE -->
+    <div class="card" style="padding:0">
+      <div style="padding:16px;border-bottom:2px solid #d0d0d0;display:flex;align-items:center;justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="chart-icon-wrap">🧾</div>
+          <div>
+            <div class="chart-title-text">Top Expenses &amp; Invoices</div>
+            <div class="chart-sub-text">Recent high-value transactions</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <div class="btn btn-dark">All</div>
+          <div class="btn">Paid</div>
+          <div class="btn">Pending</div>
+          <div class="btn">Overdue</div>
+          <div style="border:2px solid #ccc;border-radius:6px;padding:5px 10px;font-size:11px;color:#888;background:#fafafa;margin-left:6px">🔍 Search…</div>
+        </div>
+      </div>
+      <div class="table-wrap" style="border:none;border-radius:0">
+        <table>
+          <thead>
+            <tr>
+              <th>☐</th>
+              <th>Invoice ID</th>
+              <th>Project</th>
+              <th>Category</th>
+              <th>Description</th>
+              <th>Date ↕</th>
+              <th>Amount ↕</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>☑</td>
+              <td style="font-family:monospace;font-size:10px;font-weight:700">EXP-001</td>
+              <td class="proj-name" style="font-size:11px">Al Batinah Youth Sports</td>
+              <td style="font-size:10px">Infrastructure</td>
+              <td style="font-size:10px;color:#666">Stadium lighting &amp; flooring</td>
+              <td style="font-size:10px;color:#888">Mar 01, 2026</td>
+              <td style="font-weight:700">OMR 1,850</td>
+              <td><span class="status-pill ok">✓ Paid</span></td>
+            </tr>
+            <tr>
+              <td>☐</td>
+              <td style="font-family:monospace;font-size:10px;font-weight:700">EXP-002</td>
+              <td class="proj-name" style="font-size:11px">Family Empowerment Ibra</td>
+              <td style="font-size:10px">Training</td>
+              <td style="font-size:10px;color:#666">Vocational training equipment</td>
+              <td style="font-size:10px;color:#888">Mar 05, 2026</td>
+              <td style="font-weight:700">OMR 1,200</td>
+              <td><span class="status-pill warn">⏳ Pending</span></td>
+            </tr>
+            <tr>
+              <td>☐</td>
+              <td style="font-family:monospace;font-size:10px;font-weight:700">EXP-003</td>
+              <td class="proj-name" style="font-size:11px">Aflaj Preservation Al Malki</td>
+              <td style="font-size:10px">Heritage</td>
+              <td style="font-size:10px;color:#666">Restoration materials</td>
+              <td style="font-size:10px;color:#888">Feb 28, 2026</td>
+              <td style="font-weight:700">OMR 980</td>
+              <td><span class="status-pill ok">✓ Paid</span></td>
+            </tr>
+            <tr>
+              <td>☐</td>
+              <td style="font-family:monospace;font-size:10px;font-weight:700">EXP-004</td>
+              <td class="proj-name" style="font-size:11px">Solar Pumps Al Wusta</td>
+              <td style="font-size:10px">Equipment</td>
+              <td style="font-size:10px;color:#666">Solar panel installation</td>
+              <td style="font-size:10px;color:#888">Mar 10, 2026</td>
+              <td style="font-weight:700">OMR 2,400</td>
+              <td><span class="status-pill ok">✓ Paid</span></td>
+            </tr>
+            <tr>
+              <td>☐</td>
+              <td style="font-family:monospace;font-size:10px;font-weight:700">EXP-005</td>
+              <td class="proj-name" style="font-size:11px">Khasab Community Nursery</td>
+              <td style="font-size:10px">Operations</td>
+              <td style="font-size:10px;color:#666">Nursery setup &amp; seeds</td>
+              <td style="font-size:10px;color:#888">Feb 15, 2026</td>
+              <td style="font-weight:700">OMR 780</td>
+              <td><span class="status-pill bad">⚠ Overdue</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- QUARTERLY FORECAST -->
+    <div class="card">
+      <div class="chart-hdr">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="chart-icon-wrap">🔮</div>
+          <div>
+            <div class="chart-title-text">Quarterly Budget Forecast — 2026</div>
+            <div class="chart-sub-text">Projected spend vs planned budget</div>
+          </div>
+        </div>
+        <div class="btn btn-dark">✦ AI Powered</div>
+      </div>
+      <div class="grid-4">
+        <div class="forecast-card">
+          <div class="forecast-q">Q1 2026 (Actual)</div>
+          <div class="forecast-val">OMR 318K</div>
+          <div class="forecast-sub">Budget: OMR 435K</div>
+          <div class="forecast-conf"><div class="forecast-fill" style="width:100%;background:#1a1a1a"></div></div>
+          <div class="forecast-label" style="font-weight:700">✓ Completed</div>
+        </div>
+        <div class="forecast-card">
+          <div class="forecast-q">Q2 2026 (Forecast)</div>
+          <div class="forecast-val">OMR 395K</div>
+          <div class="forecast-sub">Budget: OMR 450K</div>
+          <div class="forecast-conf"><div class="forecast-fill" style="width:87%"></div></div>
+          <div class="forecast-label">87% confidence</div>
+        </div>
+        <div class="forecast-card">
+          <div class="forecast-q">Q3 2026 (Forecast)</div>
+          <div class="forecast-val">OMR 410K</div>
+          <div class="forecast-sub">Budget: OMR 480K</div>
+          <div class="forecast-conf"><div class="forecast-fill" style="width:74%"></div></div>
+          <div class="forecast-label">74% confidence</div>
+        </div>
+        <div class="forecast-card">
+          <div class="forecast-q">Q4 2026 (Forecast)</div>
+          <div class="forecast-val">OMR 430K</div>
+          <div class="forecast-sub">Budget: OMR 500K</div>
+          <div class="forecast-conf"><div class="forecast-fill" style="width:65%"></div></div>
+          <div class="forecast-label">65% confidence</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="page-footer">CSR Platform © 2026 — Ministry of Commerce &amp; Industry, Oman · Financial Reports Wireframe</div>
+</div>
+</div>
+</body>
+</html>
