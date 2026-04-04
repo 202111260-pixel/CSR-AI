@@ -178,7 +178,7 @@ const initialFormData: FormData = {
 function GlassCard({ children, className, glow, style: extra }: { children: React.ReactNode; className?: string; glow?: string; style?: React.CSSProperties }) {
   const { colors: P, isDark } = useTheme();
   return (
-    <div className={cn('relative rounded-xl overflow-hidden', className)} style={{
+    <div className={cn('relative rounded-xl', className)} style={{
       background: isDark ? CORPORATE.panelDark : '#ffffff',
       border: isDark ? `1px solid ${CORPORATE.borderDark}` : `1px solid ${P.border}`,
       boxShadow: [

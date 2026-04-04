@@ -100,7 +100,7 @@ function GlassCard({ children, className, glow, accent, style: extraStyle }: { c
   const { colors: P } = useTheme();
   return (
     <div
-      className={cn('relative rounded-[20px] overflow-hidden', className)}
+      className={cn('relative rounded-[20px]', className)}
       style={{
         background: `${P.card}`,
         border: `1px solid ${P.border}`,

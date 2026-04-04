@@ -30,6 +30,7 @@ import { useToast } from '../../components/common/Toast';
 import { exportToExcel, printTable, type ExportColumn } from '../../utils/exportUtils';
 import { generateCategoryManagementPDF } from '../../utils/pdfReportGenerator';
 import { Button } from '../../components/ui/Button';
+import { ActionBar } from '../../components/common/ActionBar';
 
 // ─── Oman Governorates ──────────────────────────────────────────────────────
 const OMAN_REGIONS = [
@@ -117,7 +118,7 @@ export default function CategoryManagement() {
 
   // API queries
   const queryClient = useQueryClient();
-  const { data: categoriesData, isLoading: isLoadingCategories } = useQuery({
+  const { data: categoriesData, isLoading: isLoadingCategories, refetch, isRefetching } = useQuery({
     queryKey: ['categories'],
     queryFn: () => categoryService.getCategories(),
     staleTime: 60 * 1000,
@@ -487,23 +488,13 @@ export default function CategoryManagement() {
             </div>
             <div className="flex items-center gap-3">
               {/* Export buttons */}
-              <div className="flex items-center gap-1.5">
-                <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }} onClick={handleExportExcel}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-full text-[11px] font-medium"
-                  style={{ background: P.surface, color: P.textMd, border: `1px solid ${P.border}` }}>
-                  <FileSpreadsheet size={13} />Excel
-                </motion.button>
-                <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }} onClick={handleExportPDF}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-full text-[11px] font-medium"
-                  style={{ background: P.surface, color: P.textMd, border: `1px solid ${P.border}` }}>
-                  <FileText size={13} />PDF
-                </motion.button>
-                <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }} onClick={handlePrint}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-full text-[11px] font-medium"
-                  style={{ background: P.surface, color: P.textMd, border: `1px solid ${P.border}` }}>
-                  <Printer size={13} />Print
-                </motion.button>
-              </div>
+              <ActionBar
+                onRefresh={refetch}
+                onExcel={handleExportExcel}
+                onPdf={handleExportPDF}
+                onPrint={handlePrint}
+                isRefreshing={isRefetching}
+              />
               {/* Tab navigation */}
               <div className="flex items-center gap-1 p-0.5 rounded-xl" style={{ background: P.surface, border: `1px solid ${P.border}` }}>
                 {([
@@ -607,7 +598,7 @@ function DashboardTab({ cat, onEdit, onDelete, onViewProjects, onAddProject }: {
           { title: 'Satisfaction', value: cat.satisfaction, suffix: '%', icon: Award, color: '#34d399', trend: `${cat.partners} partners` },
         ].map((s, i) => (
           <motion.div key={s.title} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-            <div className="relative p-4 rounded-2xl overflow-hidden group cursor-default"
+            <div className="relative p-4 rounded-2xl group cursor-default"
               style={{ background: P.card, border: `1px solid ${P.border}` }}>
               <div className="absolute bottom-0 left-0 right-0 h-[2px]" style={{ background: `linear-gradient(90deg, ${s.color}60, transparent)` }} />
               <div className="flex items-center justify-between mb-3">
@@ -633,7 +624,7 @@ function DashboardTab({ cat, onEdit, onDelete, onViewProjects, onAddProject }: {
       {/* ── BENTO GRID ── */}
       <div className="grid grid-cols-12 gap-4">
         {/* Budget + Donut — 3 cols, 2 rows */}
-        <div className="col-span-3 row-span-2 rounded-2xl overflow-hidden" style={{ background: P.card, border: `1px solid ${P.border}` }}>
+        <div className="col-span-3 row-span-2 rounded-2xl" style={{ background: P.card, border: `1px solid ${P.border}` }}>
           <div className="p-5 h-full flex flex-col">
             <p className="text-[10px] font-bold tracking-wider uppercase mb-4" style={{ color: P.textLo }}>Budget Utilization</p>
             <div className="flex-1 flex flex-col items-center justify-center gap-2">
@@ -661,7 +652,7 @@ function DashboardTab({ cat, onEdit, onDelete, onViewProjects, onAddProject }: {
         </div>
 
         {/* Trend Chart — 6 cols */}
-        <div className="col-span-6 rounded-2xl overflow-hidden" style={{ background: P.card, border: `1px solid ${P.border}` }}>
+        <div className="col-span-6 rounded-2xl" style={{ background: P.card, border: `1px solid ${P.border}` }}>
           <div className="px-5 pt-4 pb-1">
             <div className="flex items-center justify-between mb-1">
               <p className="text-[10px] font-bold tracking-wider uppercase" style={{ color: P.textLo }}>Growth Trend</p>
@@ -688,7 +679,7 @@ function DashboardTab({ cat, onEdit, onDelete, onViewProjects, onAddProject }: {
         </div>
 
         {/* Projects breakdown — 3 cols */}
-        <div className="col-span-3 rounded-2xl overflow-hidden" style={{ background: P.card, border: `1px solid ${P.border}` }}>
+        <div className="col-span-3 rounded-2xl" style={{ background: P.card, border: `1px solid ${P.border}` }}>
           <div className="p-4">
             <p className="text-[10px] font-bold tracking-wider uppercase mb-3" style={{ color: P.textLo }}>Projects</p>
             <div className="space-y-2.5">
@@ -716,7 +707,7 @@ function DashboardTab({ cat, onEdit, onDelete, onViewProjects, onAddProject }: {
         </div>
 
         {/* Risk + Partners — 3 cols */}
-        <div className="col-span-3 rounded-2xl overflow-hidden" style={{ background: P.card, border: `1px solid ${P.border}` }}>
+        <div className="col-span-3 rounded-2xl" style={{ background: P.card, border: `1px solid ${P.border}` }}>
           <div className="p-4 space-y-4">
             <div>
               <p className="text-[10px] font-bold tracking-wider uppercase mb-2" style={{ color: P.textLo }}>Risk Level</p>
@@ -738,7 +729,7 @@ function DashboardTab({ cat, onEdit, onDelete, onViewProjects, onAddProject }: {
         </div>
 
         {/* SDG Alignment — 5 cols */}
-        <div className="col-span-5 rounded-2xl overflow-hidden" style={{ background: P.card, border: `1px solid ${P.border}` }}>
+        <div className="col-span-5 rounded-2xl" style={{ background: P.card, border: `1px solid ${P.border}` }}>
           <div className="p-4">
             <div className="flex items-center justify-between mb-3">
               <p className="text-[10px] font-bold tracking-wider uppercase" style={{ color: P.textLo }}>SDG Alignment</p>
@@ -759,7 +750,7 @@ function DashboardTab({ cat, onEdit, onDelete, onViewProjects, onAddProject }: {
         </div>
 
         {/* Regions — 4 cols */}
-        <div className="col-span-4 rounded-2xl overflow-hidden" style={{ background: P.card, border: `1px solid ${P.border}` }}>
+        <div className="col-span-4 rounded-2xl" style={{ background: P.card, border: `1px solid ${P.border}` }}>
           <div className="p-4">
             <div className="flex items-center justify-between mb-3">
               <p className="text-[10px] font-bold tracking-wider uppercase" style={{ color: P.textLo }}>Regions</p>

@@ -56,9 +56,9 @@ export const lightTheme: ThemeColors = {
 
   // Text — olive/green-tinted
   textHi: '#1C2B1C',
-  textMd: '#4A5C4A',
-  textLo: '#7A8C7A',
-  textDim: '#B0BFB0',
+  textMd: '#3A4C3A',
+  textLo: '#5A6C5A',
+  textDim: '#7A8C7A',
 
   // Accent — forest green
   accent: '#2D5A27',
@@ -96,9 +96,9 @@ export const darkTheme: ThemeColors = {
 
   // Text — white opacity scale من BentoShowcase
   textHi:  '#ffffff',
-  textMd:  'rgba(255,255,255,0.60)',
-  textLo:  'rgba(255,255,255,0.35)',
-  textDim: 'rgba(255,255,255,0.15)',
+  textMd:  'rgba(255,255,255,0.75)',
+  textLo:  'rgba(255,255,255,0.52)',
+  textDim: 'rgba(255,255,255,0.35)',
 
   // Accent — أبيض حرفي hex (نفس BentoShowcase: toggles, today, buttons كلها white)
   // ملاحظة: يجب أن يكون hex لأن الكود يستخدم ${P.accent}12 pattern

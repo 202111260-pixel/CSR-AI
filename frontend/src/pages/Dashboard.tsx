@@ -65,14 +65,18 @@ const CORP = {
 // §2  SHARED PRIMITIVES  (GlassCard, SectionHeader, ChartTooltip, AnimatedCounter)
 // ═══════════════════════════════════════════════════════════════════════════════
 function GlassCard({ children, className, style, onClick }: { children: React.ReactNode; className?: string; style?: React.CSSProperties; onClick?: () => void }) {
-  const { colors: P } = useTheme();
+  const { colors: P, isDark } = useTheme();
   return (
-    <div onClick={onClick} className={cn('relative rounded-xl overflow-hidden', className)}
+    <div onClick={onClick} className={cn('relative rounded-xl', className)}
       style={{
-        background: `linear-gradient(168deg, ${P.card} 0%, ${P.bg} 100%)`,
-        border: `1px solid ${P.border}`,
+        background: isDark
+          ? 'linear-gradient(160deg, #111111 0%, #0a0a0a 100%)'
+          : `linear-gradient(168deg, ${P.card} 0%, ${P.bg} 100%)`,
+        border: `1px solid ${isDark ? 'rgba(255,255,255,0.07)' : P.border}`,
         borderRadius: 20,
-        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.03), 0 0 40px rgba(0,0,0,0.08)',
+        boxShadow: isDark
+          ? 'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 32px rgba(0,0,0,0.35)'
+          : 'inset 0 1px 0 rgba(255,255,255,0.05), 0 2px 20px rgba(0,0,0,0.06)',
         ...style,
       }}>
       {children}
@@ -81,15 +85,16 @@ function GlassCard({ children, className, style, onClick }: { children: React.Re
 }
 function SectionHeader({ icon: Icon, title, subtitle, action }: { icon: React.ComponentType<{ size?: number; style?: React.CSSProperties }>; title: string; subtitle?: string; action?: React.ReactNode }) {
   const { colors: P, isDark } = useTheme();
+  const accentColor = isDark ? '#4ade80' : CORP.brand;
   return (
     <div className="flex items-center justify-between mb-5">
       <div className="flex items-center gap-3">
-        <div className="h-9 w-9 flex items-center justify-center">
-          <Icon size={16} style={{ color: isDark ? '#93c5fd' : CORP.brand }} />
+        <div style={{ width: 32, height: 32, borderRadius: 9, background: `${accentColor}12`, border: `1px solid ${accentColor}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <Icon size={14} style={{ color: accentColor }} />
         </div>
         <div>
-          <h3 className="text-sm font-semibold tracking-tight" style={{ color: P.textHi }}>{title}</h3>
-          {subtitle && <p className="text-[10px] mt-0.5" style={{ color: P.textLo }}>{subtitle}</p>}
+          <h3 style={{ fontSize: 13, fontWeight: 700, color: isDark ? '#ffffff' : P.textHi, fontFamily: "'Caveat', cursive", letterSpacing: '-0.01em', lineHeight: 1.2 }}>{title}</h3>
+          {subtitle && <p className="text-[9.5px] mt-0.5" style={{ color: isDark ? 'rgba(255,255,255,0.3)' : P.textLo }}>{subtitle}</p>}
         </div>
       </div>
       {action}
@@ -1721,12 +1726,6 @@ export default function Dashboard() {
     return expectedMonthly > 0 ? Math.round((avgMonthlySpend / expectedMonthly) * 100) : 0;
   }, [budgetTrend, totalBudget]);
 
-  // Trend deltas (this month vs last)
-  const currentMonthBudget = budgetTrend.length > 0 ? budgetTrend[budgetTrend.length - 1].budget : 0;
-  const prevMonthBudget    = budgetTrend.length > 1 ? budgetTrend[budgetTrend.length - 2].budget : 0;
-  const currentMonthSpent  = budgetTrend.length > 0 ? budgetTrend[budgetTrend.length - 1].spent : 0;
-  const prevMonthSpent     = budgetTrend.length > 1 ? budgetTrend[budgetTrend.length - 2].spent : 0;
-
   const budgetAreaData = useMemo(() => {
     if (!budgetTrend.length) return [] as Array<{ date: string; budget: number; spent: number }>;
 
@@ -1867,111 +1866,69 @@ export default function Dashboard() {
       {/* ── Main scrollable content ── */}
       <div className="flex-1 min-w-0 px-6 py-5 space-y-6">
 
-        {/* ═══════════════ ROW 0 : HEADER ═══════════════ */}
-        <motion.div variants={fadeUp} initial="hidden" animate="show">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center gap-3.5">
-              <div style={{
-                width: 44, height: 44, borderRadius: 14,
-                background: isDark ? 'rgba(147,197,253,0.1)' : 'rgba(11,92,171,0.1)',
-                border: `1px solid ${isDark ? 'rgba(147,197,253,0.2)' : 'rgba(11,92,171,0.2)'}`,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                <PiHouseLineDuotone size={22} style={{ color: isDark ? '#93c5fd' : CORP.brand }} />
-              </div>
+        {/* ═══════════════ ROW 0 : CINEMATIC HEADER ═══════════════ */}
+        <motion.div variants={fadeUp} initial="hidden" animate="show" className="-mx-6 -mt-5 mb-2">
+          <div style={{ background: '#080808', position: 'relative', overflow: 'hidden', padding: '36px 28px 28px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+            {/* Noise grain */}
+            <div style={{ position: 'absolute', inset: 0, backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E")`, backgroundSize: '128px 128px', opacity: 0.04, pointerEvents: 'none' }} />
+            {/* Glow blobs */}
+            <div style={{ position: 'absolute', left: '5%', top: '-10%', width: 380, height: 380, borderRadius: '50%', background: 'rgba(74,222,128,0.06)', filter: 'blur(120px)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', right: '10%', bottom: '-30%', width: 300, height: 300, borderRadius: '50%', background: 'rgba(37,99,235,0.07)', filter: 'blur(100px)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', right: '35%', top: '10%', width: 200, height: 200, borderRadius: '50%', background: 'rgba(168,85,247,0.04)', filter: 'blur(80px)', pointerEvents: 'none' }} />
+
+            {/* ── Main row ── */}
+            <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'space-between', gap: 20 }}>
               <div>
-                <h1 className="text-2xl tracking-tight font-semibold" style={{ color: P.textHi }}>
+                {/* Badge row */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.22)', borderRadius: 999, padding: '3px 12px', fontSize: 10, fontWeight: 700, color: '#4ade80', letterSpacing: '0.08em' }}>
+                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ade80', boxShadow: '0 0 0 3px rgba(74,222,128,0.2)', display: 'inline-block' }} />
+                    LIVE
+                  </span>
+                  <span style={{ fontSize: 10.5, color: 'rgba(255,255,255,0.22)', fontWeight: 500 }}>
+                    {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                  </span>
+                </div>
+                {/* Greeting */}
+                <h1 style={{ fontFamily: "'Caveat', cursive", fontSize: 'clamp(2rem, 3.8vw, 3.2rem)', fontWeight: 700, color: '#ffffff', lineHeight: 1.1, margin: '0 0 10px', letterSpacing: '-0.01em' }}>
                   {greeting}, {user?.name?.split(' ')[0] || 'there'}
                 </h1>
-                <p className="text-[11px] mt-0.5" style={{ color: P.textLo }}>
-                  CSR Operations Dashboard - Portfolio intelligence and execution status
+                <p style={{ fontSize: 12.5, color: 'rgba(255,255,255,0.32)', margin: 0, lineHeight: 1.7, maxWidth: 520 }}>
+                  CSR Operations Dashboard — Portfolio intelligence &amp; execution status across Oman's 11 governorates
                 </p>
               </div>
+
+              {/* Action buttons */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', paddingTop: 4 }}>
+                <motion.button whileHover={{ y: -1 }} whileTap={{ scale: 0.97 }}
+                  onClick={() => { setRefreshKey(k => k + 1); refetch(); }}
+                  style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', fontSize: 11, fontWeight: 600, background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.65)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, cursor: 'pointer', backdropFilter: 'blur(8px)' }}>
+                  <PiArrowsClockwiseBold size={12} className={isRefetching ? 'animate-spin' : ''} style={{ color: '#4ade80' }} />
+                  Refresh
+                </motion.button>
+                <motion.button whileHover={{ y: -1 }} whileTap={{ scale: 0.97 }} onClick={handleExportExcel}
+                  style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', fontSize: 11, fontWeight: 600, background: 'rgba(13,148,136,0.12)', color: '#2dd4bf', border: '1px solid rgba(13,148,136,0.28)', borderRadius: 10, cursor: 'pointer' }}>
+                  <PiExportDuotone size={12} />
+                  Excel
+                </motion.button>
+                <motion.button whileHover={{ y: -1 }} whileTap={{ scale: 0.97 }} onClick={handlePrint}
+                  style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', fontSize: 11, fontWeight: 600, background: 'rgba(37,99,235,0.12)', color: '#93c5fd', border: '1px solid rgba(37,99,235,0.28)', borderRadius: 10, cursor: 'pointer' }}>
+                  <PiPrinterDuotone size={12} />
+                  Print
+                </motion.button>
+              </div>
             </div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <motion.button whileHover={{ y: -1 }} whileTap={{ scale: 0.98 }}
-                onClick={() => { setRefreshKey(k => k + 1); refetch(); }}
-                className="flex items-center gap-1.5 px-3.5 py-2 text-[11px] font-medium"
-                style={{ background: P.surface, border: `1px solid ${P.border}`, color: P.textMd, borderRadius: 12 }}>
-                <PiArrowsClockwiseBold size={12} className={isRefetching ? 'animate-spin' : ''} style={{ color: isDark ? '#93c5fd' : CORP.brand }} /> Refresh
-              </motion.button>
-              <motion.button whileHover={{ y: -1 }} whileTap={{ scale: 0.98 }} onClick={handleExportExcel}
-                className="flex items-center gap-1.5 px-3 py-2 text-[11px] font-semibold"
-                style={{ background: '#0f766e10', color: '#0f766e', border: '1px solid #0f766e30', borderRadius: 12 }}>
-                <PiExportDuotone size={12} /> Excel
-              </motion.button>
-              <motion.button whileHover={{ y: -1 }} whileTap={{ scale: 0.98 }} onClick={handlePrint}
-                className="flex items-center gap-1.5 px-3 py-2 text-[11px] font-semibold"
-                style={{ background: isDark ? '#1e3a8a2a' : '#0B5CAB14', color: isDark ? '#93c5fd' : CORP.brand, border: `1px solid ${isDark ? '#3b82f660' : '#0B5CAB3d'}`, borderRadius: 12 }}>
-                <PiPrinterDuotone size={12} /> Print
-              </motion.button>
-            </div>
+
           </div>
         </motion.div>
 
-        {/* ═══════════════ ROW 1 : KPI STRIP ═══════════════ */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          {kpiCards.map((kpi, i) => {
-            const trendState = kpi.trend > 0 ? 'up' : kpi.trend < 0 ? 'down' : 'flat';
-            const trendColor = trendState === 'up' ? '#22c55e' : trendState === 'down' ? '#ef4444' : P.textDim;
-            const trendBg = trendState === 'up' ? 'rgba(34,197,94,0.12)' : trendState === 'down' ? 'rgba(239,68,68,0.12)' : `${P.border}`;
-            const sparkData = budgetTrend.map(t => kpi.label.includes('Budget') ? t.budget : kpi.label.includes('Spent') ? t.spent : t.budget > 0 ? 1 : 0);
-            return (
-              <motion.div key={kpi.label} variants={stagger(i * 0.06)} initial="hidden" animate="show"
-                whileHover={{ y: -3, scale: 1.02 }} transition={{ type: 'spring', stiffness: 300 }}>
-                <GlassCard className="p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="h-9 w-9 flex items-center justify-center">
-                      <kpi.icon size={16} style={{ color: kpi.color }} />
-                    </div>
-                    {kpi.trend !== 0 && (
-                      <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold"
-                        style={{ background: trendBg, color: trendColor }}>
-                        {trendState === 'up' ? <ArrowUpRight size={9} /> : trendState === 'down' ? <ArrowDownRight size={9} /> : <ArrowRight size={9} />} {Math.abs(kpi.trend)}%
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-[10px] font-medium mb-1" style={{ color: P.textLo }}>{kpi.label}</p>
-                  <div className="flex items-end justify-between">
-                    <p className="text-lg font-bold leading-none" style={{ color: P.textHi, fontFamily: 'var(--font-mono)' }}>
-                      {kpi.format === 'omr' ? <AnimatedCounter value={kpi.value / 1000} decimals={0} suffix="K" /> :
-                       kpi.format === 'pct' ? <AnimatedCounter value={kpi.value} suffix="%" /> :
-                       <AnimatedCounter value={kpi.value} />}
-                    </p>
-                    <MiniSparkline data={sparkData} color={kpi.color} />
-                  </div>
-                </GlassCard>
-              </motion.div>
-            );
-          })}
-        </div>
-
-        {/* ═══════════════ ROW 2 : PORTFOLIO PULSE + TREND DELTAS ═══════════════ */}
+        {/* ═══════════════ ROW 2 : PORTFOLIO PULSE ═══════════════ */}
         <motion.div variants={scaleIn(0.05)} initial="hidden" whileInView="show" viewport={VP}>
           <GlassCard className="p-5">
             <SectionHeader icon={PiPulseDuotone} title="Portfolio Pulse" subtitle="Live status distribution across all projects" />
             <PortfolioPulse statuses={statusDist} />
           </GlassCard>
         </motion.div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <motion.div variants={stagger(0)} initial="hidden" whileInView="show" viewport={VP}>
-            <TrendDelta label="New Budget" current={currentMonthBudget} previous={prevMonthBudget} format="omr" icon={PiWalletDuotone} color="#0d9488" />
-          </motion.div>
-          <motion.div variants={stagger(0.06)} initial="hidden" whileInView="show" viewport={VP}>
-            <TrendDelta label="Spending" current={currentMonthSpent} previous={prevMonthSpent} format="omr" icon={PiCurrencyDollarDuotone} color="#ea580c" />
-          </motion.div>
-          <motion.div variants={stagger(0.12)} initial="hidden" whileInView="show" viewport={VP}>
-            <TrendDelta label="Projects Created" current={budgetTrend.length > 0 ? Math.max(1, Math.round(budgetTrend[budgetTrend.length - 1].budget / 10000)) : 0}
-              previous={budgetTrend.length > 1 ? Math.max(1, Math.round(budgetTrend[budgetTrend.length - 2].budget / 10000)) : 0}
-              format="number" icon={PiFoldersDuotone} color="#7c3aed" />
-          </motion.div>
-          <motion.div variants={stagger(0.18)} initial="hidden" whileInView="show" viewport={VP}>
-            <TrendDelta label="Beneficiaries" current={kpis?.totalBeneficiaries ?? 0}
-              previous={Math.round((kpis?.totalBeneficiaries ?? 0) * 0.85)}
-              format="number" icon={PiUsersThreeDuotone} color="#8b5cf6" />
-          </motion.div>
-        </div>
 
         {/* ═══════════════ ROW 3 : GAUGES + EFFICIENCY RATIOS + BENEFICIARY DEMOGRAPHICS ═══════════════ */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-5">
@@ -2251,56 +2208,124 @@ export default function Dashboard() {
           {/* Monthly Spending Line — Label */}
           <motion.div variants={scaleIn(0.08)} initial="hidden" whileInView="show" viewport={VP}>
             <GlassCard className="p-5 h-full flex flex-col">
-              <div className="flex items-start justify-between mb-5">
-                <div>
-                  <p className="text-sm font-bold" style={{ color: P.textHi }}>
-                    {budgetTrend.length >= 2
-                      ? `${budgetTrend[0]?.month} – ${budgetTrend[budgetTrend.length - 1]?.month}`
-                      : 'Monthly Spending'}
-                  </p>
-                  <div className="flex items-center gap-1.5 mt-1">
-                    {(() => {
-                      const budgetTrendPct = trends?.budget ?? 0;
-                      const budgetTrendState = budgetTrendPct > 0 ? 'up' : budgetTrendPct < 0 ? 'down' : 'flat';
-                      const budgetTrendColor = budgetTrendState === 'up' ? '#22c55e' : budgetTrendState === 'down' ? '#ef4444' : P.textDim;
-                      const budgetTrendLabel = budgetTrendState === 'up' ? 'trending up this month' : budgetTrendState === 'down' ? 'trending down this month' : 'stable this month';
-                      return (
-                        <>
-                          {budgetTrendState === 'up' ? <ArrowUpRight size={13} color={budgetTrendColor} /> : budgetTrendState === 'down' ? <ArrowDownRight size={13} color={budgetTrendColor} /> : <ArrowRight size={13} color={budgetTrendColor} />}
-                          <span className="text-xs font-bold" style={{ color: budgetTrendColor }}>
-                            {Math.abs(budgetTrendPct)}%
-                          </span>
-                          <span className="text-xs" style={{ color: P.textMd }}>{budgetTrendLabel}</span>
-                        </>
-                      );
-                    })()}
+              {/* Header */}
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="h-9 w-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                    style={{ background: `linear-gradient(135deg, ${P.accent}22, ${P.accent}08)`, border: `1px solid ${P.accent}30` }}>
+                    <TrendingUp size={15} style={{ color: P.accent }} />
                   </div>
-                  <p className="text-[10px] mt-0.5" style={{ color: P.textLo }}>
-                    Showing monthly spend for the last {budgetTrend.length} months
-                  </p>
+                  <div>
+                    <p className="text-xs font-black tracking-tight" style={{ color: P.textHi }}>Monthly Spend</p>
+                    <p className="text-[9px]" style={{ color: P.textDim }}>
+                      {budgetTrend.length >= 2 ? `${budgetTrend[0]?.month} → ${budgetTrend[budgetTrend.length - 1]?.month}` : 'Last 12 months'}
+                    </p>
+                  </div>
                 </div>
-                <div className="h-9 w-9 flex items-center justify-center">
-                  <TrendingUp size={16} style={{ color: P.accent }} />
-                </div>
+                {(() => {
+                  const pct = trends?.budget ?? 0;
+                  const isUp = pct > 0; const isDown = pct < 0;
+                  const clr = isUp ? '#22c55e' : isDown ? '#ef4444' : P.textDim;
+                  const bg  = isUp ? '#22c55e18' : isDown ? '#ef444418' : `${P.border}`;
+                  return (
+                    <div className="flex items-center gap-1 px-2 py-1 rounded-lg" style={{ background: bg, border: `1px solid ${clr}30` }}>
+                      {isUp ? <ArrowUpRight size={11} color={clr} /> : isDown ? <ArrowDownRight size={11} color={clr} /> : <ArrowRight size={11} color={clr} />}
+                      <span className="text-[11px] font-black tabular-nums" style={{ color: clr }}>{Math.abs(pct)}%</span>
+                    </div>
+                  );
+                })()}
               </div>
-              <div className="flex-1" style={{ minHeight: 180 }}>
+
+              {/* KPI row */}
+              {(() => {
+                const activeMonths = budgetTrend.filter(m => (m.spent ?? 0) > 0);
+                const lastActive   = activeMonths.length > 0 ? activeMonths[activeMonths.length - 1] : null;
+                const totalSpend   = budgetTrend.reduce((s, m) => s + (m.spent   ?? 0), 0);
+                const totalBudget  = budgetTrend.reduce((s, m) => s + (m.budget  ?? 0), 0);
+                const peakMonth    = budgetTrend.reduce((best, m) => (m.spent ?? 0) > (best.spent ?? 0) ? m : best, budgetTrend[0] ?? {});
+                const avgSpend     = activeMonths.length > 0 ? totalSpend / activeMonths.length : 0;
+                const utilPct      = totalBudget > 0 ? Math.min(100, Math.round((totalSpend / totalBudget) * 100)) : 0;
+                const fmt = (n: number) => n >= 1000 ? `${(n / 1000).toFixed(1)}K` : n.toFixed(0);
+                return (
+                  <>
+                    {/* Top 3 stats */}
+                    <div className="grid grid-cols-3 gap-2 mb-3">
+                      {[
+                        { label: 'Last Active', value: lastActive ? fmt(lastActive.spent ?? 0) : '—', sub: lastActive?.month ?? '—', color: P.textHi },
+                        { label: 'Peak Month',  value: peakMonth  ? fmt(peakMonth.spent  ?? 0) : '—', sub: peakMonth?.month  ?? '—', color: '#fbbf24' },
+                        { label: 'Avg / Month', value: fmt(avgSpend), sub: `${activeMonths.length} months`, color: '#34d399' },
+                      ].map(s => (
+                        <div key={s.label} className="rounded-lg px-2.5 py-2" style={{ background: P.surface ?? P.bg, border: `1px solid ${P.border}` }}>
+                          <p className="text-[8px] font-bold uppercase tracking-wider truncate" style={{ color: P.textDim }}>{s.label}</p>
+                          <p className="text-sm font-black tabular-nums leading-tight mt-0.5" style={{ color: s.color }}>{s.value}</p>
+                          <p className="text-[8px] truncate" style={{ color: P.textDim }}>{s.sub}</p>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Budget utilisation bar */}
+                    <div className="mb-3">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[9px] font-bold" style={{ color: P.textDim }}>Budget Utilisation</span>
+                        <span className="text-[9px] font-black tabular-nums" style={{ color: utilPct > 85 ? '#f87171' : utilPct > 60 ? '#fbbf24' : '#34d399' }}>{utilPct}%</span>
+                      </div>
+                      <div className="h-1.5 rounded-full" style={{ background: P.border }}>
+                        <motion.div className="h-full rounded-full"
+                          initial={{ width: 0 }}
+                          animate={{ width: `${utilPct}%` }}
+                          transition={{ duration: 1, ease: EASE }}
+                          style={{ background: utilPct > 85 ? 'linear-gradient(90deg,#f87171,#ef4444)' : utilPct > 60 ? 'linear-gradient(90deg,#fbbf24,#f59e0b)' : `linear-gradient(90deg,${P.accent},#34d399)` }}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between mt-1">
+                        <span className="text-[8px]" style={{ color: P.textDim }}>Spent: <span className="font-bold" style={{ color: P.textMd }}>{totalSpend.toLocaleString('en-US', { maximumFractionDigits: 0 })} OMR</span></span>
+                        <span className="text-[8px]" style={{ color: P.textDim }}>Budget: <span className="font-bold" style={{ color: P.textMd }}>{totalBudget.toLocaleString('en-US', { maximumFractionDigits: 0 })} OMR</span></span>
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
+
+              {/* Chart */}
+              <div className="flex-1" style={{ minHeight: 130 }}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart
-                    data={budgetTrend.map(m => ({ month: m.month, spent: m.spent }))}
-                    margin={{ top: 28, right: 16, left: 0, bottom: 4 }}
+                  <RechartsAreaChart
+                    data={budgetTrend.map(m => ({ month: m.month, spent: m.spent, budget: m.budget }))}
+                    margin={{ top: 4, right: 4, left: 0, bottom: 0 }}
                   >
+                    <defs>
+                      <linearGradient id="spendGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor={P.accent} stopOpacity={0.4} />
+                        <stop offset="100%" stopColor={P.accent} stopOpacity={0.02} />
+                      </linearGradient>
+                      <linearGradient id="budgetGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#8fb3ff" stopOpacity={0.2} />
+                        <stop offset="100%" stopColor="#8fb3ff" stopOpacity={0.01} />
+                      </linearGradient>
+                    </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke={P.border} vertical={false} />
-                    <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: P.textLo, fontSize: 10 }} />
+                    <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: P.textDim, fontSize: 9 }} />
                     <YAxis hide />
                     <RTooltip content={<ChartTooltip />} />
-                    <Line
-                      type="monotone" dataKey="spent" name="Spent (OMR)"
-                      stroke={P.accent} strokeWidth={2.5}
-                      dot={false}
-                      activeDot={false}
-                    />
-                  </LineChart>
+                    <Area type="monotone" dataKey="budget" name="Budget (OMR)"
+                      stroke="#8fb3ff" strokeWidth={1.5} strokeDasharray="4 3"
+                      fill="url(#budgetGrad)" dot={false} activeDot={false} />
+                    <Area type="monotone" dataKey="spent" name="Spent (OMR)"
+                      stroke={P.accent} strokeWidth={2.5} fill="url(#spendGrad)"
+                      dot={false} activeDot={{ r: 4, fill: P.accent, strokeWidth: 0 }} />
+                  </RechartsAreaChart>
                 </ResponsiveContainer>
+              </div>
+              {/* Legend */}
+              <div className="flex items-center justify-center gap-5 mt-2">
+                {[{ l: 'Budget', c: '#8fb3ff', dash: true }, { l: 'Spent', c: P.accent, dash: false }].map(v => (
+                  <div key={v.l} className="flex items-center gap-1.5">
+                    {v.dash
+                      ? <svg width="16" height="4"><line x1="0" y1="2" x2="16" y2="2" stroke={v.c} strokeWidth="2" strokeDasharray="4 2" /></svg>
+                      : <div className="w-4 h-[3px] rounded-full" style={{ background: v.c }} />}
+                    <span className="text-[9px] font-medium" style={{ color: P.textDim }}>{v.l}</span>
+                  </div>
+                ))}
               </div>
             </GlassCard>
           </motion.div>
@@ -2826,14 +2851,23 @@ export default function Dashboard() {
               <>
                 <div style={{ height: 130 }}>
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart
-                      data={regionData.slice(0, 8).map((r: any) => ({
+                    <BarChart
+                      data={regionData.slice(0, 8).map((r: any, i: number) => ({
                         name: String(r.region).length > 6 ? `${String(r.region).slice(0, 6)}.` : r.region,
                         fullName: r.region,
                         value: Number(r.count) || 0,
+                        color: CHART_C[i % CHART_C.length],
                       }))}
-                      margin={{ top: 10, right: 6, left: -8, bottom: 0 }}
+                      margin={{ top: 4, right: 6, left: -8, bottom: 0 }}
                     >
+                      <defs>
+                        {CHART_C.map((c, i) => (
+                          <linearGradient key={i} id={`rg${i}`} x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor={c} stopOpacity={0.95} />
+                            <stop offset="100%" stopColor={c} stopOpacity={0.45} />
+                          </linearGradient>
+                        ))}
+                      </defs>
                       <CartesianGrid strokeDasharray="3 3" stroke={P.border} vertical={false} />
                       <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: P.textDim, fontSize: 8 }} />
                       <YAxis axisLine={false} tickLine={false} tick={{ fill: P.textDim, fontSize: 8 }} width={20} />
@@ -2842,25 +2876,22 @@ export default function Dashboard() {
                           if (!active || !payload?.length) return null;
                           const point = payload[0]?.payload;
                           return (
-                            <div className="rounded-lg px-2.5 py-1.5" style={{ background: P.card, border: `1px solid ${P.border}`, boxShadow: '0 8px 24px rgba(0,0,0,0.2)' }}>
+                            <div className="rounded-lg px-2.5 py-1.5" style={{ background: P.card, border: `1px solid ${point?.color}40`, boxShadow: '0 8px 24px rgba(0,0,0,0.2)' }}>
                               <p className="text-[9px] font-semibold" style={{ color: P.textHi }}>{point?.fullName}</p>
-                              <p className="text-[9px]" style={{ color: P.textMd }}>Projects: <span className="font-bold">{payload[0]?.value}</span></p>
+                              <p className="text-[9px]" style={{ color: P.textMd }}>Projects: <span className="font-black" style={{ color: point?.color }}>{payload[0]?.value}</span></p>
                             </div>
                           );
                         }}
                       />
-                      <Line
-                        type="monotone"
-                        dataKey="value"
-                        stroke={P.accent}
-                        strokeWidth={2}
-                        dot={{ r: 2.5, fill: P.accent, strokeWidth: 0 }}
-                        activeDot={{ r: 4, fill: P.accent }}
-                      />
-                    </LineChart>
+                      <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                        {regionData.slice(0, 8).map((_: any, i: number) => (
+                          <Cell key={i} fill={`url(#rg${i % CHART_C.length})`} />
+                        ))}
+                      </Bar>
+                    </BarChart>
                   </ResponsiveContainer>
                 </div>
-                <p className="text-[9px] mt-2" style={{ color: P.textLo }}>Regional distribution trend (top regions)</p>
+                <p className="text-[9px] mt-2" style={{ color: P.textLo }}>Regional distribution (top regions)</p>
               </>
             ) : (
               <p className="text-[9px] text-center py-3" style={{ color: P.textLo }}>No region data</p>
@@ -2880,46 +2911,57 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="rounded-xl p-3" style={{ background: P.card, border: `1px solid ${P.border}` }}>
-            {sdgAlignment.length > 0 ? (
-              <>
-                <div style={{ height: 130 }}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <RechartsAreaChart
-                      data={sdgAlignment.slice(0, 10).map((s: any) => ({
-                        goal: `G${s.goal}`,
-                        fullGoal: `SDG ${s.goal}`,
-                        value: Number(s.count) || 0,
-                      }))}
-                      margin={{ top: 10, right: 6, left: -8, bottom: 0 }}
-                    >
-                      <defs>
-                        <linearGradient id="sdgFlow" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor={P.accent} stopOpacity={0.45} />
-                          <stop offset="100%" stopColor={P.accent} stopOpacity={0.04} />
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke={P.border} vertical={false} />
-                      <XAxis dataKey="goal" axisLine={false} tickLine={false} tick={{ fill: P.textDim, fontSize: 8 }} />
-                      <YAxis axisLine={false} tickLine={false} tick={{ fill: P.textDim, fontSize: 8 }} width={20} />
-                      <RTooltip
-                        content={({ active, payload }: any) => {
-                          if (!active || !payload?.length) return null;
-                          const point = payload[0]?.payload;
-                          return (
-                            <div className="rounded-lg px-2.5 py-1.5" style={{ background: P.card, border: `1px solid ${P.border}`, boxShadow: '0 8px 24px rgba(0,0,0,0.2)' }}>
-                              <p className="text-[9px] font-semibold" style={{ color: P.textHi }}>{point?.fullGoal}</p>
-                              <p className="text-[9px]" style={{ color: P.textMd }}>Projects: <span className="font-bold">{payload[0]?.value}</span></p>
-                            </div>
-                          );
-                        }}
-                      />
-                      <Area type="monotone" dataKey="value" stroke={P.accent} strokeWidth={2} fill="url(#sdgFlow)" dot={false} />
-                    </RechartsAreaChart>
-                  </ResponsiveContainer>
-                </div>
-                <p className="text-[9px] mt-2" style={{ color: P.textLo }}>Flow of projects aligned to top SDGs</p>
-              </>
-            ) : (
+            {sdgAlignment.length > 0 ? (() => {
+              const SDG_C: Record<number,string> = {
+                1:'#E5243B',2:'#DDA63A',3:'#4C9F38',4:'#C5192D',5:'#FF3A21',
+                6:'#26BDE2',7:'#FCC30B',8:'#A21942',9:'#FD6925',10:'#DD1367',
+                11:'#FD9D24',12:'#BF8B2E',13:'#3F7E44',14:'#0A97D9',15:'#56C02B',
+                16:'#00689D',17:'#19486A',
+              };
+              const chartData = sdgAlignment.slice(0, 10).map((s: any) => {
+                const g = Number(s.goal);
+                return { goal: `G${g}`, fullGoal: `SDG ${g}`, value: Number(s.count) || 0, color: SDG_C[g] ?? P.accent };
+              });
+              return (
+                <>
+                  <div style={{ height: 130 }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={chartData} margin={{ top: 4, right: 6, left: -8, bottom: 0 }}>
+                        <defs>
+                          {Object.entries(SDG_C).map(([k, c]) => (
+                            <linearGradient key={k} id={`sdg${k}`} x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor={c} stopOpacity={0.95} />
+                              <stop offset="100%" stopColor={c} stopOpacity={0.45} />
+                            </linearGradient>
+                          ))}
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke={P.border} vertical={false} />
+                        <XAxis dataKey="goal" axisLine={false} tickLine={false} tick={{ fill: P.textDim, fontSize: 8 }} />
+                        <YAxis axisLine={false} tickLine={false} tick={{ fill: P.textDim, fontSize: 8 }} width={20} />
+                        <RTooltip
+                          content={({ active, payload }: any) => {
+                            if (!active || !payload?.length) return null;
+                            const point = payload[0]?.payload;
+                            return (
+                              <div className="rounded-lg px-2.5 py-1.5" style={{ background: P.card, border: `1px solid ${point?.color}50`, boxShadow: '0 8px 24px rgba(0,0,0,0.2)' }}>
+                                <p className="text-[9px] font-semibold" style={{ color: P.textHi }}>{point?.fullGoal}</p>
+                                <p className="text-[9px]" style={{ color: P.textMd }}>Projects: <span className="font-black" style={{ color: point?.color }}>{payload[0]?.value}</span></p>
+                              </div>
+                            );
+                          }}
+                        />
+                        <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                          {chartData.map((d, i) => (
+                            <Cell key={i} fill={`url(#sdg${d.goal.replace('G','')})`} />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <p className="text-[9px] mt-2" style={{ color: P.textLo }}>Projects aligned to top SDGs</p>
+                </>
+              );
+            })() : (
               <p className="text-[9px] text-center py-3" style={{ color: P.textLo }}>No SDG data</p>
             )}
           </div>

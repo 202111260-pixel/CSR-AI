@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useCallback } from 'react';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
 import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid,
@@ -19,6 +19,9 @@ import { socialMediaService } from '../services/socialMediaService';
 import type { SocialMediaData, SocialMediaEngagementMetrics, SocialMediaSentimentAnalysis } from '../services/socialMediaService';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
 import { EmptyState } from '../components/common/EmptyState';
+import { exportToExcel, printTable } from '../utils/exportUtils';
+import type { ExportColumn } from '../utils/exportUtils';
+import { ActionBar } from '../components/common/ActionBar';
 
 /* ═══════════════════════════════════════════════════════════════════════
    ANIMATION VARIANTS
@@ -74,7 +77,7 @@ function GlassCard({ children, className, style }: {
   const { colors: P } = useTheme();
   return (
     <div
-      className={cn('relative rounded-[20px] overflow-hidden', className)}
+      className={cn('relative rounded-[20px]', className)}
       style={{
         background: `linear-gradient(168deg, ${P.card} 0%, ${P.bg} 100%)`,
         border: `1px solid ${P.border}`,
@@ -276,7 +279,7 @@ export default function SocialMediaAnalytics() {
 
   /* ─── Data Fetching ──────────────────────────────────────────────── */
 
-  const { data: apiData, isLoading, isError } = useQuery({
+  const { data: apiData, isLoading, isError, refetch, isRefetching } = useQuery({
     queryKey: ['social-media-analytics', period],
     queryFn: () => socialMediaService.getAnalytics(),
     staleTime: 5 * 60 * 1000,
@@ -341,6 +344,41 @@ export default function SocialMediaAnalytics() {
     '1y': 'Last Year',
   };
 
+  /* ─── Export Handlers ───────────────────────────────────────────── */
+  const exportCols: ExportColumn[] = [
+    { header: 'Metric', key: 'Metric' },
+    { header: 'Value', key: 'Value' },
+  ];
+
+  const handleExportExcel = useCallback(() => {
+    const rows = [
+      { Metric: 'Total Engagements', Value: engagementMetrics.totalEngagements ?? 0 },
+      { Metric: 'Activities', Value: engagementMetrics.activities ?? 0 },
+      { Metric: 'Reviews', Value: engagementMetrics.reviews ?? 0 },
+      { Metric: 'Ideas', Value: engagementMetrics.ideas ?? 0 },
+      { Metric: 'Donations', Value: engagementMetrics.donations ?? 0 },
+      { Metric: 'Positive Sentiment', Value: `${sentimentAnalysis.positive.percentage ?? 0}%` },
+      { Metric: 'Neutral Sentiment', Value: `${sentimentAnalysis.neutral.percentage ?? 0}%` },
+      { Metric: 'Negative Sentiment', Value: `${sentimentAnalysis.negative.percentage ?? 0}%` },
+      { Metric: 'Avg Rating', Value: sentimentAnalysis.averageRating ?? 0 },
+    ];
+    exportToExcel(rows, { filename: 'social_media_analytics', title: 'Social Media Analytics', columns: exportCols });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [engagementMetrics, sentimentAnalysis]);
+
+  const handlePrint = useCallback(() => {
+    const rows = [
+      { Metric: 'Total Engagements', Value: String(engagementMetrics.totalEngagements ?? 0) },
+      { Metric: 'Activities', Value: String(engagementMetrics.activities ?? 0) },
+      { Metric: 'Reviews', Value: String(engagementMetrics.reviews ?? 0) },
+      { Metric: 'Ideas', Value: String(engagementMetrics.ideas ?? 0) },
+      { Metric: 'Donations', Value: String(engagementMetrics.donations ?? 0) },
+      { Metric: 'Avg Rating', Value: String(sentimentAnalysis.averageRating ?? 0) },
+    ];
+    printTable(rows, exportCols, 'Social Media Analytics');
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [engagementMetrics, sentimentAnalysis]);
+
   /* ─── Loading State ──────────────────────────────────────────────── */
 
   if (isLoading) {
@@ -396,7 +434,14 @@ export default function SocialMediaAnalytics() {
           </p>
         </div>
 
-        {/* Period Selector */}
+        <div className="flex items-center gap-3 flex-wrap">
+          <ActionBar
+            onRefresh={refetch}
+            onExcel={handleExportExcel}
+            onPrint={handlePrint}
+            isRefreshing={isRefetching}
+          />
+          {/* Period Selector */}
         <div className="relative">
           <motion.button
             whileHover={{ scale: 1.03 }}
@@ -450,6 +495,7 @@ export default function SocialMediaAnalytics() {
               </motion.div>
             )}
           </AnimatePresence>
+        </div>
         </div>
       </motion.div>
 

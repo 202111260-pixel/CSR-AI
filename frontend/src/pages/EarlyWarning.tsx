@@ -112,7 +112,7 @@ function Card({ children, className, glow, accent }: { children: React.ReactNode
   const { colors: P } = useTheme();
   return (
     <div
-      className={cn('relative rounded-[20px] overflow-hidden group/card', className)}
+      className={cn('relative rounded-[20px] group/card', className)}
       style={{
         background: `${P.card}`,
         border: `1px solid ${P.border}`,
@@ -223,7 +223,7 @@ function RiskSummaryCard({ item, i, projects, onViewAll }: {
       whileHover={{ y: -6, scale: 1.02, transition: { duration: 0.25, ease: EASE } }}
     >
       <div
-        className="relative rounded-[20px] overflow-hidden cursor-default group"
+        className="relative rounded-[20px] cursor-default group"
         style={{
           background: `linear-gradient(160deg, ${P.card} 0%, ${P.bg} 100%)`,
           border: `1px solid ${cfg.color}20`,
@@ -675,7 +675,7 @@ function AiInsightBanner({ riskGroups, projectsRiskData, onAskAi }: {
       animate={{ opacity: 1, y: 0, height: 'auto' }}
       exit={{ opacity: 0, y: -12, height: 0 }}
       transition={{ duration: 0.5, ease: EASE }}
-      className="rounded-2xl overflow-hidden"
+      className="rounded-2xl"
       style={{
         background: `linear-gradient(135deg, ${P.accent}12 0%, rgba(248,113,113,0.08) 100%)`,
         border: `1px solid ${P.accent}25`,
@@ -2425,7 +2425,7 @@ export default function EarlyWarning() {
                               initial={{ opacity: 0, y: 12 }}
                               animate={{ opacity: 1, y: 0 }}
                               transition={{ delay: idx * 0.08, duration: 0.35, ease: EASE }}
-                              className="rounded-2xl overflow-hidden"
+                              className="rounded-2xl"
                               style={{ border: `1px solid ${P.border}`, background: P.surface }}
                             >
                               {/* Scenario Header */}

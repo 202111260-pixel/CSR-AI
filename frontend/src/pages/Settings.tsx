@@ -75,7 +75,7 @@ function GlassCard({
   const { colors: P } = useTheme();
   return (
     <motion.div
-      className={cn('relative rounded-[20px] overflow-hidden', className)}
+      className={cn('relative rounded-[20px]', className)}
       style={{
         background: `linear-gradient(168deg, ${P.card} 0%, ${P.bg} 100%)`,
         border: `1px solid ${P.border}`,
@@ -879,7 +879,7 @@ function CompanyTab() {
                 <motion.div
                   key={pillar.key}
                   variants={stagger(i * 0.05)}
-                  className="relative p-5 rounded-2xl overflow-hidden"
+                  className="relative p-5 rounded-2xl"
                   style={{ 
                     background: `linear-gradient(135deg, ${pillar.color}10, transparent)`,
                     border: `1px solid ${pillar.color}25`,

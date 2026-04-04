@@ -20,9 +20,10 @@ import { cn } from '../../utils/cn';
 import { useTheme } from '../../hooks/useTheme';
 import { useQuery } from '@tanstack/react-query';
 import { reportService } from '../../services/reportService';
-import { exportToExcel, exportToPDF, printTable, type ExportColumn } from '../../utils/exportUtils';
+import { printTable, generateFinancialReportExcel, type ExportColumn } from '../../utils/exportUtils';
 import { generateFinancialReportPDF } from '../../utils/pdfReportGenerator';
 import { Button } from '../../components/ui/Button';
+import { ActionBar } from '../../components/common/ActionBar';
 
 // ─── Palette ──────────────────────────────────────────────────────────────────
 
@@ -58,7 +59,7 @@ function GlassCard({ children, className, glow, style: extra }: {
 }) {
   const { colors: P } = useTheme();
   return (
-    <div className={cn('relative rounded-2xl overflow-hidden', className)} style={{
+    <div className={cn('relative rounded-2xl', className)} style={{
       background: `${P.card}`,
       border: `1px solid ${P.border}`,
       boxShadow: [
@@ -165,7 +166,7 @@ const periods = [
 export default function FinancialReports() {
   const navigate = useNavigate();
   const P = useTheme().colors;
-  const [period, setPeriod] = useState('ytd');
+  const [period, setPeriod] = useState('all');
   const [showPeriodDrop, setShowPeriodDrop] = useState(false);
   const [compareTab, setCompareTab] = useState<'yearly' | 'category' | 'region'>('yearly');
   const [invoiceFilter, setInvoiceFilter] = useState('all');
@@ -189,7 +190,7 @@ export default function FinancialReports() {
     }
   }, [period]);
 
-  const { data: reportRes, isLoading } = useQuery({
+  const { data: reportRes, isLoading, refetch, isRefetching } = useQuery({
     queryKey: ['report-financial', periodParams],
     queryFn: () => reportService.getFinancialReport(periodParams),
     staleTime: 5 * 60 * 1000,
@@ -431,16 +432,28 @@ export default function FinancialReports() {
   }, [financialSummary, categoryBreakdown, projectFinancials]);
 
   const handleExportExcel = useCallback(() => {
-    exportToExcel(getExportData(), {
-      filename: 'financial_report',
-      title: 'التقرير المالي',
-      subtitle: 'تحليل مالي شامل للمشاريع',
-      columns: exportColumns,
+    const sortedBySpent = [...projectFinancials].sort((a, b) => b.spent - a.spent);
+    generateFinancialReportExcel({
+      kpis: financialSummary.map(k => ({ label: k.title, value: k.value })),
+      expenseBreakdown: expenseItems.map(e => ({ name: e.name, value: e.value, pct: e.pct })),
+      projectFinancials: projectFinancials.map(p => ({ name: p.name, budget: p.budget, spent: p.spent, remaining: p.remaining, pct: p.pct, status: p.status })),
+      categoryBreakdown: categoryBreakdown.map(c => ({ name: c.name, budget: c.budget, spent: c.spent, projects: c.projects })),
+      efficiencyMetrics: efficiencyMetrics.map(m => ({ label: m.label, value: m.value, unit: m.unit })),
       dateRange: periodParams.startDate ? { from: periodParams.startDate, to: periodParams.endDate } : undefined,
+      cashFlowData: cashFlowData.map(c => ({ month: c.month, inflow: c.inflow, outflow: c.outflow, net: c.net })),
+      yearlyComparison: yearlyComparison.map(y => ({ year: y.year, budget: y.budget, spent: y.spent, projects: y.projects })),
+      regionComparison: regionComparison.map(r => ({ region: r.region, budget: r.budget, spent: r.spent, projects: r.projects })),
+      budgetAlerts: budgetAlerts.map(a => ({ level: a.level, title: a.title, count: a.count, desc: a.desc })),
+      invoices: invoices.map(i => ({ id: i.id, project: i.project, vendor: i.vendor, amount: i.amount, date: i.date, status: i.status, category: i.category })),
+      top5Projects: sortedBySpent.slice(0, 5).map(p => ({ name: p.name, budget: p.budget, spent: p.spent, remaining: p.remaining, pct: p.pct, status: p.status })),
+      bottom5Projects: sortedBySpent.slice(-5).reverse().map(p => ({ name: p.name, budget: p.budget, spent: p.spent, remaining: p.remaining, pct: p.pct, status: p.status })),
+      forecastData: forecastData.map(f => ({ quarter: f.quarter, projectedBudget: f.projectedBudget, projectedSpend: f.projectedSpend, confidence: f.confidence })),
     });
-  }, [getExportData, periodParams]);
+  }, [financialSummary, expenseItems, projectFinancials, categoryBreakdown, efficiencyMetrics,
+      cashFlowData, yearlyComparison, regionComparison, budgetAlerts, invoices, forecastData, periodParams]);
 
   const handleExportPDF = useCallback(() => {
+    const sortedBySpentLocal = [...projectFinancials].sort((a, b) => b.spent - a.spent);
     generateFinancialReportPDF({
       kpis: financialSummary.map(k => ({ label: k.title, value: k.value, format: 'currency' as const, color: k.color })),
       expenseBreakdown: expenseItems,
@@ -455,8 +468,38 @@ export default function FinancialReports() {
         label: m.label, value: m.value, unit: m.unit,
       })),
       dateRange: periodParams.startDate ? { from: periodParams.startDate, to: periodParams.endDate } : undefined,
+      // Extended data — all sections visible on page
+      cashFlowData: cashFlowData.map(c => ({
+        month: c.month, inflow: c.inflow, outflow: c.outflow, net: c.net,
+      })),
+      yearlyComparison: yearlyComparison.map(y => ({
+        year: y.year, budget: y.budget, spent: y.spent, projects: y.projects,
+      })),
+      regionComparison: regionComparison.map(r => ({
+        region: r.region, budget: r.budget, spent: r.spent, projects: r.projects,
+      })),
+      budgetAlerts: budgetAlerts.map(a => ({
+        level: a.level, title: a.title, count: a.count, desc: a.desc,
+      })),
+      invoices: invoices.map(inv => ({
+        id: inv.id, project: inv.project, vendor: inv.vendor,
+        amount: inv.amount, date: inv.date, status: inv.status, category: inv.category,
+      })),
+      top5Projects: sortedBySpentLocal.slice(0, 5).map(p => ({
+        name: p.name, budget: p.budget, spent: p.spent,
+        remaining: p.remaining, pct: p.pct, status: p.status,
+      })),
+      bottom5Projects: sortedBySpentLocal.slice(-5).reverse().map(p => ({
+        name: p.name, budget: p.budget, spent: p.spent,
+        remaining: p.remaining, pct: p.pct, status: p.status,
+      })),
+      forecastData: forecastData.map(f => ({
+        quarter: f.quarter, projectedBudget: f.projectedBudget,
+        projectedSpend: f.projectedSpend, confidence: f.confidence,
+      })),
     });
-  }, [financialSummary, expenseItems, projectFinancials, categoryBreakdown, efficiencyMetrics, periodParams]);
+  }, [financialSummary, expenseItems, projectFinancials, categoryBreakdown, efficiencyMetrics,
+      cashFlowData, yearlyComparison, regionComparison, budgetAlerts, invoices, forecastData, periodParams]);
 
   const handlePrint = useCallback(() => {
     printTable(getExportData(), exportColumns, 'التقرير المالي - Financial Report');
@@ -541,33 +584,13 @@ export default function FinancialReports() {
               </div>
 
               {/* Actions */}
-              <Button
-                variant="outline"
-                scheme="success"
-                size="sm"
-                leftIcon={<FileSpreadsheet size={13} />}
-                onClick={handleExportExcel}
-              >
-                Excel
-              </Button>
-              <Button
-                variant="outline"
-                scheme="danger"
-                size="sm"
-                leftIcon={<FileText size={13} />}
-                onClick={handleExportPDF}
-              >
-                PDF
-              </Button>
-              <Button
-                variant="outline"
-                scheme="neutral"
-                size="sm"
-                leftIcon={<Printer size={13} />}
-                onClick={handlePrint}
-              >
-                Print
-              </Button>
+              <ActionBar
+                onRefresh={refetch}
+                onExcel={handleExportExcel}
+                onPdf={handleExportPDF}
+                onPrint={handlePrint}
+                isRefreshing={isRefetching}
+              />
             </div>
           </div>
         </motion.div>
@@ -1171,7 +1194,7 @@ export default function FinancialReports() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.1 }}
-                  className="p-5 rounded-xl relative overflow-hidden"
+                  className="p-5 rounded-xl relative"
                   style={{ background: P.surface, border: `1px solid ${P.border}` }}
                 >
                   {/* Confidence ring */}

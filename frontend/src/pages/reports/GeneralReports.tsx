@@ -19,9 +19,10 @@ import { cn } from '../../utils/cn';
 import { useTheme } from '../../hooks/useTheme';
 import { useQuery } from '@tanstack/react-query';
 import { reportService } from '../../services/reportService';
-import { exportToExcel, exportToPDF, printTable, type ExportColumn } from '../../utils/exportUtils';
+import { printTable, generateGeneralReportExcel, type ExportColumn } from '../../utils/exportUtils';
 import { generateGeneralReportPDF } from '../../utils/pdfReportGenerator';
 import { Button } from '../../components/ui/Button';
+import { ActionBar } from '../../components/common/ActionBar';
 
 
 
@@ -33,7 +34,7 @@ const scaleIn = (d = 0) => ({ hidden: { opacity: 0, scale: 0.92 }, show: { opaci
 const VP = { once: true, margin: '-60px' as any };
 
 
-const periods = ['Today', 'This Week', 'This Month', 'This Quarter', 'This Year', 'Custom'] as const;
+const periods = ['All Time', 'Today', 'This Week', 'This Month', 'This Quarter', 'This Year', 'Custom'] as const;
 
 
 const riskProjects = [
@@ -153,7 +154,7 @@ function GlassCard({ children, className, style }: { children: React.ReactNode; 
   const { colors: P } = useTheme();
   return (
     <div
-      className={cn('relative rounded-[20px] overflow-hidden', className)}
+      className={cn('relative rounded-[20px]', className)}
       style={{
         background: `${P.card}`,
         border: `1px solid ${P.border}`,
@@ -241,7 +242,7 @@ function RiskDonut({ data }: { data: typeof riskCfg }) {
 export default function GeneralReports() {
   const navigate = useNavigate();
   const P = useTheme().colors;
-  const [period, setPeriod] = useState<(typeof periods)[number]>('This Year');
+  const [period, setPeriod] = useState<(typeof periods)[number]>('All Time');
   const [periodOpen, setPeriodOpen] = useState(false);
 
   /* ── API wiring ── */
@@ -258,7 +259,7 @@ export default function GeneralReports() {
     }
   }, [period]);
 
-  const { data: reportRes, isLoading } = useQuery({
+  const { data: reportRes, isLoading, refetch, isRefetching } = useQuery({
     queryKey: ['report-general', periodParams],
     queryFn: () => reportService.getGeneralReport(periodParams),
     staleTime: 5 * 60 * 1000,
@@ -340,28 +341,62 @@ export default function GeneralReports() {
   }, [report, categoryData, statusDist]);
 
   const handleExportExcel = useCallback(() => {
-    exportToExcel(getExportData(), {
-      filename: 'general_report',
-      title: 'التقرير العام',
-      subtitle: 'نظرة شاملة على عمليات المسؤولية الاجتماعية',
-      columns: exportColumns,
+    generateGeneralReportExcel({
+      kpis: [
+        { label: 'Total Projects',  value: report?.totalProjects ?? 0 },
+        { label: 'Completion Rate', value: report?.completionRate ?? 0 },
+        { label: 'Total Budget',    value: report?.totalBudget ?? 0 },
+        { label: 'Beneficiaries',   value: report?.totalBeneficiaries ?? 0 },
+      ],
+      statusDistribution: statusDist,
+      categoryDistribution: categoryData.map((c: any) => ({ name: c.name, projects: c.projects, budget: c.budget * 1000, spent: c.spent * 1000 })),
       dateRange: periodParams.startDate ? { from: periodParams.startDate, to: periodParams.endDate } : undefined,
+      trendData: trendData.map((t: any) => ({ month: t.month, projects: t.projects, budget: t.budget, expenses: t.expenses, beneficiaries: t.beneficiaries })),
+      riskProjects: riskProjects.map(p => ({ name: p.name, category: p.category, risk: p.risk, budget: p.budget, spent: p.spent, progress: p.progress, daysLeft: p.daysLeft })),
+      radarData: radarData.map(r => ({ metric: r.metric, value: r.value })),
+      topProjects: topProjects.map(p => ({ rank: p.rank, name: p.name, category: p.category, budget: p.budget, progress: p.progress, rating: p.rating, beneficiaries: p.beneficiaries, status: p.status })),
+      delayedProjects: delayedProjects.map(p => ({ name: p.name, originalEnd: p.originalEnd, daysLate: p.daysLate, progress: p.progress, risk: p.risk })),
+      overBudgetProjects: overBudgetProjects.map(p => ({ name: p.name, budget: p.budget, spent: p.spent, overBy: p.overBy, progress: p.progress })),
+      comparisons: comparisons.map(c => ({ label: c.label, projectsDelta: c.projectsDelta, budgetDelta: c.budgetDelta, benefDelta: c.benefDelta, completionDelta: c.completionDelta })),
     });
-  }, [getExportData, periodParams]);
+  }, [report, statusDist, categoryData, trendData, periodParams]);
 
   const handleExportPDF = useCallback(() => {
     generateGeneralReportPDF({
       kpis: [
-        { label: 'Total Projects', value: report?.totalProjects ?? 0, format: 'number', color: '#E91E63' },
-        { label: 'Completion Rate', value: report?.completionRate ?? 0, format: 'percentage', color: '#34d399' },
-        { label: 'Total Budget', value: report?.totalBudget ?? 0, format: 'currency', color: '#38bdf8' },
-        { label: 'Beneficiaries', value: report?.totalBeneficiaries ?? 0, format: 'number', color: '#a78bfa' },
+        { label: 'Total Projects',   value: report?.totalProjects ?? 0,    format: 'number',     color: '#E91E63' },
+        { label: 'Completion Rate',  value: report?.completionRate ?? 0,   format: 'percentage', color: '#34d399' },
+        { label: 'Total Budget',     value: report?.totalBudget ?? 0,      format: 'currency',   color: '#38bdf8' },
+        { label: 'Beneficiaries',    value: report?.totalBeneficiaries ?? 0, format: 'number',   color: '#a78bfa' },
       ],
       statusDistribution: statusDist,
-      categoryDistribution: categoryData,
+      categoryDistribution: categoryData.map(c => ({ name: c.name, projects: c.projects, budget: c.budget * 1000, spent: c.spent * 1000 })),
       dateRange: periodParams.startDate ? { from: periodParams.startDate, to: periodParams.endDate } : undefined,
+      // Extended data — all sections visible on page
+      trendData: trendData.map(t => ({
+        month: t.month, projects: t.projects, budget: t.budget, expenses: t.expenses, beneficiaries: t.beneficiaries,
+      })),
+      riskProjects: riskProjects.map(p => ({
+        name: p.name, category: p.category, risk: p.risk,
+        budget: p.budget, spent: p.spent, progress: p.progress, daysLeft: p.daysLeft,
+      })),
+      radarData: radarData.map(r => ({ metric: r.metric, value: r.value })),
+      topProjects: topProjects.map(p => ({
+        rank: p.rank, name: p.name, category: p.category, budget: p.budget,
+        progress: p.progress, rating: p.rating, beneficiaries: p.beneficiaries, status: p.status,
+      })),
+      delayedProjects: delayedProjects.map(p => ({
+        name: p.name, originalEnd: p.originalEnd, daysLate: p.daysLate, progress: p.progress, risk: p.risk,
+      })),
+      overBudgetProjects: overBudgetProjects.map(p => ({
+        name: p.name, budget: p.budget, spent: p.spent, overBy: p.overBy, progress: p.progress,
+      })),
+      comparisons: comparisons.map(c => ({
+        label: c.label, projectsDelta: c.projectsDelta, budgetDelta: c.budgetDelta,
+        benefDelta: c.benefDelta, completionDelta: c.completionDelta,
+      })),
     });
-  }, [report, statusDist, categoryData, periodParams]);
+  }, [report, statusDist, categoryData, trendData, periodParams]);
 
   const handlePrint = useCallback(() => {
     printTable(getExportData(), exportColumns, 'التقرير العام - General Report');
@@ -427,35 +462,13 @@ export default function GeneralReports() {
               </div>
 
               {/* Export Buttons */}
-              <Button
-                variant="outline"
-                scheme="success"
-                size="sm"
-                leftIcon={<FileSpreadsheet size={12} />}
-                onClick={handleExportExcel}
-              >
-                Excel
-              </Button>
-
-              <Button
-                variant="outline"
-                scheme="danger"
-                size="sm"
-                leftIcon={<FileText size={12} />}
-                onClick={handleExportPDF}
-              >
-                PDF
-              </Button>
-
-              <Button
-                variant="outline"
-                scheme="neutral"
-                size="sm"
-                leftIcon={<Printer size={12} />}
-                onClick={handlePrint}
-              >
-                Print
-              </Button>
+              <ActionBar
+                onRefresh={refetch}
+                onExcel={handleExportExcel}
+                onPdf={handleExportPDF}
+                onPrint={handlePrint}
+                isRefreshing={isRefetching}
+              />
             </div>
           </div>
         </motion.div>
@@ -531,7 +544,7 @@ export default function GeneralReports() {
                 </div>
 
                 {/* Risk Table */}
-                <div className="rounded-xl overflow-hidden" style={{ border: `1px solid ${P.border}` }}>
+                <div className="rounded-xl" style={{ border: `1px solid ${P.border}` }}>
                   <table className="w-full text-[11px]">
                     <thead>
                       <tr style={{ background: P.surface }}>

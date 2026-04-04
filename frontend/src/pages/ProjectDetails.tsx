@@ -59,7 +59,7 @@ const stagger = (delay = 0) => ({ hidden: { opacity: 0, y: 18 }, show: { opacity
 function GlassCard({ children, className, glow, accent, style: extra }: { children: React.ReactNode; className?: string; glow?: string; accent?: string; style?: React.CSSProperties }) {
   const { colors: P } = useTheme();
   return (
-    <div className={cn('relative rounded-[20px] overflow-hidden', className)} style={{
+    <div className={cn('relative rounded-[20px]', className)} style={{
       background: `${P.card}`, border: `1px solid ${P.border}`,
       boxShadow: [`inset 0 1px 0 0 ${P.borderHi}40`, glow ? `0 0 60px ${glow}` : '', '0 12px 40px rgba(0,0,0,0.05)', '0 2px 8px rgba(0,0,0,0.03)'].filter(Boolean).join(', '), ...extra,
     }}>

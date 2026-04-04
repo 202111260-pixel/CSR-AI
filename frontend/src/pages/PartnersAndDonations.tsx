@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { exportToExcel, printTable, type ExportColumn } from '../utils/exportUtils';
 import { generatePartnersPDF } from '../utils/pdfReportGenerator';
+import { ActionBar } from '../components/common/ActionBar';
 import { cn } from '../utils/cn';
 import { useTheme } from '../hooks/useTheme';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -99,7 +100,7 @@ const challengeRewardIcons: Record<string, LucideIcon> = {
 function GlassCard({ children, className, style }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) {
   const { colors: P } = useTheme();
   return (
-    <div className={cn('relative rounded-[20px] overflow-hidden', className)}
+    <div className={cn('relative rounded-[20px]', className)}
       style={{
         background: `${P.card}`,
         border: `1px solid ${P.border}`,
@@ -520,7 +521,7 @@ function PartnersSection() {
 
   // API queries & mutations
   const queryClient = useQueryClient();
-  const { data: partnersData, isLoading: partnersLoading } = useQuery({
+  const { data: partnersData, isLoading: partnersLoading, refetch, isRefetching } = useQuery({
     queryKey: ['partners', { limit: 100 }],
     queryFn: () => partnerService.getPartners({ limit: 100 }),
     staleTime: 60 * 1000,
@@ -1465,7 +1466,7 @@ function ChallengesSection() {
     <motion.div initial="hidden" animate="show" className="space-y-6">
       {/* Current Challenge — Hero Card */}
       <motion.div variants={scaleIn(0)}>
-        <div className="relative rounded-[20px] overflow-hidden"
+        <div className="relative rounded-[20px]"
           style={{
             background: `linear-gradient(135deg, ${P.card} 0%, #1a1810 50%, ${P.card} 100%)`,
             border: `2px solid ${P.accent}40`,
@@ -1792,38 +1793,13 @@ export default function PartnersAndDonations() {
           </p>
         </div>
         {activeSection !== 'Challenges' && (
-          <div className="flex items-center gap-2">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleExportExcel}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
-              style={{ background: P.surface, color: P.textMd, border: `1px solid ${P.border}` }}
-            >
-              <FileSpreadsheet size={16} />
-              <span className="hidden sm:inline">Excel</span>
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleExportPDF}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
-              style={{ background: P.surface, color: P.textMd, border: `1px solid ${P.border}` }}
-            >
-              <FileText size={16} />
-              <span className="hidden sm:inline">PDF</span>
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handlePrint}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
-              style={{ background: P.surface, color: P.textMd, border: `1px solid ${P.border}` }}
-            >
-              <Printer size={16} />
-              <span className="hidden sm:inline">Print</span>
-            </motion.button>
-          </div>
+          <ActionBar
+            onRefresh={refetch}
+            onExcel={handleExportExcel}
+            onPdf={handleExportPDF}
+            onPrint={handlePrint}
+            isRefreshing={isRefetching}
+          />
         )}
       </motion.div>
 

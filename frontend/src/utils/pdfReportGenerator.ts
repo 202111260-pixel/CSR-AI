@@ -37,8 +37,16 @@ export interface ReportDateRange {
 export interface GeneralReportData {
   kpis: KpiItem[];
   statusDistribution: { name: string; value: number; color: string }[];
-  categoryDistribution: { name: string; projects: number; budget: number }[];
+  categoryDistribution: { name: string; projects: number; budget: number; spent?: number }[];
   dateRange?: ReportDateRange;
+  // Extended sections
+  trendData?: { month: string; projects: number; budget: number; expenses: number; beneficiaries?: number }[];
+  riskProjects?: { name: string; category: string; risk: string; budget: number; spent: number; progress: number; daysLeft: number }[];
+  radarData?: { metric: string; value: number }[];
+  topProjects?: { rank: number; name: string; category: string; budget: number; progress: number; rating: number; beneficiaries: number; status: string }[];
+  delayedProjects?: { name: string; originalEnd: string; daysLate: number; progress: number; risk: string }[];
+  overBudgetProjects?: { name: string; budget: number; spent: number; overBy: number; progress: number }[];
+  comparisons?: { label: string; projectsDelta: number; budgetDelta: number; benefDelta: number; completionDelta: number }[];
 }
 
 export interface ImpactReportData {
@@ -53,6 +61,15 @@ export interface ImpactReportData {
     satisfaction: number;
   }[];
   dateRange?: ReportDateRange;
+  // Extended sections
+  esgScore?: { grade: string; environmental: number; social: number; governance: number; overall: number };
+  categoryDetails?: {
+    label: string;
+    metrics: { label: string; value: number }[];
+  }[];
+  beneficiaryTrend?: { month: string; value: number }[];
+  impactHistory?: { year: string; beneficiaries: number; projects: number; budget: number; satisfaction: number; milestone: string }[];
+  predictionData?: { year: string; actual?: number; predicted?: number }[];
 }
 
 export interface FinancialReportData {
@@ -69,6 +86,15 @@ export interface FinancialReportData {
   categoryBreakdown: { name: string; budget: number; spent: number; projects: number }[];
   efficiencyMetrics: { label: string; value: string; unit: string }[];
   dateRange?: ReportDateRange;
+  // Extended sections
+  cashFlowData?: { month: string; inflow: number; outflow: number; net: number }[];
+  yearlyComparison?: { year: string | number; budget: number; spent: number; projects: number }[];
+  regionComparison?: { region: string; budget: number; spent: number; projects: number }[];
+  budgetAlerts?: { level: string; title: string; count: number; desc: string }[];
+  invoices?: { id: string; project: string; vendor: string; amount: number; date: string; status: string; category: string }[];
+  top5Projects?: { name: string; budget: number; spent: number; remaining: number; pct: number; status: string }[];
+  bottom5Projects?: { name: string; budget: number; spent: number; remaining: number; pct: number; status: string }[];
+  forecastData?: { quarter: string; projectedBudget: number; projectedSpend: number; confidence: number }[];
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -631,7 +657,7 @@ function ts(): string {
 // ═══════════════════════════════════════════════════════════════════════
 
 export async function generateGeneralReportPDF(data: GeneralReportData): Promise<void> {
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
   accentBar(doc);
   addRunningFooter(doc);
 
@@ -641,41 +667,169 @@ export async function generateGeneralReportPDF(data: GeneralReportData): Promise
   let y = drawCoverPage(
     doc,
     'General Performance Report',
-    'A comprehensive overview of CSR project portfolio performance, budget allocation, status distribution, and category-level analysis across the Sultanate of Oman.',
+    `Comprehensive overview of CSR project portfolio covering ${fmt(totalProjects)} projects across ${totalCategories} categories. Includes risk assessment, budget analysis, timeline performance, top projects, and period-over-period benchmarks.`,
     'Operational Report',
     data.dateRange,
   );
 
-  // Section 1 — Executive Summary
+  // Section 01 — Executive KPI Summary
   y = drawSectionHeading(doc, y, '01', 'Executive Summary');
-  y = drawParagraph(
-    doc,
-    y,
-    `This report covers a portfolio of ${fmt(totalProjects)} projects distributed across ${totalCategories} categories. The following key indicators provide a high-level snapshot of current operations.`,
-  );
+  y = drawParagraph(doc, y, `Portfolio of ${fmt(totalProjects)} projects across ${totalCategories} categories. Key performance indicators as of the reporting period.`);
   y = drawKpiStrip(doc, y, data.kpis);
 
-  // Section 2 — Status Distribution
+  // Section 02 — Project Status Distribution
   y = drawSectionHeading(doc, y, '02', 'Project Status Distribution');
-  y = drawParagraph(
-    doc,
-    y,
-    'The table below presents the current allocation of projects by operational status, including their relative share of the total portfolio.',
-  );
+  y = drawParagraph(doc, y, 'Current allocation of projects by operational status, including proportional share of the total portfolio.');
   y = drawStatusDistribution(doc, y, data.statusDistribution);
 
-  // Section 3 — Category Breakdown
+  // Section 03 — Category Breakdown
   y = drawSectionHeading(doc, y, '03', 'Distribution by Category');
-  y = drawParagraph(
-    doc,
-    y,
-    'Category-level breakdown showing the number of active projects and their corresponding budget allocations.',
-  );
+  y = drawParagraph(doc, y, 'Category-level breakdown showing projects, budget allocation, and expenditure.');
   y = drawAutoTable(doc, y, [
     { key: 'name', header: 'Category', align: 'left' },
     { key: 'projects', header: 'Projects', align: 'right', format: 'number' },
     { key: 'budget', header: 'Budget (OMR)', align: 'right', format: 'currency' },
+    { key: 'spent', header: 'Spent (OMR)', align: 'right', format: 'currency' },
   ], data.categoryDistribution);
+
+  // Section 04 — Project & Budget Trend
+  if (data.trendData && data.trendData.length > 0) {
+    y = drawSectionHeading(doc, y, '04', 'Project & Budget Trends');
+    y = drawParagraph(doc, y, 'Monthly progression of project count, budget allocation, and expenditure over the reporting period.');
+    y = drawAutoTable(doc, y, [
+      { key: 'month', header: 'Month', align: 'center' },
+      { key: 'projects', header: 'Projects', align: 'right', format: 'number' },
+      { key: 'budget', header: 'Budget (OMR)', align: 'right', format: 'currency' },
+      { key: 'expenses', header: 'Expenses (OMR)', align: 'right', format: 'currency' },
+      { key: 'beneficiaries', header: 'Beneficiaries', align: 'right', format: 'number' },
+    ], data.trendData);
+  }
+
+  // Section 05 — Risk Portfolio
+  if (data.riskProjects && data.riskProjects.length > 0) {
+    y = drawSectionHeading(doc, y, '05', 'Early Warning — Risk Portfolio');
+    y = drawParagraph(doc, y, 'Projects flagged by the early warning system for budget overrun, timeline delay, or quality issues. Immediate attention required for critical and high severity items.');
+    y = drawAutoTable(doc, y, [
+      { key: 'name', header: 'Project', align: 'left' },
+      { key: 'category', header: 'Category', align: 'left' },
+      { key: 'risk', header: 'Risk Level', align: 'center' },
+      { key: 'budgetPct', header: 'Budget Used', align: 'right', format: 'percentage' },
+      { key: 'progress', header: 'Progress (%)', align: 'right', format: 'percentage' },
+      { key: 'daysLeftLabel', header: 'Timeline', align: 'center' },
+    ], data.riskProjects.map(p => ({
+      name: p.name,
+      category: p.category,
+      risk: p.risk.toUpperCase(),
+      budgetPct: p.budget > 0 ? Math.round((p.spent / p.budget) * 100) : 0,
+      progress: p.progress,
+      daysLeftLabel: p.daysLeft < 0 ? `${Math.abs(p.daysLeft)}d OVERDUE` : `${p.daysLeft}d remaining`,
+    })));
+  }
+
+  // Section 06 — Performance Radar
+  if (data.radarData && data.radarData.length > 0) {
+    y = drawSectionHeading(doc, y, '06', 'Performance Radar — Scorecard');
+    y = drawParagraph(doc, y, 'Multi-dimensional performance scorecard across six key CSR management dimensions.');
+    const overallScore = Math.round(data.radarData.reduce((s, r) => s + r.value, 0) / data.radarData.length);
+    y = drawAutoTable(doc, y, [
+      { key: 'metric', header: 'Dimension', align: 'left' },
+      { key: 'value', header: 'Score (/100)', align: 'right', format: 'number' },
+      { key: 'grade', header: 'Grade', align: 'center' },
+    ], data.radarData.map(r => ({
+      metric: r.metric,
+      value: r.value,
+      grade: r.value >= 90 ? 'A+' : r.value >= 80 ? 'A' : r.value >= 70 ? 'B' : r.value >= 60 ? 'C' : 'D',
+    })));
+    y = drawParagraph(doc, y, `Overall Portfolio Score: ${overallScore}/100`);
+  }
+
+  // Section 07 — Budget Evolution
+  if (data.budgetEvolution && (data.budgetEvolution as any[]).length > 0) {
+    y = drawSectionHeading(doc, y, '07', 'Budget Evolution (8-Month View)');
+    y = drawParagraph(doc, y, 'Month-on-month comparison of allocated vs spent budget in OMR thousands.');
+    y = drawAutoTable(doc, y, [
+      { key: 'month', header: 'Month', align: 'center' },
+      { key: 'allocated', header: 'Allocated (K OMR)', align: 'right', format: 'number' },
+      { key: 'spent', header: 'Spent (K OMR)', align: 'right', format: 'number' },
+      { key: 'variance', header: 'Variance (K OMR)', align: 'right', format: 'number' },
+    ], (data.budgetEvolution as any[]).map((b: any) => ({
+      month: b.month,
+      allocated: b.allocated,
+      spent: b.spent,
+      variance: b.allocated - b.spent,
+    })));
+  }
+
+  // Section 08 — Delayed Projects
+  if (data.delayedProjects && data.delayedProjects.length > 0) {
+    y = drawSectionHeading(doc, y, '08', 'Delayed Projects');
+    y = drawParagraph(doc, y, `${data.delayedProjects.length} project(s) past their scheduled completion date or at imminent risk of delay.`);
+    y = drawAutoTable(doc, y, [
+      { key: 'name', header: 'Project', align: 'left' },
+      { key: 'originalEnd', header: 'Original Due', align: 'center' },
+      { key: 'daysLabel', header: 'Status', align: 'center' },
+      { key: 'progress', header: 'Progress (%)', align: 'right', format: 'percentage' },
+      { key: 'risk', header: 'Risk', align: 'center' },
+    ], data.delayedProjects.map(p => ({
+      name: p.name,
+      originalEnd: p.originalEnd,
+      daysLabel: p.daysLate > 0 ? `${p.daysLate}d OVERDUE` : 'AT RISK',
+      progress: p.progress,
+      risk: p.risk.toUpperCase(),
+    })));
+  }
+
+  // Section 09 — Over-Budget Projects
+  if (data.overBudgetProjects && data.overBudgetProjects.length > 0) {
+    y = drawSectionHeading(doc, y, '09', 'Budget Alert — High Utilisation Projects');
+    y = drawParagraph(doc, y, `${data.overBudgetProjects.length} project(s) have consumed more than 85% of their allocated budget.`);
+    y = drawAutoTable(doc, y, [
+      { key: 'name', header: 'Project', align: 'left' },
+      { key: 'budget', header: 'Budget (OMR)', align: 'right', format: 'currency' },
+      { key: 'spent', header: 'Spent (OMR)', align: 'right', format: 'currency' },
+      { key: 'overBy', header: 'Utilisation (%)', align: 'right', format: 'percentage' },
+      { key: 'progress', header: 'Progress (%)', align: 'right', format: 'percentage' },
+    ], data.overBudgetProjects);
+  }
+
+  // Section 10 — Top 10 Projects
+  if (data.topProjects && data.topProjects.length > 0) {
+    y = drawSectionHeading(doc, y, '10', 'Top 10 Projects by Budget');
+    y = drawParagraph(doc, y, 'Highest-budget projects ranked by total allocation, with status, progress, rating, and beneficiary reach.');
+    y = drawAutoTable(doc, y, [
+      { key: 'rank', header: '#', align: 'center' },
+      { key: 'name', header: 'Project', align: 'left' },
+      { key: 'category', header: 'Category', align: 'left' },
+      { key: 'status', header: 'Status', align: 'center' },
+      { key: 'budget', header: 'Budget (OMR)', align: 'right', format: 'currency' },
+      { key: 'progress', header: 'Progress (%)', align: 'right', format: 'percentage' },
+      { key: 'ratingLabel', header: 'Rating', align: 'center' },
+      { key: 'beneficiaries', header: 'Beneficiaries', align: 'right', format: 'number' },
+    ], data.topProjects.map(p => ({
+      ...p,
+      status: p.status.replace('_', ' ').toUpperCase(),
+      ratingLabel: p.rating > 0 ? `${p.rating.toFixed(1)}/5` : '\u2014',
+    })));
+  }
+
+  // Section 11 — Period Comparisons
+  if (data.comparisons && data.comparisons.length > 0) {
+    y = drawSectionHeading(doc, y, '11', 'Period-over-Period Benchmarks');
+    y = drawParagraph(doc, y, 'Performance delta vs previous periods. Positive values indicate growth; negative values indicate decline.');
+    y = drawAutoTable(doc, y, [
+      { key: 'label', header: 'Comparison Period', align: 'left' },
+      { key: 'projectsDelta', header: 'Projects (%)', align: 'right' },
+      { key: 'budgetDelta', header: 'Budget (%)', align: 'right' },
+      { key: 'benefDelta', header: 'Beneficiaries (%)', align: 'right' },
+      { key: 'completionDelta', header: 'Completion (%)', align: 'right' },
+    ], data.comparisons.map(c => ({
+      label: c.label,
+      projectsDelta: c.projectsDelta > 0 ? `+${c.projectsDelta}%` : `${c.projectsDelta}%`,
+      budgetDelta: c.budgetDelta > 0 ? `+${c.budgetDelta}%` : `${c.budgetDelta}%`,
+      benefDelta: c.benefDelta > 0 ? `+${c.benefDelta}%` : `${c.benefDelta}%`,
+      completionDelta: c.completionDelta > 0 ? `+${c.completionDelta}%` : `${c.completionDelta}%`,
+    })));
+  }
 
   doc.save(`CSR_General_Report_${ts()}.pdf`);
 }
@@ -748,14 +902,10 @@ export async function generateImpactReportPDF(data: ImpactReportData): Promise<v
   }
 
   // Section 4 — Category Impact
+  let secN = activeSDGs.length > 0 ? 4 : 3;
   if (data.categoryImpact.length > 0) {
-    const secNum = activeSDGs.length > 0 ? '04' : '03';
-    y = drawSectionHeading(doc, y, secNum, 'Impact by Category');
-    y = drawParagraph(
-      doc,
-      y,
-      'Performance metrics for each CSR category, including project count, beneficiary reach, budget allocation, and satisfaction rating.',
-    );
+    y = drawSectionHeading(doc, y, String(secN).padStart(2, '0'), 'Impact by Category');
+    y = drawParagraph(doc, y, 'Performance metrics for each CSR category, including project count, beneficiary reach, budget allocation, and satisfaction rating.');
     y = drawAutoTable(doc, y, [
       { key: 'label', header: 'Category', align: 'left' },
       { key: 'projects', header: 'Projects', align: 'right', format: 'number' },
@@ -763,6 +913,80 @@ export async function generateImpactReportPDF(data: ImpactReportData): Promise<v
       { key: 'budget', header: 'Budget (OMR)', align: 'right', format: 'currency' },
       { key: 'satisfaction', header: 'Satisfaction (%)', align: 'right', format: 'percentage' },
     ], data.categoryImpact);
+    secN++;
+  }
+
+  // Section 5 — ESG Scorecard
+  if (data.esgScore) {
+    y = drawSectionHeading(doc, y, String(secN).padStart(2, '0'), 'ESG Scorecard');
+    y = drawParagraph(doc, y, `Environmental, Social, and Governance performance assessment. Overall ESG Grade: ${data.esgScore.grade}`);
+    y = drawKpiStrip(doc, y, [
+      { label: 'Environmental', value: data.esgScore.environmental, format: 'percentage' },
+      { label: 'Social', value: data.esgScore.social, format: 'percentage' },
+      { label: 'Governance', value: data.esgScore.governance, format: 'percentage' },
+      { label: 'Overall Score', value: data.esgScore.overall, format: 'percentage' },
+    ]);
+    secN++;
+  }
+
+  // Section 6 — Category Detail Metrics
+  if (data.categoryDetails && data.categoryDetails.length > 0) {
+    y = drawSectionHeading(doc, y, String(secN).padStart(2, '0'), 'Category-Level Impact Metrics');
+    y = drawParagraph(doc, y, 'Granular impact indicators for each CSR programme category, capturing sector-specific outcomes.');
+    const rows: { category: string; metric: string; value: number }[] = [];
+    data.categoryDetails.forEach(cat => {
+      cat.metrics.forEach(m => {
+        rows.push({ category: cat.label, metric: m.label, value: m.value });
+      });
+    });
+    y = drawAutoTable(doc, y, [
+      { key: 'category', header: 'Category', align: 'left' },
+      { key: 'metric', header: 'Metric', align: 'left' },
+      { key: 'value', header: 'Value', align: 'right', format: 'number' },
+    ], rows);
+    secN++;
+  }
+
+  // Section 7 — Beneficiary Growth Trend
+  if (data.beneficiaryTrend && data.beneficiaryTrend.length > 0) {
+    y = drawSectionHeading(doc, y, String(secN).padStart(2, '0'), 'Beneficiary Growth Trend');
+    y = drawParagraph(doc, y, 'Annual growth in total beneficiaries reached across all active programmes.');
+    y = drawAutoTable(doc, y, [
+      { key: 'month', header: 'Year', align: 'center' },
+      { key: 'value', header: 'Beneficiaries', align: 'right', format: 'number' },
+    ], data.beneficiaryTrend);
+    secN++;
+  }
+
+  // Section 8 — Impact History Timeline
+  if (data.impactHistory && data.impactHistory.length > 0) {
+    y = drawSectionHeading(doc, y, String(secN).padStart(2, '0'), 'Programme Impact History');
+    y = drawParagraph(doc, y, 'Year-by-year progression of CSR programme outcomes, tracking beneficiary reach, active projects, and key milestones since inception.');
+    y = drawAutoTable(doc, y, [
+      { key: 'year', header: 'Year', align: 'center' },
+      { key: 'projects', header: 'Projects', align: 'right', format: 'number' },
+      { key: 'beneficiaries', header: 'Beneficiaries', align: 'right', format: 'number' },
+      { key: 'budget', header: 'Budget (K OMR)', align: 'right', format: 'number' },
+      { key: 'satisfaction', header: 'Satisfaction (%)', align: 'right', format: 'percentage' },
+      { key: 'milestone', header: 'Key Milestone', align: 'left' },
+    ], data.impactHistory);
+    secN++;
+  }
+
+  // Section 9 — Beneficiary Forecast
+  if (data.predictionData && data.predictionData.length > 0) {
+    y = drawSectionHeading(doc, y, String(secN).padStart(2, '0'), 'Beneficiary Growth Forecast (2024–2030)');
+    y = drawParagraph(doc, y, 'Projection of beneficiary growth based on historical programme trajectories. Predicted values for future years are model-generated estimates.');
+    const forecastRows = data.predictionData.map(p => ({
+      year: p.year,
+      actual: p.actual != null ? fmt(p.actual) : '—',
+      predicted: p.predicted != null ? fmt(p.predicted) : '—',
+    }));
+    y = drawAutoTable(doc, y, [
+      { key: 'year', header: 'Year', align: 'center' },
+      { key: 'actual', header: 'Actual Beneficiaries', align: 'right' },
+      { key: 'predicted', header: 'Predicted Beneficiaries', align: 'right' },
+    ], forecastRows);
   }
 
   doc.save(`CSR_Impact_Report_${ts()}.pdf`);
@@ -842,11 +1066,7 @@ export async function generateFinancialReportPDF(data: FinancialReportData): Pro
   // Section 5 — Project Financial Details
   if (data.projectFinancials.length > 0) {
     y = drawSectionHeading(doc, y, String(sec).padStart(2, '0'), 'Project Financial Details');
-    y = drawParagraph(
-      doc,
-      y,
-      'Detailed financial position for each project, including budget, expenditure, remaining balance, and utilisation rate.',
-    );
+    y = drawParagraph(doc, y, 'Detailed financial position for each project including budget, expenditure, remaining balance, and utilisation rate.');
     y = drawAutoTable(doc, y, [
       { key: 'name', header: 'Project', align: 'left' },
       { key: 'budget', header: 'Budget (OMR)', align: 'right', format: 'currency' },
@@ -855,6 +1075,100 @@ export async function generateFinancialReportPDF(data: FinancialReportData): Pro
       { key: 'pct', header: 'Utilisation (%)', align: 'right', format: 'percentage' },
       { key: 'status', header: 'Status', align: 'center' },
     ], data.projectFinancials);
+    sec++;
+  }
+
+  // Section 6 — Top 5 Highest-Spend Projects
+  if (data.top5Projects && data.top5Projects.length > 0) {
+    y = drawSectionHeading(doc, y, String(sec).padStart(2, '0'), 'Top 5 Highest-Spend Projects');
+    y = drawParagraph(doc, y, 'Projects with the highest absolute expenditure in the reporting period.');
+    y = drawAutoTable(doc, y, [
+      { key: 'name', header: 'Project', align: 'left' },
+      { key: 'budget', header: 'Budget (OMR)', align: 'right', format: 'currency' },
+      { key: 'spent', header: 'Spent (OMR)', align: 'right', format: 'currency' },
+      { key: 'remaining', header: 'Remaining (OMR)', align: 'right', format: 'currency' },
+      { key: 'pct', header: 'Utilisation (%)', align: 'right', format: 'percentage' },
+      { key: 'status', header: 'Status', align: 'center' },
+    ], data.top5Projects);
+    sec++;
+  }
+
+  // Section 7 — Monthly Cash Flow
+  if (data.cashFlowData && data.cashFlowData.length > 0) {
+    y = drawSectionHeading(doc, y, String(sec).padStart(2, '0'), 'Monthly Cash Flow');
+    y = drawParagraph(doc, y, 'Month-by-month cash flow showing outflows and net position across the portfolio.');
+    y = drawAutoTable(doc, y, [
+      { key: 'month', header: 'Month', align: 'center' },
+      { key: 'outflow', header: 'Outflow (OMR)', align: 'right', format: 'currency' },
+      { key: 'net', header: 'Net (OMR)', align: 'right', format: 'currency' },
+    ], data.cashFlowData);
+    sec++;
+  }
+
+  // Section 8 — Yearly Comparison
+  if (data.yearlyComparison && data.yearlyComparison.length > 0) {
+    y = drawSectionHeading(doc, y, String(sec).padStart(2, '0'), 'Year-over-Year Comparison');
+    y = drawParagraph(doc, y, 'Annual budget vs actual expenditure and project count for historical benchmarking.');
+    y = drawAutoTable(doc, y, [
+      { key: 'year', header: 'Year', align: 'center' },
+      { key: 'projects', header: 'Projects', align: 'right', format: 'number' },
+      { key: 'budget', header: 'Budget (OMR)', align: 'right', format: 'currency' },
+      { key: 'spent', header: 'Spent (OMR)', align: 'right', format: 'currency' },
+    ], data.yearlyComparison.map(y2 => ({ ...y2, year: String(y2.year) })));
+    sec++;
+  }
+
+  // Section 9 — Regional Breakdown
+  if (data.regionComparison && data.regionComparison.length > 0) {
+    y = drawSectionHeading(doc, y, String(sec).padStart(2, '0'), 'Budget by Governorate / Region');
+    y = drawParagraph(doc, y, 'Financial distribution across Oman\'s governorates showing budget allocation and expenditure per region.');
+    y = drawAutoTable(doc, y, [
+      { key: 'region', header: 'Region', align: 'left' },
+      { key: 'projects', header: 'Projects', align: 'right', format: 'number' },
+      { key: 'budget', header: 'Budget (OMR)', align: 'right', format: 'currency' },
+      { key: 'spent', header: 'Spent (OMR)', align: 'right', format: 'currency' },
+    ], data.regionComparison);
+    sec++;
+  }
+
+  // Section 10 — Budget Alerts
+  if (data.budgetAlerts && data.budgetAlerts.length > 0) {
+    y = drawSectionHeading(doc, y, String(sec).padStart(2, '0'), 'Budget Alerts Summary');
+    y = drawParagraph(doc, y, 'System-generated financial alerts indicating projects requiring budget management attention.');
+    y = drawAutoTable(doc, y, [
+      { key: 'level', header: 'Severity', align: 'center' },
+      { key: 'title', header: 'Alert', align: 'left' },
+      { key: 'count', header: 'Projects', align: 'right', format: 'number' },
+      { key: 'desc', header: 'Description', align: 'left' },
+    ], data.budgetAlerts.map(a => ({ ...a, level: a.level.toUpperCase() })));
+    sec++;
+  }
+
+  // Section 11 — Top Expenses / Invoices
+  if (data.invoices && data.invoices.length > 0) {
+    y = drawSectionHeading(doc, y, String(sec).padStart(2, '0'), 'Top Expenses & Invoices');
+    y = drawParagraph(doc, y, 'Highest-value expense transactions recorded in the reporting period.');
+    y = drawAutoTable(doc, y, [
+      { key: 'id', header: 'Ref.', align: 'center' },
+      { key: 'project', header: 'Project', align: 'left' },
+      { key: 'category', header: 'Category', align: 'center' },
+      { key: 'amount', header: 'Amount (OMR)', align: 'right', format: 'currency' },
+      { key: 'date', header: 'Date', align: 'center' },
+      { key: 'status', header: 'Status', align: 'center' },
+    ], data.invoices.map(inv => ({ ...inv, status: inv.status.toUpperCase() })));
+    sec++;
+  }
+
+  // Section 12 — Forecast
+  if (data.forecastData && data.forecastData.length > 0) {
+    y = drawSectionHeading(doc, y, String(sec).padStart(2, '0'), 'Quarterly Financial Forecast');
+    y = drawParagraph(doc, y, 'Projected budget and expenditure for upcoming quarters based on current burn rate trends.');
+    y = drawAutoTable(doc, y, [
+      { key: 'quarter', header: 'Quarter', align: 'center' },
+      { key: 'projectedBudget', header: 'Proj. Budget (OMR)', align: 'right', format: 'currency' },
+      { key: 'projectedSpend', header: 'Proj. Spend (OMR)', align: 'right', format: 'currency' },
+      { key: 'confidence', header: 'Confidence (%)', align: 'right', format: 'percentage' },
+    ], data.forecastData);
   }
 
   doc.save(`CSR_Financial_Report_${ts()}.pdf`);

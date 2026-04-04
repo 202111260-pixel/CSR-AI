@@ -39,6 +39,9 @@ import type { FutureData } from '../services/futureService';
 import { aiAnalyticsService, AVAILABLE_MODELS } from '../services/aiAnalyticsService';
 import type { AiAnalysisResult, AiChart, AnalysisScope } from '../services/aiAnalyticsService';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
+import { exportToExcel, printTable } from '../utils/exportUtils';
+import type { ExportColumn } from '../utils/exportUtils';
+import { ActionBar } from '../components/common/ActionBar';
 
 // ─── Framer Motion Variants ─────────────────────────────────────────────────
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -761,7 +764,7 @@ export default function FuturePortal() {
   const [showAllPredictions, setShowAllPredictions] = useState(false);
 
   // ─── Predictions Data ────────────────────────────────────────────────────
-  const { data: apiResponse, isLoading, isError, refetch } = useQuery({
+  const { data: apiResponse, isLoading, isError, refetch, isRefetching } = useQuery({
     queryKey: ['future-data'],
     queryFn: () => futureService.getFutureData(),
     staleTime: 5 * 60 * 1000,
@@ -783,6 +786,31 @@ export default function FuturePortal() {
 
   const healthScore = data.overallHealth.score;
   const healthColor = getHealthColor(healthScore);
+
+  // ─── Export Handlers ────────────────────────────────────────────────────
+  const exportCols: ExportColumn[] = [
+    { header: 'Category', key: 'Category' },
+    { header: 'Metric', key: 'Metric' },
+    { header: 'Value', key: 'Value' },
+  ];
+
+  const handleExportExcel = () => {
+    const rows = [
+      { Category: 'Health', Metric: 'Overall Score', Value: data.overallHealth.score },
+      { Category: 'Health', Metric: 'Status', Value: data.overallHealth.status },
+      ...data.predictions.slice(0, 10).map(p => ({ Category: 'Prediction', Metric: p.title, Value: `${p.confidence}% confidence` })),
+      ...data.aiRecommendations.slice(0, 5).map(r => ({ Category: 'Recommendation', Metric: r.title, Value: r.priority })),
+    ];
+    exportToExcel(rows, { filename: 'future_portal', title: 'Future Portal Analytics', columns: exportCols });
+  };
+
+  const handlePrint = () => {
+    const rows = [
+      { Category: 'Health', Metric: 'Overall Score', Value: String(data.overallHealth.score) },
+      ...data.predictions.slice(0, 10).map(p => ({ Category: 'Prediction', Metric: p.title, Value: `${p.confidence}%` })),
+    ];
+    printTable(rows, exportCols, 'Future Portal Analytics');
+  };
 
   // ─── Loading State ──────────────────────────────────────────────────────
   if (isLoading && activeTab === 'predictions') {
@@ -859,23 +887,12 @@ export default function FuturePortal() {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            {activeTab === 'predictions' && (
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => refetch()}
-                style={{
-                  background: 'transparent',
-                  border: `1px solid ${P.border}`,
-                  borderRadius: 12, padding: '8px 16px',
-                  color: P.textMd, fontSize: 13,
-                  cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', gap: 6,
-                }}
-              >
-                <RefreshCw size={14} /> Refresh
-              </motion.button>
-            )}
+            <ActionBar
+              onRefresh={refetch}
+              onExcel={handleExportExcel}
+              onPrint={handlePrint}
+              isRefreshing={isRefetching}
+            />
           </div>
         </div>
 

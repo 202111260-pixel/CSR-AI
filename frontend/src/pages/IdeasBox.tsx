@@ -116,7 +116,7 @@ function GlassCard({
 }) {
   return (
     <div
-      className={`overflow-hidden ${className}`}
+      className={className}
       style={{
         background: `linear-gradient(168deg, ${P.card} 0%, ${P.bg} 100%)`,
         border: `1px solid ${P.border}`,

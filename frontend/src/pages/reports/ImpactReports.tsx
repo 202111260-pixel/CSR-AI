@@ -21,8 +21,9 @@ import { useQuery } from '@tanstack/react-query';
 import { reportService } from '../../services/reportService';
 import { socialMediaService } from '../../services/socialMediaService';
 import type { ESGData } from '../../services/socialMediaService';
-import { exportToExcel, printTable, type ExportColumn } from '../../utils/exportUtils';
+import { printTable, generateImpactReportExcel, type ExportColumn } from '../../utils/exportUtils';
 import { generateImpactReportPDF } from '../../utils/pdfReportGenerator';
+import { ActionBar } from '../../components/common/ActionBar';
 
 /* ═══════════════════════════════════════════════════════════════════════
    ANIMATION CONSTANTS
@@ -222,7 +223,7 @@ const predictionData = [
 function GlassCard({ children, className, style }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) {
   const { colors: P } = useTheme();
   return (
-    <div className={cn('relative rounded-[20px] overflow-hidden', className)}
+    <div className={cn('relative rounded-[20px]', className)}
       style={{ background: `${P.card}`, border: `1px solid ${P.border}`,
         boxShadow: `inset 0 1px 0 ${P.borderHi}40, 0 12px 40px rgba(0,0,0,0.05), 0 2px 8px rgba(0,0,0,0.03)`, ...style }}>
       {children}
@@ -1210,7 +1211,7 @@ function ESGSection({ data }: { data: ESGData }) {
 export default function ImpactReports() {
   const navigate = useNavigate();
   const P = useTheme().colors;
-  const [period, setPeriod] = useState<(typeof periods)[number]>('This Year');
+  const [period, setPeriod] = useState<(typeof periods)[number]>('All Time');
   const [activeTab, setActiveTab] = useState('education');
 
   /* ── API wiring ── */
@@ -1226,7 +1227,7 @@ export default function ImpactReports() {
     }
   }, [period]);
 
-  const { data: reportRes, isLoading } = useQuery({
+  const { data: reportRes, isLoading, refetch, isRefetching } = useQuery({
     queryKey: ['report-impact', periodParams],
     queryFn: () => reportService.getImpactReport(periodParams),
     staleTime: 5 * 60 * 1000,
@@ -1377,14 +1378,46 @@ export default function ImpactReports() {
   }, [report, sdgGoals, dynamicCategoryTabs]);
 
   const handleExcelExport = useCallback(() => {
-    exportToExcel(getExportData(), {
-      filename: 'impact_report',
-      title: 'تقرير الأثر',
-      subtitle: 'تحليل شامل للمستفيدين وأهداف التنمية',
-      columns: exportColumns,
+    generateImpactReportExcel({
+      kpis: [
+        { label: 'Total Beneficiaries', value: report?.demographics?.total ?? 0 },
+        { label: 'Communities Reached', value: report?.communitiesReached ?? 0 },
+        { label: 'Projects', value: report?.totalProjects ?? 0 },
+        { label: 'SDG Goals', value: report?.sdgAlignment?.length ?? 0 },
+        { label: 'Satisfaction (%)', value: report?.avgRating != null ? Math.round(report.avgRating * 20 * 10) / 10 : 0 },
+      ],
+      demographics: [
+        { label: 'Total', value: report?.demographics?.total ?? 0 },
+        { label: 'Male', value: report?.demographics?.male ?? 0 },
+        { label: 'Female', value: report?.demographics?.female ?? 0 },
+        { label: 'Children', value: report?.demographics?.children ?? 0 },
+        { label: 'Elderly', value: report?.demographics?.elderly ?? 0 },
+        { label: 'Disabled', value: report?.demographics?.disabled ?? 0 },
+      ],
+      sdgGoals,
+      categoryImpact: dynamicCategoryTabs.map((c: any) => ({
+        label: c.label, projects: c.stats?.projects ?? 0,
+        beneficiaries: c.stats?.beneficiaries ?? 0,
+        budget: c.stats?.budget ?? 0, satisfaction: c.stats?.satisfaction ?? 0,
+      })),
       dateRange: periodParams.startDate ? { from: periodParams.startDate, to: (periodParams as any).endDate } : undefined,
+      esgScore: esgData ? {
+        grade: esgData.grade, environmental: esgData.scores.environmental,
+        social: esgData.scores.social, governance: esgData.scores.governance, overall: esgData.overallScore,
+      } : undefined,
+      categoryDetails: (dynamicCategoryTabs.length > 0 ? dynamicCategoryTabs : categoryTabs).map((cat: any) => ({
+        label: cat.label,
+        metrics: (cat.metrics ?? []).map((m: any) => ({ label: m.label, value: m.value })),
+      })),
+      impactHistory: impactTimeline.map(h => ({
+        year: h.year, beneficiaries: h.beneficiaries, projects: h.projects,
+        budget: h.budget, satisfaction: h.satisfaction, milestone: h.milestone,
+      })),
+      predictionData: predictionData.map(p => ({
+        year: p.year, actual: p.actual ?? undefined, predicted: p.predicted ?? undefined,
+      })),
     });
-  }, [getExportData, periodParams]);
+  }, [report, sdgGoals, dynamicCategoryTabs, periodParams, esgData]);
 
   const handlePdfExport = useCallback(() => {
     generateImpactReportPDF({
@@ -1410,8 +1443,29 @@ export default function ImpactReports() {
         budget: c.stats?.budget ?? 0, satisfaction: c.stats?.satisfaction ?? 0,
       })),
       dateRange: periodParams.startDate ? { from: periodParams.startDate, to: (periodParams as any).endDate } : undefined,
+      esgScore: esgData ? {
+        grade: esgData.grade,
+        environmental: esgData.scores.environmental,
+        social: esgData.scores.social,
+        governance: esgData.scores.governance,
+        overall: esgData.overallScore,
+      } : undefined,
+      categoryDetails: (dynamicCategoryTabs.length > 0 ? dynamicCategoryTabs : categoryTabs).map((cat: any) => ({
+        label: cat.label,
+        metrics: (cat.metrics ?? []).map((m: any) => ({ label: m.label, value: m.value })),
+      })),
+      beneficiaryTrend: impactTimeline.map(h => ({ month: h.year, value: h.beneficiaries })),
+      impactHistory: impactTimeline.map(h => ({
+        year: h.year, beneficiaries: h.beneficiaries, projects: h.projects,
+        budget: h.budget, satisfaction: h.satisfaction, milestone: h.milestone,
+      })),
+      predictionData: predictionData.map(p => ({
+        year: p.year,
+        actual: p.actual ?? undefined,
+        predicted: p.predicted ?? undefined,
+      })),
     });
-  }, [report, sdgGoals, dynamicCategoryTabs, periodParams]);
+  }, [report, sdgGoals, dynamicCategoryTabs, periodParams, esgData]);
 
   const handlePrint = useCallback(() => {
     printTable(getExportData(), exportColumns, 'تقرير الأثر - Impact Report');
@@ -1467,35 +1521,13 @@ export default function ImpactReports() {
             </div>
 
             {/* Export buttons */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-                onClick={handleExcelExport}
-                style={{
-                  background: 'transparent', border: `1px solid ${P.border}`, borderRadius: 12,
-                  padding: '8px 16px', color: P.textMd, fontSize: 13, cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', gap: 6,
-                }}>
-                <FileSpreadsheet size={14} /> Excel
-              </motion.button>
-              <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-                onClick={handlePdfExport}
-                style={{
-                  background: 'transparent', border: `1px solid ${P.border}`, borderRadius: 12,
-                  padding: '8px 16px', color: P.textMd, fontSize: 13, cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', gap: 6,
-                }}>
-                <FileText size={14} /> PDF
-              </motion.button>
-              <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-                onClick={() => window.print()}
-                style={{
-                  background: 'transparent', border: `1px solid ${P.border}`, borderRadius: 12,
-                  padding: '8px 16px', color: P.textMd, fontSize: 13, cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', gap: 6,
-                }}>
-                <Printer size={14} /> Print
-              </motion.button>
-            </div>
+            <ActionBar
+              onRefresh={refetch}
+              onExcel={handleExcelExport}
+              onPdf={handlePdfExport}
+              onPrint={handlePrint}
+              isRefreshing={isRefetching}
+            />
           </div>
 
           {/* Period tab switcher - FuturePortal style */}
