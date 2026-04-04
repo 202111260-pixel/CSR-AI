@@ -9,4 +9,8 @@ export default defineConfig({
     react(),
   ],
   assetsInclude: ['**/*.glb'],
+  server: {
+    host: true,
+    allowedHosts: ['localhost', '.app.github.dev'],
+  },
 })
