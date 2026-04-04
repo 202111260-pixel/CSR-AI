@@ -50,6 +50,8 @@ class ErrorBoundary extends React.Component<{children: React.ReactNode}, {error:
   static getDerivedStateFromError(error: Error) { return { error } }
   componentDidCatch(error: Error, info: React.ErrorInfo) { console.error('ErrorBoundary caught:', error, info.componentStack) }
   render() {
+    const basePath = import.meta.env.BASE_URL || '/'
+
     if (this.state.error) {
       return (
         <div style={{background:'#080805',color:'#F0EFE2',padding:40,fontFamily:'Inter, sans-serif',minHeight:'100vh',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center'}}>
@@ -58,7 +60,7 @@ class ErrorBoundary extends React.Component<{children: React.ReactNode}, {error:
             <span style={{color:'#f87171',fontWeight:600,fontSize:14}}>Runtime Error</span>
           </div>
           <pre style={{color:'#A8A48A',fontSize:13,whiteSpace:'pre-wrap',maxWidth:600,textAlign:'center'}}>{this.state.error.message}</pre>
-          <button onClick={() => { this.setState({ error: null }); window.location.href = '/dashboard'; }} style={{marginTop:24,background:'#C9C036',color:'#080805',border:'none',borderRadius:12,padding:'10px 24px',fontSize:14,fontWeight:600,cursor:'pointer'}}>
+          <button onClick={() => { this.setState({ error: null }); window.location.href = `${basePath}dashboard`; }} style={{marginTop:24,background:'#C9C036',color:'#080805',border:'none',borderRadius:12,padding:'10px 24px',fontSize:14,fontWeight:600,cursor:'pointer'}}>
             Return to Dashboard
           </button>
         </div>
@@ -185,11 +187,13 @@ function AppContent() {
 }
 
 function App() {
+  const basePath = import.meta.env.BASE_URL
+
   return (
     <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
     <ToastProvider>
-    <BrowserRouter>
+    <BrowserRouter basename={basePath}>
       <AppContent />
     </BrowserRouter>
     </ToastProvider>

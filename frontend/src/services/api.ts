@@ -57,7 +57,7 @@ api.interceptors.response.use(
         processQueue(refreshError);
         // Refresh failed — clear user state and redirect
         localStorage.removeItem('auth-storage');
-        window.location.href = '/login';
+        window.location.href = `${import.meta.env.BASE_URL}login`;
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

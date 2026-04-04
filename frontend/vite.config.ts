@@ -3,9 +3,14 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
+  base: process.env.VITE_BASE_PATH || '/',
   plugins: [
     tailwindcss(),
     react(),
   ],
   assetsInclude: ['**/*.glb'],
+  server: {
+    host: true,
+    allowedHosts: ['localhost', '.app.github.dev'],
+  },
 })
