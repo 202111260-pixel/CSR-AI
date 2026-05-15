@@ -64,7 +64,7 @@ export function FeaturesSection() {
   const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '15%']);
 
   return (
-    <section ref={containerRef} className="relative overflow-hidden" style={{ background: '#09090b' }}>
+    <section ref={containerRef} className="relative overflow-hidden" style={{ background: '#000000' }}>
       {/* Ambient glow */}
       <motion.div className="pointer-events-none absolute inset-0" style={{ y: bgY }}>
         <div className="absolute left-1/2 top-[20%] -translate-x-1/2 h-[600px] w-[800px] rounded-full bg-white/[0.015] blur-[200px]" />
@@ -95,7 +95,7 @@ export function FeaturesSection() {
                 className="group relative rounded-2xl p-8 sm:p-10 transition-colors duration-500 h-full"
                 style={{
                   background: 'rgba(255,255,255,0.02)',
-                  border: '1px solid rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(26,26,26,0.6)',
                 }}
               >
                 {/* Hover glow */}

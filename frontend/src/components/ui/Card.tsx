@@ -15,21 +15,29 @@ const variantClasses: Record<NonNullable<CardProps['variant']>, string> = {
 };
 
 function useVariantStyles() {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   return {
     default: {
-      background: colors.card,
-      border: `1px solid ${colors.border}`,
+      background: isDark ? 'rgba(10,10,10, 0.60)' : colors.card,
+      border: `1px solid ${isDark ? '#1a1a1a' : colors.border}`,
+      backdropFilter: isDark ? 'blur(16px)' : undefined,
+      WebkitBackdropFilter: isDark ? 'blur(16px)' : undefined,
     },
     glass: {
-      background: `${colors.card}cc`,
-      border: `1px solid ${colors.border}`,
+      background: isDark ? 'rgba(10,10,10, 0.50)' : `${colors.card}cc`,
+      border: `1px solid ${isDark ? 'rgba(26,26,26, 0.60)' : colors.border}`,
+      backdropFilter: 'blur(16px)',
+      WebkitBackdropFilter: 'blur(16px)',
     },
     gradient: {
-      background: `linear-gradient(168deg, ${colors.card} 0%, ${colors.bg} 100%)`,
-      border: `1px solid ${colors.border}`,
+      background: isDark
+        ? `linear-gradient(168deg, rgba(10,10,10, 0.80) 0%, rgba(18,18,18, 0.60) 100%)`
+        : `linear-gradient(168deg, ${colors.card} 0%, ${colors.bg} 100%)`,
+      border: `1px solid ${isDark ? '#1a1a1a' : colors.border}`,
+      backdropFilter: isDark ? 'blur(12px)' : undefined,
+      WebkitBackdropFilter: isDark ? 'blur(12px)' : undefined,
     },
-  };
+  } as Record<string, React.CSSProperties>;
 }
 
 export function Card({ children, className, variant = 'default', style, ...props }: CardProps) {
@@ -37,7 +45,8 @@ export function Card({ children, className, variant = 'default', style, ...props
   return (
     <div
       className={cn(
-        'rounded-[20px] p-6 transition-all duration-300',
+        'rounded-2xl p-6 transition-all duration-300',
+        'hover:-translate-y-1 hover:border-[#C8A44E]/30',
         variantClasses[variant],
         className
       )}
@@ -58,8 +67,9 @@ export function CardHeader({ children, className, ...props }: React.HTMLAttribut
 }
 
 export function CardTitle({ children, className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) {
+  const { colors } = useTheme();
   return (
-    <h3 className={cn('text-lg font-semibold', className)} style={{ color: '#F0EFE2' }} {...props}>
+    <h3 className={cn('text-lg font-semibold', className)} style={{ color: colors.textHi }} {...props}>
       {children}
     </h3>
   );

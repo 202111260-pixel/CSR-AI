@@ -210,14 +210,12 @@ export function AppShell() {
         }}
       >
         {/* ── Top Bar ── */}
-        <header role="banner" className="sticky top-0 z-40 shrink-0 px-3 pt-2.5 pb-0" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+        <header role="banner" className="sticky top-0 z-40 shrink-0 px-3 pt-2.5 pb-0" style={{ fontFamily: "'IBM Plex Sans Arabic', 'DM Sans', sans-serif" }}>
           <div className="relative rounded-2xl overflow-hidden" style={{
-            background: isDark ? 'rgba(14,14,9,0.82)' : 'rgba(255,255,255,0.78)',
-            backdropFilter: 'blur(28px) saturate(1.8)',
-            WebkitBackdropFilter: 'blur(28px) saturate(1.8)',
-            border: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'}`,
+            background: isDark ? 'rgba(10,10,10, 0.96)' : 'rgba(255,253,249,0.97)',
+            border: `1px solid ${isDark ? 'rgba(26,26,26, 0.60)' : 'rgba(200,164,78,0.15)'}`,
             boxShadow: isDark
-              ? `0 8px 40px rgba(0,0,0,0.35), 0 1px 3px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.04)`
+              ? `0 8px 40px rgba(0,0,0,0.35), 0 1px 3px rgba(0,0,0,0.2), inset 0 1px 0 rgba(200,164,78,0.05)`
               : `0 8px 40px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.9)`,
           }}>
             {/* Animated scanning shimmer line */}
@@ -247,7 +245,7 @@ export function AppShell() {
                               onClick={() => navigate(bc.parent!.path)}
                               className="text-[12px] font-medium px-2 py-1 rounded-lg transition-all duration-200 shrink-0"
                               style={{ color: C.textLo }}
-                              onMouseEnter={e => { e.currentTarget.style.color = C.textHi; e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'; }}
+                              onMouseEnter={e => { e.currentTarget.style.color = C.textHi; e.currentTarget.style.background = isDark ? 'rgba(200,164,78,0.06)' : 'rgba(0,0,0,0.04)'; }}
                               onMouseLeave={e => { e.currentTarget.style.color = C.textLo; e.currentTarget.style.background = 'transparent'; }}
                             >
                               {bc.parent.label}
@@ -279,15 +277,15 @@ export function AppShell() {
                 className="flex items-center gap-3 rounded-xl px-4 py-[7px] transition-all duration-300 flex-1 max-w-[380px]"
                 style={{
                   background: isDark ? '#000000' : 'rgba(0,0,0,0.025)',
-                  border: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'}`,
+                  border: `1px solid ${isDark ? '#1a1a1a' : 'rgba(200,164,78,0.15)'}`,
                 }}
                 onMouseEnter={e => {
-                  e.currentTarget.style.borderColor = isDark ? 'rgba(255,255,255,0.16)' : `${C.accent}35`;
-                  e.currentTarget.style.boxShadow = isDark ? 'none' : `0 0 0 3px ${C.accent}08, 0 4px 16px ${C.accent}06`;
+                  e.currentTarget.style.borderColor = isDark ? 'rgba(200,164,78,0.3)' : 'rgba(200,164,78,0.35)';
+                  e.currentTarget.style.boxShadow = `0 0 12px rgba(200,164,78,0.08)`;
                   e.currentTarget.style.background = isDark ? '#0a0a0a' : 'rgba(0,0,0,0.04)';
                 }}
                 onMouseLeave={e => {
-                  e.currentTarget.style.borderColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+                  e.currentTarget.style.borderColor = isDark ? '#1a1a1a' : 'rgba(200,164,78,0.15)';
                   e.currentTarget.style.boxShadow = 'none';
                   e.currentTarget.style.background = isDark ? '#000000' : 'rgba(0,0,0,0.025)';
                 }}
@@ -296,10 +294,10 @@ export function AppShell() {
                 <Search size={13} style={{ color: C.textLo }} />
                 <span className="text-[11.5px] flex-1 text-left hidden sm:block" style={{ color: C.textLo }}>Search pages, reports, settings...</span>
                 <kbd className="hidden sm:flex items-center gap-0.5 text-[9px] font-bold px-2 py-[3px] rounded-md" style={{
-                  background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)',
-                  color: isDark ? 'rgba(255,255,255,0.3)' : C.textLo,
-                  border: `1px solid ${isDark ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.06)'}`,
-                  fontFamily: "'Space Grotesk', sans-serif",
+                  background: isDark ? 'rgba(200,164,78,0.06)' : 'rgba(0,0,0,0.04)',
+                  color: isDark ? 'rgba(200,164,78,0.5)' : C.textLo,
+                  border: `1px solid ${isDark ? 'rgba(200,164,78,0.12)' : 'rgba(0,0,0,0.06)'}`,
+                  fontFamily: "'Geist Mono', 'Space Grotesk', monospace",
                 }}>
                   <Command size={8} />K
                 </kbd>
@@ -312,9 +310,9 @@ export function AppShell() {
                   onClick={() => setFitMode(prev => !prev)}
                   className="hidden lg:flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-[10px] font-bold transition-all duration-200"
                   style={{
-                    background: fitMode ? `${C.accent}16` : (isDark ? 'rgba(255,255,255,0.035)' : 'rgba(0,0,0,0.025)'),
+                    background: fitMode ? `${C.accent}16` : (isDark ? 'rgba(26,26,26, 0.3)' : 'rgba(0,0,0,0.025)'),
                     color: fitMode ? C.accent : C.textMd,
-                    border: `1px solid ${fitMode ? `${C.accent}38` : (isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)')}`,
+                    border: `1px solid ${fitMode ? `${C.accent}38` : (isDark ? 'rgba(26,26,26, 0.6)' : 'rgba(0,0,0,0.06)')}`,
                   }}
                   title={fitMode ? 'Disable Fit Mode' : 'Enable Fit Mode'}
                   aria-label={fitMode ? 'Disable Fit Mode' : 'Enable Fit Mode'}
@@ -325,8 +323,8 @@ export function AppShell() {
 
                 {/* Glass action group */}
                 <div className="flex items-center gap-0.5 rounded-xl px-1 py-0.5" style={{
-                  background: isDark ? 'rgba(255,255,255,0.035)' : 'rgba(0,0,0,0.025)',
-                  border: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'}`,
+                  background: isDark ? 'rgba(10,10,10, 0.50)' : 'rgba(0,0,0,0.025)',
+                  border: `1px solid ${isDark ? 'rgba(26,26,26, 0.60)' : 'rgba(0,0,0,0.06)'}`,
                 }}>
                   {/* Theme toggle */}
                   <motion.button
@@ -336,8 +334,8 @@ export function AppShell() {
                     className="flex h-[30px] w-[30px] items-center justify-center rounded-[10px] transition-all duration-200"
                     style={{ background: 'transparent' }}
                     onMouseEnter={e => {
-                      e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)';
-                      e.currentTarget.style.boxShadow = `0 0 12px ${isDark ? '#fbbf24' : '#818cf8'}12`;
+                      e.currentTarget.style.background = isDark ? 'rgba(200,164,78,0.08)' : 'rgba(0,0,0,0.05)';
+                      e.currentTarget.style.boxShadow = `0 0 12px rgba(200,164,78,0.12)`;
                     }}
                     onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.boxShadow = 'none'; }}
                     title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
@@ -468,7 +466,7 @@ export function AppShell() {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.15 }}
                 className="fixed inset-0 z-[100]"
-                style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)' }}
+                style={{ background: 'rgba(0,0,0,0.65)' }}
                 onClick={() => setSearchOpen(false)}
               />
               <motion.div

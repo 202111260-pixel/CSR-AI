@@ -7,7 +7,7 @@ const TESTIMONIALS = [
     author: 'Maryam Al-Rashidi',
     role: 'CSR Director',
     org: 'Muscat Holdings',
-    color: '#09090b',
+    color: '#000000',
   },
   {
     text: 'The early warning system saved us from a major budget overrun. We caught it two weeks before it was too late.',
@@ -72,7 +72,7 @@ export function TestimonialsSection() {
                 {/* Stars */}
                 <div className="flex gap-0.5 mb-4">
                   {[...Array(5)].map((_, j) => (
-                    <svg key={j} width="14" height="14" viewBox="0 0 24 24" fill="#09090b" stroke="none">
+                    <svg key={j} width="14" height="14" viewBox="0 0 24 24" fill="#000000" stroke="none">
                       <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                     </svg>
                   ))}

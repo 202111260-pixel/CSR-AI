@@ -1105,7 +1105,7 @@ function DonationsSection() {
     <motion.div initial="hidden" animate="show" className="space-y-6">
       {/* Banner */}
       <motion.div variants={fadeUp}>
-        <GlassCard className="p-6" style={{ borderLeft: `3px solid ${P.accent}` }}>
+        <GlassCard className="p-6" style={{ borderTop: `2px solid ${P.accent}` }}>
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: `${P.accent}15` }}>
               <Heart size={24} style={{ color: P.accent }} />

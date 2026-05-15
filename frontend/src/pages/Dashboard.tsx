@@ -55,10 +55,12 @@ const fadeUp   = { hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0, tran
 const stagger  = (d = 0) => ({ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: EASE, delay: d } } });
 const scaleIn  = (d = 0) => ({ hidden: { opacity: 0, scale: 0.92 }, show: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: EASE, delay: d } } });
 const VP       = { once: true, margin: '-60px' as const };
-const CHART_C  = ['#38bdf8', '#34d399', '#f87171', '#fbbf24', '#a78bfa', '#E91E63', '#22d3ee', '#60a5fa'];
+const CHART_C  = ['#C8A44E', '#34d399', '#60a5fa', '#DFC170', '#a78bfa', '#f87171', '#f59e0b', '#3b82f6'];
+const GOLD = '#C8A44E';
+const GOLD_SOFT = 'rgba(200,164,78,0.12)';
 const CORP = {
-  brand: '#0B5CAB',
-  brandSoft: 'rgba(11,92,171,0.12)',
+  brand: GOLD,
+  brandSoft: GOLD_SOFT,
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -70,7 +72,7 @@ function GlassCard({ children, className, style, onClick }: { children: React.Re
     <div onClick={onClick} className={cn('relative rounded-xl', className)}
       style={{
         background: isDark
-          ? 'linear-gradient(160deg, #111111 0%, #0a0a0a 100%)'
+          ? 'linear-gradient(160deg, #0a0a0a 0%, #000000 100%)'
           : `linear-gradient(168deg, ${P.card} 0%, ${P.bg} 100%)`,
         border: `1px solid ${isDark ? 'rgba(255,255,255,0.07)' : P.border}`,
         borderRadius: 20,
@@ -85,16 +87,17 @@ function GlassCard({ children, className, style, onClick }: { children: React.Re
 }
 function SectionHeader({ icon: Icon, title, subtitle, action }: { icon: React.ComponentType<{ size?: number; style?: React.CSSProperties }>; title: string; subtitle?: string; action?: React.ReactNode }) {
   const { colors: P, isDark } = useTheme();
-  const accentColor = isDark ? '#4ade80' : CORP.brand;
+  const accentColor = GOLD;
   return (
     <div className="flex items-center justify-between mb-5">
       <div className="flex items-center gap-3">
-        <div style={{ width: 32, height: 32, borderRadius: 9, background: `${accentColor}12`, border: `1px solid ${accentColor}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        <div style={{ width: 32, height: 32, borderRadius: 9, background: `${accentColor}1a`, border: `1px solid ${accentColor}38`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           <Icon size={14} style={{ color: accentColor }} />
         </div>
-        <div>
-          <h3 style={{ fontSize: 13, fontWeight: 700, color: isDark ? '#ffffff' : P.textHi, fontFamily: "'Caveat', cursive", letterSpacing: '-0.01em', lineHeight: 1.2 }}>{title}</h3>
-          {subtitle && <p className="text-[9.5px] mt-0.5" style={{ color: isDark ? 'rgba(255,255,255,0.3)' : P.textLo }}>{subtitle}</p>}
+        <div style={{ position: 'relative' }}>
+          <h3 style={{ fontSize: 22, fontWeight: 700, color: isDark ? '#ffffff' : P.textHi, fontFamily: "'Playfair Display', 'Georgia', serif", fontStyle: 'italic', letterSpacing: '-0.02em', lineHeight: 1.15 }}>{title}</h3>
+          <span style={{ position: 'absolute', left: 0, bottom: -4, height: 2, width: 24, background: GOLD, opacity: 0.65, borderRadius: 2, display: 'block' }} />
+          {subtitle && <p className="mt-2" style={{ fontSize: 10, color: isDark ? 'rgba(255,255,255,0.4)' : P.textLo, fontFamily: "'Geist Mono', ui-monospace, monospace", letterSpacing: '0.08em', textTransform: 'uppercase' }}>{subtitle}</p>}
         </div>
       </div>
       {action}
@@ -1242,7 +1245,7 @@ function SidebarAiChat() {
 // ═══════════════════════════════════════════════════════════════════════════════
 // §4  STATUS / RISK MAPS
 // ═══════════════════════════════════════════════════════════════════════════════
-const statusColorMap: Record<string, string> = { active: '#38bdf8', completed: '#34d399', planning: '#E91E63', on_hold: '#fbbf24', archived: '#f87171' };
+const statusColorMap: Record<string, string> = { active: '#38bdf8', completed: '#34d399', planning: '#C8A44E', on_hold: '#fbbf24', archived: '#f87171' };
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // §4.4  BENTO CHAT CELL  (real AI chat inside the dark bento grid)
@@ -1260,31 +1263,136 @@ function BentoChatCell() {
     { from: 'ai', text: 'Hi, how can I help you today?' },
   ]);
   const [input, setInput] = useState('');
+  const [voiceOn, setVoiceOn] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  // SpeechRecognition is not in standard TS lib; treat instance/event as unknown and narrow at use
+  const recogRef = useRef<unknown>(null);
+  const lastSpokenRef = useRef<string>('');
 
   const ask = useMutation({
-    mutationFn: (q: string) => aiAnalyticsService.analyze(q, 'overview'),
-    onSuccess: (res: any, q: string) => {
-      const r = res?.data ?? res;
+    // Wrap question with a SHORT instruction (kept under ~120 chars so total stays well within the 1000-char limit)
+    mutationFn: (q: string) => {
+      // Schema cap is 1000 chars — trim user input defensively to leave room for our suffix
+      const userPart = q.length > 820 ? q.slice(0, 820) + '…' : q;
+      const wrapped = `${userPart}\n(Include 1-2 charts in chartData (bar/line/area/donut) when numeric data is relevant.)`;
+      return aiAnalyticsService.analyze(wrapped, 'overview');
+    },
+    onSuccess: (res: unknown, q: string) => {
+      const r = ((res as { data?: unknown })?.data ?? res) as { analysis?: string; summary?: string; chartData?: AiChart[]; keyFindings?: string[] };
+      const text = r?.analysis ?? r?.summary ?? 'No response.';
       setMsgs(prev => [
         ...prev,
         { from: 'user', text: q },
         {
           from: 'ai',
-          text: r?.analysis ?? r?.summary ?? 'No response.',
+          text,
           charts: r?.chartData ?? [],
           findings: r?.keyFindings ?? [],
         },
       ]);
     },
-    onError: () => {
-      setMsgs(prev => [...prev, { from: 'ai', text: "Sorry, I couldn't connect to the AI service right now." }]);
+    onError: (err: unknown, q: string) => {
+      // Surface the real reason so we can see whether it's a missing API key, validation, etc.
+      const e = err as { response?: { status?: number; data?: { error?: { message?: string; code?: string } } }; message?: string };
+      const apiMsg = e?.response?.data?.error?.message;
+      const code = e?.response?.data?.error?.code;
+      const status = e?.response?.status;
+      const detail = apiMsg
+        ? `${apiMsg}${code ? ` (${code})` : ''}`
+        : status
+          ? `Server replied ${status}. Check that ZENMUX_API_KEY is set in backend/.env.`
+          : e?.message || 'Network error reaching the AI service.';
+      // Log to console so devtools shows full error chain
+      console.error('[Chat] AI request failed', err);
+      setMsgs(prev => [
+        ...prev,
+        { from: 'user', text: q },
+        { from: 'ai', text: `Sorry — ${detail}` },
+      ]);
     },
   });
 
   useLayoutEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [msgs]);
+
+  // ── Speak the latest AI reply when voice is on ─────────────────────────────
+  useEffect(() => {
+    if (!voiceOn) return;
+    const last = msgs[msgs.length - 1];
+    if (!last || last.from !== 'ai') return;
+    if (last.text === lastSpokenRef.current) return;
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+    lastSpokenRef.current = last.text;
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(last.text);
+    u.rate = 1.02;
+    u.pitch = 1.0;
+    // Prefer an English voice if available; fallback to default
+    const voices = window.speechSynthesis.getVoices();
+    const pref = voices.find(v => /en[-_]/i.test(v.lang) && /female|google|samantha|natural/i.test(v.name))
+               ?? voices.find(v => /en[-_]/i.test(v.lang))
+               ?? voices[0];
+    if (pref) u.voice = pref;
+    window.speechSynthesis.speak(u);
+  }, [msgs, voiceOn]);
+
+  // Stop any speech on unmount
+  useEffect(() => () => { if (typeof window !== 'undefined') window.speechSynthesis?.cancel(); }, []);
+
+  // ── Voice input (Web Speech API STT) ───────────────────────────────────────
+  const startListening = () => {
+    type SRWindow = Window & {
+      SpeechRecognition?: new () => unknown;
+      webkitSpeechRecognition?: new () => unknown;
+    };
+    const w = window as SRWindow;
+    const Ctor = w.SpeechRecognition ?? w.webkitSpeechRecognition;
+    if (!Ctor) {
+      alert('Voice input is not supported in this browser. Try Chrome or Edge.');
+      return;
+    }
+    if (isListening && recogRef.current) {
+      (recogRef.current as { stop: () => void }).stop();
+      return;
+    }
+    const recog = new Ctor() as {
+      continuous: boolean;
+      interimResults: boolean;
+      lang: string;
+      start: () => void;
+      stop: () => void;
+      onresult: (e: { results: ArrayLike<ArrayLike<{ transcript: string }>>; resultIndex: number }) => void;
+      onerror: () => void;
+      onend: () => void;
+    };
+    recog.continuous = false;
+    recog.interimResults = true;
+    recog.lang = (typeof navigator !== 'undefined' && /ar/.test(navigator.language)) ? 'ar-SA' : 'en-US';
+    let finalText = '';
+    recog.onresult = (e) => {
+      let interim = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const segment = e.results[i];
+        finalText += segment[0].transcript;
+        interim += segment[0].transcript;
+      }
+      setInput((interim || finalText).trim());
+    };
+    recog.onerror = () => setIsListening(false);
+    recog.onend = () => {
+      setIsListening(false);
+      const text = finalText.trim();
+      if (text) {
+        setInput('');
+        ask.mutate(text);
+      }
+    };
+    recogRef.current = recog;
+    setIsListening(true);
+    recog.start();
+  };
 
   const send = () => {
     const q = input.trim();
@@ -1315,6 +1423,34 @@ function BentoChatCell() {
             ))}
           </div>
         )}
+        {/* Voice (TTS) toggle */}
+        <button
+          onClick={() => {
+            const next = !voiceOn;
+            setVoiceOn(next);
+            if (!next && typeof window !== 'undefined') window.speechSynthesis?.cancel();
+          }}
+          title={voiceOn ? 'Voice replies: on' : 'Voice replies: off'}
+          style={{
+            width: 22, height: 22, borderRadius: 8, border: 'none', cursor: 'pointer', flexShrink: 0,
+            background: voiceOn ? `${P.accent}22` : 'transparent',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            transition: 'background 0.2s',
+          }}
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={voiceOn ? P.accent : P.textDim} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+            {voiceOn ? (
+              <>
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+              </>
+            ) : (
+              <line x1="23" y1="9" x2="17" y2="15" />
+            )}
+            {!voiceOn && <line x1="17" y1="9" x2="23" y2="15" />}
+          </svg>
+        </button>
       </div>
 
       {/* Scrollable messages */}
@@ -1387,14 +1523,44 @@ function BentoChatCell() {
       </div>
 
       {/* Input */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', borderRadius: 20, border: `1px solid ${B_BORDER}`, flexShrink: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', borderRadius: 20, border: `1px solid ${isListening ? P.accent : B_BORDER}`, flexShrink: 0, boxShadow: isListening ? `0 0 0 2px ${P.accent}25` : 'none', transition: 'border-color 0.2s, box-shadow 0.2s' }}>
         <input
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && send()}
-          placeholder="Type your message..."
+          placeholder={isListening ? 'Listening…' : 'Type or press the mic'}
           style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: 11, color: P.textHi, fontFamily: 'inherit' }}
         />
+
+        {/* Mic button — voice input */}
+        <button
+          onClick={startListening}
+          title={isListening ? 'Stop listening' : 'Voice input'}
+          disabled={ask.isPending}
+          style={{
+            width: 24, height: 24, borderRadius: 8, border: 'none', cursor: ask.isPending ? 'default' : 'pointer',
+            background: isListening ? P.accent : 'transparent',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+            transition: 'background 0.2s',
+            position: 'relative',
+          }}
+        >
+          {isListening && (
+            <motion.span
+              style={{ position: 'absolute', inset: -4, borderRadius: 12, border: `1.5px solid ${P.accent}`, pointerEvents: 'none' }}
+              animate={{ opacity: [0.6, 0, 0.6], scale: [1, 1.35, 1] }}
+              transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
+            />
+          )}
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={isListening ? P.bg : P.textDim} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+            <line x1="12" y1="19" x2="12" y2="23" />
+            <line x1="8" y1="23" x2="16" y2="23" />
+          </svg>
+        </button>
+
+        {/* Send button */}
         <button onClick={send} disabled={!input.trim() || ask.isPending}
           style={{
             width: 24, height: 24, borderRadius: 8, border: 'none', cursor: input.trim() && !ask.isPending ? 'pointer' : 'default',
@@ -1806,7 +1972,7 @@ export default function Dashboard() {
   const kpiCards = useMemo(() => {
     if (!kpis) return [];
     return [
-      { label: 'Total Projects',  value: kpis.totalProjects,       trend: trends?.projects ?? 0,       icon: PiFoldersDuotone,       color: '#E91E63', format: 'num'  as const },
+      { label: 'Total Projects',  value: kpis.totalProjects,       trend: trends?.projects ?? 0,       icon: PiFoldersDuotone,       color: '#C8A44E', format: 'num'  as const },
       { label: 'Active',          value: kpis.activeProjects,       trend: 0,                           icon: PiLightningDuotone,     color: '#38bdf8', format: 'num'  as const },
       { label: 'Total Budget',    value: totalBudget,               trend: trends?.budget ?? 0,         icon: PiWalletDuotone,        color: '#34d399', format: 'omr'  as const },
       { label: 'Total Spent',     value: totalSpent,                trend: 0,                           icon: PiCurrencyDollarDuotone, color: '#f87171', format: 'omr'  as const },
@@ -1868,34 +2034,46 @@ export default function Dashboard() {
 
         {/* ═══════════════ ROW 0 : CINEMATIC HEADER ═══════════════ */}
         <motion.div variants={fadeUp} initial="hidden" animate="show" className="-mx-6 -mt-5 mb-2">
-          <div style={{ background: '#080808', position: 'relative', overflow: 'hidden', padding: '36px 28px 28px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+          <div style={{ background: isDark ? '#000000' : '#FFFDF9', position: 'relative', overflow: 'hidden', padding: '36px 28px 28px', borderBottom: `1px solid ${isDark ? '#1a1a1a' : '#E8E0CC'}` }}>
             {/* Noise grain */}
-            <div style={{ position: 'absolute', inset: 0, backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E")`, backgroundSize: '128px 128px', opacity: 0.04, pointerEvents: 'none' }} />
-            {/* Glow blobs */}
-            <div style={{ position: 'absolute', left: '5%', top: '-10%', width: 380, height: 380, borderRadius: '50%', background: 'rgba(74,222,128,0.06)', filter: 'blur(120px)', pointerEvents: 'none' }} />
-            <div style={{ position: 'absolute', right: '10%', bottom: '-30%', width: 300, height: 300, borderRadius: '50%', background: 'rgba(37,99,235,0.07)', filter: 'blur(100px)', pointerEvents: 'none' }} />
-            <div style={{ position: 'absolute', right: '35%', top: '10%', width: 200, height: 200, borderRadius: '50%', background: 'rgba(168,85,247,0.04)', filter: 'blur(80px)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', inset: 0, backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E")`, backgroundSize: '128px 128px', opacity: isDark ? 0.035 : 0.025, pointerEvents: 'none' }} />
+            {/* Gold glow blobs (Omani Heritage) */}
+            <div style={{ position: 'absolute', left: '4%', top: '-20%', width: 400, height: 400, borderRadius: '50%', background: isDark ? 'rgba(200,164,78,0.07)' : 'rgba(200,164,78,0.04)', filter: 'blur(120px)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', right: '8%', bottom: '-40%', width: 320, height: 320, borderRadius: '50%', background: isDark ? 'rgba(37,99,235,0.05)' : 'rgba(74,222,128,0.03)', filter: 'blur(100px)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', right: '38%', top: '5%', width: 200, height: 200, borderRadius: '50%', background: 'rgba(200,164,78,0.03)', filter: 'blur(80px)', pointerEvents: 'none' }} />
 
             {/* ── Main row ── */}
             <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'space-between', gap: 20 }}>
               <div>
                 {/* Badge row */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.22)', borderRadius: 999, padding: '3px 12px', fontSize: 10, fontWeight: 700, color: '#4ade80', letterSpacing: '0.08em' }}>
-                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ade80', boxShadow: '0 0 0 3px rgba(74,222,128,0.2)', display: 'inline-block' }} />
-                    LIVE
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18, flexWrap: 'wrap' }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: isDark ? 'rgba(74,222,128,0.08)' : 'rgba(74,222,128,0.06)', border: '1px solid rgba(74,222,128,0.22)', borderRadius: 999, padding: '3px 11px 3px 9px', fontSize: 9, fontWeight: 700, color: '#4ade80', letterSpacing: '0.22em', textTransform: 'uppercase', fontFamily: "'Geist Mono', ui-monospace, monospace" }}>
+                    <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#4ade80', display: 'inline-block' }} />
+                    Portfolio Live
                   </span>
-                  <span style={{ fontSize: 10.5, color: 'rgba(255,255,255,0.22)', fontWeight: 500 }}>
-                    {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: isDark ? 'rgba(200,164,78,0.08)' : 'rgba(200,164,78,0.06)', border: `1px solid ${GOLD}38`, borderRadius: 999, padding: '3px 11px 3px 9px', fontSize: 9, fontWeight: 700, color: GOLD, letterSpacing: '0.12em', textTransform: 'uppercase', fontFamily: "'Geist Mono', ui-monospace, monospace" }}>
+                    11 Governorates
+                  </span>
+                  <span style={{ fontSize: 9, color: isDark ? 'rgba(255,255,255,0.38)' : '#9A9490', fontFamily: "'Geist Mono', ui-monospace, monospace", letterSpacing: '0.08em' }}>
+                    {new Date().toLocaleDateString('en-OM', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                   </span>
                 </div>
-                {/* Greeting */}
-                <h1 style={{ fontFamily: "'Caveat', cursive", fontSize: 'clamp(2rem, 3.8vw, 3.2rem)', fontWeight: 700, color: '#ffffff', lineHeight: 1.1, margin: '0 0 10px', letterSpacing: '-0.01em' }}>
-                  {greeting}, {user?.name?.split(' ')[0] || 'there'}
-                </h1>
-                <p style={{ fontSize: 12.5, color: 'rgba(255,255,255,0.32)', margin: 0, lineHeight: 1.7, maxWidth: 520 }}>
-                  CSR Operations Dashboard — Portfolio intelligence &amp; execution status across Oman's 11 governorates
-                </p>
+                {/* Greeting — Playfair italic with Omani gold accent */}
+                <div style={{ position: 'relative', display: 'inline-block', marginBottom: 16 }}>
+                  <h1 style={{ fontFamily: "'Playfair Display', 'Georgia', serif", fontStyle: 'italic', fontSize: 'clamp(1.75rem, 3.5vw, 2.75rem)', fontWeight: 700, color: isDark ? 'rgba(255,255,255,0.96)' : '#1A1A1A', lineHeight: 1.1, margin: 0, letterSpacing: '-0.025em' }}>
+                    {greeting}{user?.name && (<span style={{ color: GOLD }}>, {user.name.split(' ')[0]}</span>)}
+                  </h1>
+                  <motion.span initial={{ width: 0 }} animate={{ width: 28 }} transition={{ delay: 0.6, duration: 0.45, ease: EASE }} style={{ position: 'absolute', left: 2, bottom: -8, height: 2, background: GOLD, opacity: 0.65, display: 'block', borderRadius: 2 }} />
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', marginTop: 4 }}>
+                  <span style={{ fontSize: 12, color: isDark ? 'rgba(255,255,255,0.38)' : '#9A9490', fontFamily: "'IBM Plex Sans Arabic', 'DM Sans', sans-serif" }}>
+                    {greeting === 'Good Morning' ? 'صباح الخير' : greeting === 'Good Afternoon' ? 'مساء الخير' : 'مساء النور'}
+                  </span>
+                  <span style={{ width: 3, height: 3, borderRadius: '50%', background: isDark ? 'rgba(255,255,255,0.38)' : '#9A9490', display: 'inline-block' }} />
+                  <span style={{ fontSize: 12, color: isDark ? 'rgba(255,255,255,0.65)' : '#6B6560', lineHeight: 1.5 }}>
+                    CSR Portfolio Command Center — Ministry of Commerce &amp; Industry, Oman
+                  </span>
+                </div>
               </div>
 
               {/* Action buttons */}
@@ -1912,7 +2090,7 @@ export default function Dashboard() {
                   Excel
                 </motion.button>
                 <motion.button whileHover={{ y: -1 }} whileTap={{ scale: 0.97 }} onClick={handlePrint}
-                  style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', fontSize: 11, fontWeight: 600, background: 'rgba(37,99,235,0.12)', color: '#93c5fd', border: '1px solid rgba(37,99,235,0.28)', borderRadius: 10, cursor: 'pointer' }}>
+                  style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', fontSize: 11, fontWeight: 600, background: 'rgba(37,99,235,0.12)', color: '#DFC170', border: '1px solid rgba(37,99,235,0.28)', borderRadius: 10, cursor: 'pointer' }}>
                   <PiPrinterDuotone size={12} />
                   Print
                 </motion.button>
@@ -2108,7 +2286,7 @@ export default function Dashboard() {
                     </select>
                     <motion.button whileHover={{ scale: 1.03 }} onClick={() => navigate('/reports/financial')}
                       className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-semibold cursor-pointer"
-                      style={{ background: isDark ? '#1e3a8a2a' : '#0B5CAB14', color: isDark ? '#93c5fd' : CORP.brand, border: `1px solid ${isDark ? '#3b82f660' : '#0B5CAB3d'}` }}>
+                      style={{ background: isDark ? 'rgba(200,164,78,0.16)' : 'rgba(200,164,78,0.10)', color: isDark ? '#DFC170' : CORP.brand, border: `1px solid ${isDark ? 'rgba(200,164,78,0.45)' : 'rgba(200,164,78,0.40)'}` }}>
                       Financial Report <ChevronRight size={10} />
                     </motion.button>
                   </div>
@@ -2350,7 +2528,7 @@ export default function Dashboard() {
                     </div>
                     <motion.button whileHover={{ scale: 1.03 }} onClick={() => navigate('/future')}
                       className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-semibold cursor-pointer"
-                      style={{ background: isDark ? '#1e3a8a2a' : '#0B5CAB14', color: isDark ? '#93c5fd' : CORP.brand, border: `1px solid ${isDark ? '#3b82f660' : '#0B5CAB3d'}` }}>
+                      style={{ background: isDark ? 'rgba(200,164,78,0.16)' : 'rgba(200,164,78,0.10)', color: isDark ? '#DFC170' : CORP.brand, border: `1px solid ${isDark ? 'rgba(200,164,78,0.45)' : 'rgba(200,164,78,0.40)'}` }}>
                       Full Forecast <ChevronRight size={10} />
                     </motion.button>
                   </div>
@@ -2436,7 +2614,7 @@ export default function Dashboard() {
                     </div>
                     <motion.button whileHover={{ scale: 1.03 }} onClick={() => navigate('/future')}
                       className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-semibold cursor-pointer"
-                      style={{ background: isDark ? '#1e3a8a2a' : '#0B5CAB14', color: isDark ? '#93c5fd' : CORP.brand, border: `1px solid ${isDark ? '#3b82f660' : '#0B5CAB3d'}` }}>
+                      style={{ background: isDark ? 'rgba(200,164,78,0.16)' : 'rgba(200,164,78,0.10)', color: isDark ? '#DFC170' : CORP.brand, border: `1px solid ${isDark ? 'rgba(200,164,78,0.45)' : 'rgba(200,164,78,0.40)'}` }}>
                       Full Analysis <ChevronRight size={10} />
                     </motion.button>
                   </div>
@@ -2518,7 +2696,7 @@ export default function Dashboard() {
             <SectionHeader icon={PiCalendarCheckDuotone} title="Project Timeline" subtitle="Gantt-style view of active & planning projects" action={
               <motion.button whileHover={{ scale: 1.03 }} onClick={() => navigate('/projects')}
                 className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-semibold cursor-pointer"
-                style={{ background: isDark ? '#1e3a8a2a' : '#0B5CAB14', color: isDark ? '#93c5fd' : CORP.brand, border: `1px solid ${isDark ? '#3b82f660' : '#0B5CAB3d'}` }}>
+                style={{ background: isDark ? 'rgba(200,164,78,0.16)' : 'rgba(200,164,78,0.10)', color: isDark ? '#DFC170' : CORP.brand, border: `1px solid ${isDark ? 'rgba(200,164,78,0.45)' : 'rgba(200,164,78,0.40)'}` }}>
                 All Projects <ChevronRight size={10} />
               </motion.button>
             } />
@@ -2585,7 +2763,7 @@ export default function Dashboard() {
               <SectionHeader icon={PiStackDuotone} title="By Category" action={
                 <motion.button whileHover={{ scale: 1.03 }} onClick={() => navigate('/admin/categories')}
                   className="text-[10px] font-semibold px-2.5 py-1.5 rounded-lg cursor-pointer"
-                  style={{ color: isDark ? '#93c5fd' : CORP.brand, background: isDark ? '#1e3a8a2a' : '#0B5CAB14', border: `1px solid ${isDark ? '#3b82f660' : '#0B5CAB3d'}` }}>Details</motion.button>
+                  style={{ color: isDark ? '#DFC170' : CORP.brand, background: isDark ? 'rgba(200,164,78,0.16)' : 'rgba(200,164,78,0.10)', border: `1px solid ${isDark ? 'rgba(200,164,78,0.45)' : 'rgba(200,164,78,0.40)'}` }}>Details</motion.button>
               } />
               <div style={{ height: 240 }}>
                 <ResponsiveContainer width="100%" height="100%">
@@ -2625,7 +2803,7 @@ export default function Dashboard() {
             <SectionHeader icon={PiFoldersDuotone} title="Recent Projects" subtitle="Latest portfolio activity" action={
               <motion.button whileHover={{ scale: 1.03 }} onClick={() => navigate('/projects')}
                 className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-semibold cursor-pointer"
-                style={{ background: isDark ? '#1e3a8a2a' : '#0B5CAB14', color: isDark ? '#93c5fd' : CORP.brand, border: `1px solid ${isDark ? '#3b82f660' : '#0B5CAB3d'}` }}>
+                style={{ background: isDark ? 'rgba(200,164,78,0.16)' : 'rgba(200,164,78,0.10)', color: isDark ? '#DFC170' : CORP.brand, border: `1px solid ${isDark ? 'rgba(200,164,78,0.45)' : 'rgba(200,164,78,0.40)'}` }}>
                 All Projects <ChevronRight size={10} />
               </motion.button>
             } />

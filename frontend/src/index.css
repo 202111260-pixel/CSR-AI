@@ -1,43 +1,43 @@
 @import "tailwindcss";
 
-/* ── Button CSS Variables (dark theme default) ─────────────────────────────── */
+/* ── Button CSS Variables (dark theme default — gold accent) ───────────────── */
 :root {
-  /* Accent = blue (dark theme) */
-  --btn-accent:              #4F8EF7;
-  --btn-accent-hover:        #7AADF9;
-  --btn-accent-fg:           #0F1117;
-  --btn-accent-shadow:       rgba(79,142,247,0.30);
-  --btn-accent-subtle:       rgba(79,142,247,0.12);
-  --btn-accent-subtle-hover: rgba(79,142,247,0.20);
+  /* Accent = gold (dark theme) */
+  --btn-accent:              #C8A44E;
+  --btn-accent-hover:        #DFC170;
+  --btn-accent-fg:           #060B14;
+  --btn-accent-shadow:       rgba(200,164,78,0.30);
+  --btn-accent-subtle:       rgba(200,164,78,0.12);
+  --btn-accent-subtle-hover: rgba(200,164,78,0.20);
   /* Neutral */
-  --btn-neutral:             #2C2F42;
-  --btn-neutral-hover:       #3A3E55;
+  --btn-neutral:             #1A2D48;
+  --btn-neutral-hover:       #243B5A;
   --btn-neutral-fg:          #E8E9F0;
-  --btn-neutral-shadow:      rgba(44,47,66,0.40);
-  --btn-neutral-subtle:      rgba(44,47,66,0.50);
-  --btn-neutral-subtle-hover:rgba(44,47,66,0.70);
-  --btn-border:              #2C2F42;
-  --btn-text:                #8B8FA8;
+  --btn-neutral-shadow:      rgba(26,45,72,0.40);
+  --btn-neutral-subtle:      rgba(26,45,72,0.50);
+  --btn-neutral-subtle-hover:rgba(26,45,72,0.70);
+  --btn-border:              #1A2D48;
+  --btn-text:                #C0CDD8;
 }
 
 /* Light theme overrides */
 html:not(.dark) {
-  /* Accent = forest green (light theme) */
-  --btn-accent:              #2D5A27;
-  --btn-accent-hover:        #234820;
-  --btn-accent-fg:           #ffffff;
-  --btn-accent-shadow:       rgba(45,90,39,0.25);
-  --btn-accent-subtle:       rgba(45,90,39,0.09);
-  --btn-accent-subtle-hover: rgba(45,90,39,0.15);
+  /* Accent = gold (light theme) */
+  --btn-accent:              #C8A44E;
+  --btn-accent-hover:        #B08F3A;
+  --btn-accent-fg:           #060B14;
+  --btn-accent-shadow:       rgba(200,164,78,0.25);
+  --btn-accent-subtle:       rgba(200,164,78,0.09);
+  --btn-accent-subtle-hover: rgba(200,164,78,0.15);
   /* Neutral */
-  --btn-neutral:             #E5E2DA;
-  --btn-neutral-hover:       #D0CCC2;
-  --btn-neutral-fg:          #1C2B1C;
+  --btn-neutral:             #E8E0CC;
+  --btn-neutral-hover:       #D4C9AE;
+  --btn-neutral-fg:          #1A1A1A;
   --btn-neutral-shadow:      rgba(0,0,0,0.10);
   --btn-neutral-subtle:      rgba(0,0,0,0.05);
   --btn-neutral-subtle-hover:rgba(0,0,0,0.09);
-  --btn-border:              #D0CCC2;
-  --btn-text:                #4A5C4A;
+  --btn-border:              #D4C9AE;
+  --btn-text:                #6B6560;
 }
 
 *,
@@ -53,44 +53,44 @@ html {
 }
 
 body {
-  background-color: #09090b;
-  color: #9f9fa9;
-  font-family: 'Inter', 'Space Grotesk', sans-serif;
+  background-color: #0a0a0a;
+  color: rgba(255,255,255,0.8);
+  font-family: 'IBM Plex Sans Arabic', 'DM Sans', 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 /* Light mode body overrides */
 html:not(.dark) body {
-  background-color: #F5F3EE;
-  color: #4A5C4A;
+  background-color: #FFFDF9;
+  color: #3D3A34;
 }
 
-/* Custom scrollbar — dark theme */
+/* Custom scrollbar — dark theme (navy) */
 ::-webkit-scrollbar {
   width: 4px;
   height: 4px;
 }
 ::-webkit-scrollbar-track {
-  background: #09090b;
+  background: #0a0a0a;
 }
 ::-webkit-scrollbar-thumb {
-  background: #323237;
+  background: #1A2D48;
   border-radius: 99px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3f3f46;
+  background: #243B5A;
 }
 
 /* Light mode scrollbar */
 html:not(.dark) ::-webkit-scrollbar-track {
-  background: #F5F3EE;
+  background: #FFFDF9;
 }
 html:not(.dark) ::-webkit-scrollbar-thumb {
-  background: #D0CCC2;
+  background: #D4C9AE;
 }
 html:not(.dark) ::-webkit-scrollbar-thumb:hover {
-  background: #B0ACA2;
+  background: #B8A888;
 }
 
 /* Smooth number-flow transitions */
@@ -107,14 +107,14 @@ number-flow-react {
   animation: borderPulse 3s ease-in-out infinite;
 }
 
-/* Selection */
+/* Selection — gold accent */
 ::selection {
-  background: rgba(251, 44, 54, 0.25);
+  background: rgba(200, 164, 78, 0.30);
   color: #fafafa;
 }
 html:not(.dark) ::selection {
-  background: rgba(45, 90, 39, 0.20);
-  color: #1C2B1C;
+  background: rgba(200, 164, 78, 0.25);
+  color: #1A1A1A;
 }
 
 /* ── Leaflet custom popup ── */
@@ -133,11 +133,11 @@ html:not(.dark) ::selection {
   display: none !important;
 }
 .leaflet-container {
-  background: #09090b !important;
-  font-family: 'Inter', sans-serif !important;
+  background: #0a0a0a !important;
+  font-family: 'IBM Plex Sans Arabic', 'DM Sans', sans-serif !important;
 }
 html:not(.dark) .leaflet-container {
-  background: #F5F3EE !important;
+  background: #FFFDF9 !important;
 }
 
 /* Pulse animation for map markers */
@@ -197,4 +197,109 @@ html.lenis, html.lenis body {
 }
 .lenis.lenis-stopped {
   overflow: hidden;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Gold Glass Morphism Utilities (ai-smart-preview design system)
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Typewriter blinking cursor */
+@keyframes blink-cursor {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Fade in from below */
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Pulse dot for status indicators */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: .4; transform: scale(1.6); }
+}
+
+/* Gold glow pulse */
+@keyframes gold-glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(200,164,78,0.15); }
+  50%      { box-shadow: 0 0 40px rgba(200,164,78,0.30); }
+}
+
+/* Shimmer loading skeleton */
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.animate-blink       { animation: blink-cursor 1s step-end infinite; }
+.animate-fade-in-up  { animation: fade-in-up .5s ease-out both; }
+.animate-pulse-dot   { animation: pulse-dot 1.4s ease-in-out infinite; }
+.animate-gold-glow   { animation: gold-glow-pulse 3s ease-in-out infinite; }
+.animate-shimmer     { animation: shimmer 1.5s infinite; background-size: 200% 100%; }
+
+/* Glass morphism card utility */
+.glass-card {
+  background: rgba(10, 21, 37, 0.60);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(26, 45, 72, 0.60);
+  border-radius: 16px;
+  transition: all 0.3s ease;
+}
+.glass-card:hover {
+  border-color: rgba(200, 164, 78, 0.30);
+  background: rgba(15, 29, 50, 0.70);
+  transform: translateY(-4px);
+}
+html:not(.dark) .glass-card {
+  background: rgba(255, 255, 255, 0.70);
+  border-color: rgba(232, 224, 204, 0.60);
+  backdrop-filter: blur(16px);
+}
+html:not(.dark) .glass-card:hover {
+  border-color: rgba(200, 164, 78, 0.40);
+  background: rgba(255, 255, 255, 0.85);
+}
+
+/* Gold gradient button utility */
+.btn-gold {
+  background: linear-gradient(135deg, #C8A44E, #DFC170);
+  color: #060B14;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  box-shadow: 0 0 24px rgba(200,164,78,0.25);
+  transition: all 0.3s ease;
+}
+.btn-gold:hover {
+  box-shadow: 0 0 40px rgba(200,164,78,0.4);
+  transform: scale(1.02);
+}
+.btn-gold:active {
+  transform: scale(0.98);
+}
+
+/* Gold outline button utility */
+.btn-gold-outline {
+  background: transparent;
+  color: #C0CDD8;
+  border: 1px solid #1A2D48;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+.btn-gold-outline:hover {
+  border-color: rgba(200, 164, 78, 0.40);
+  color: #DFC170;
+}
+
+/* Noise grain overlay */
+.noise-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1;
 }

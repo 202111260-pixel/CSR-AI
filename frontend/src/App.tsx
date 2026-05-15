@@ -113,6 +113,12 @@ function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>
 }
 
+// Smart root redirect: dashboard if logged in, landing if not
+function RootRedirect() {
+  const user = useAuthStore(s => s.user)
+  return <Navigate to={user ? '/dashboard' : '/landing'} replace />
+}
+
 function AppContent() {
   return (
     <>
@@ -178,8 +184,8 @@ function AppContent() {
             <Route path="*" element={<NotFound />} />
           </Route>
 
-          {/* Redirect root to landing page */}
-          <Route path="/" element={<Navigate to="/landing" replace />} />
+          {/* Redirect root: dashboard if authenticated, landing if not */}
+          <Route path="/" element={<RootRedirect />} />
         </Routes>
       </Suspense>
     </>

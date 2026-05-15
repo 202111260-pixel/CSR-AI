@@ -103,7 +103,7 @@ export function ProductShowcase() {
                 {/* Simulated chart bars */}
                 <div className="flex items-end gap-2 h-[100px]">
                   {[45, 62, 38, 78, 55, 89, 72, 94, 60, 85, 70, 92].map((h, i) => (
-                    <div key={i} className="flex-1 rounded-t" style={{ height: `${h}%`, background: i === 11 ? '#09090b' : i > 8 ? '#a3a3a3' : '#e5e5e5' }} />
+                    <div key={i} className="flex-1 rounded-t" style={{ height: `${h}%`, background: i === 11 ? '#000000' : i > 8 ? '#a3a3a3' : '#e5e5e5' }} />
                   ))}
                 </div>
               </div>

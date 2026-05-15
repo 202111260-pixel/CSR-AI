@@ -198,12 +198,12 @@ export default function FinancialReports() {
   const report = (reportRes as any)?.data;
 
   /* ── Derived data from API ── */
-  const expenseColorPalette = ['#E91E63', '#38bdf8', '#fb923c', '#a78bfa', '#34d399', '#fbbf24', '#f87171'];
+  const expenseColorPalette = ['#C8A44E', '#38bdf8', '#fb923c', '#a78bfa', '#34d399', '#fbbf24', '#f87171'];
 
   const financialSummary = useMemo(() => {
     const count = report?.budgetByProject?.length || 1;
     return [
-      { title: 'Total Budget', value: report?.totalBudget ?? 0,  prev: 0, icon: Wallet,      color: '#E91E63', glow: 'rgba(233,30,99,0.10)', href: '/reports/financial' },
+      { title: 'Total Budget', value: report?.totalBudget ?? 0,  prev: 0, icon: Wallet,      color: '#C8A44E', glow: 'rgba(200,164,78,0.10)', href: '/reports/financial' },
       { title: 'Total Spent',  value: report?.totalSpent ?? 0,   prev: 0, icon: TrendingUp,   color: '#38bdf8', glow: 'rgba(56,189,248,0.10)', href: '/reports/financial' },
       { title: 'Remaining',    value: report?.remaining ?? 0,    prev: 0, icon: PieIcon,      color: '#34d399', glow: 'rgba(52,211,153,0.10)', href: '/reports/financial' },
       { title: 'Avg/Project',  value: report?.totalSpent != null ? Math.round(report.totalSpent / count) : 0, prev: 0, icon: Activity, color: '#a78bfa', glow: 'rgba(167,139,250,0.10)', href: '/reports/financial' },
@@ -273,7 +273,7 @@ export default function FinancialReports() {
       budget: c.budget ?? 0,
       spent: c.spent ?? 0,
       projects: c.projects ?? 0,
-      color: c.color ?? '#E91E63',
+      color: c.color ?? '#C8A44E',
     }));
   }, [report]);
 
@@ -308,7 +308,7 @@ export default function FinancialReports() {
       { label: 'Cost per Beneficiary', value: String(m.costPerBeneficiary ?? 0), unit: 'OMR', trend: 0, good: true, icon: Users, color: '#38bdf8' },
       { label: 'Budget Utilization', value: String(m.budgetUtilization ?? 0), unit: '%', trend: 0, good: true, icon: Gauge, color: '#34d399' },
       { label: 'Burn Rate Accuracy', value: String(m.burnRateAccuracy ?? 0), unit: '%', trend: 0, good: true, icon: Target, color: '#a78bfa' },
-      { label: 'Overrun Frequency', value: String(m.overrunFrequency ?? 0), unit: '%', trend: 0, good: (m.overrunFrequency ?? 0) < 10, icon: Shield, color: '#E91E63' },
+      { label: 'Overrun Frequency', value: String(m.overrunFrequency ?? 0), unit: '%', trend: 0, good: (m.overrunFrequency ?? 0) < 10, icon: Shield, color: '#C8A44E' },
     ];
   }, [report]);
 
@@ -674,8 +674,8 @@ export default function FinancialReports() {
                   <ComposedChart data={monthlyExpenses}>
                     <defs>
                       <linearGradient id="budgetGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#E91E63" stopOpacity={0.3} />
-                        <stop offset="100%" stopColor="#E91E63" stopOpacity={0} />
+                        <stop offset="0%" stopColor="#C8A44E" stopOpacity={0.3} />
+                        <stop offset="100%" stopColor="#C8A44E" stopOpacity={0} />
                       </linearGradient>
                       <linearGradient id="spentGrad" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="0%" stopColor="#38bdf8" stopOpacity={0.3} />
@@ -686,7 +686,7 @@ export default function FinancialReports() {
                     <XAxis dataKey="month" tick={{ fill: P.textDim, fontSize: 10 }} axisLine={false} tickLine={false} />
                     <YAxis tick={{ fill: P.textDim, fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={v => fmtOMR(v)} />
                     <RechartsTooltip content={<CustomTooltip />} />
-                    <Area type="monotone" dataKey="budget" stroke="#E91E63" fill="url(#budgetGrad)" strokeWidth={2} name="Budget" />
+                    <Area type="monotone" dataKey="budget" stroke="#C8A44E" fill="url(#budgetGrad)" strokeWidth={2} name="Budget" />
                     <Area type="monotone" dataKey="spent" stroke="#38bdf8" fill="url(#spentGrad)" strokeWidth={2} name="Spent" />
                     <Line type="monotone" dataKey="forecast" stroke="#a78bfa" strokeWidth={1.5} strokeDasharray="6 3" dot={false} name="Forecast" />
                   </ComposedChart>
@@ -699,7 +699,7 @@ export default function FinancialReports() {
         {/* ═══ Section 3: Detailed Projects Table ═══ */}
         <motion.div variants={fadeUp} initial="hidden" animate="show" className="mb-8">
           <GlassCard className="p-5">
-            <SectionHeader icon={Layers} title="Project Financial Details" subtitle="Complete financial breakdown for all active projects" color="#E91E63"
+            <SectionHeader icon={Layers} title="Project Financial Details" subtitle="Complete financial breakdown for all active projects" color="#C8A44E"
               action={
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] px-2 py-1 rounded-lg font-medium" style={{ background: `${P.accent}10`, color: P.accent }}>
@@ -942,7 +942,7 @@ export default function FinancialReports() {
                         <XAxis dataKey="year" tick={{ fill: P.textMd, fontSize: 11 }} axisLine={false} tickLine={false} />
                         <YAxis tick={{ fill: P.textDim, fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={v => fmtOMR(v)} />
                         <RechartsTooltip content={<CustomTooltip />} />
-                        <Bar dataKey="budget" name="Budget" fill="#E91E63" radius={[6, 6, 0, 0]} barSize={40} />
+                        <Bar dataKey="budget" name="Budget" fill="#C8A44E" radius={[6, 6, 0, 0]} barSize={40} />
                         <Bar dataKey="spent" name="Spent" fill="#38bdf8" radius={[6, 6, 0, 0]} barSize={40} />
                       </BarChart>
                     </ResponsiveContainer>
@@ -992,7 +992,7 @@ export default function FinancialReports() {
                         <XAxis type="number" tick={{ fill: P.textDim, fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={v => fmtOMR(v)} />
                         <YAxis type="category" dataKey="region" tick={{ fill: P.textMd, fontSize: 10 }} axisLine={false} tickLine={false} width={90} />
                         <RechartsTooltip content={<CustomTooltip />} />
-                        <Bar dataKey="budget" name="Budget" fill="#E91E63" radius={[0, 6, 6, 0]} barSize={14} opacity={0.4} />
+                        <Bar dataKey="budget" name="Budget" fill="#C8A44E" radius={[0, 6, 6, 0]} barSize={14} opacity={0.4} />
                         <Bar dataKey="spent" name="Spent" fill="#38bdf8" radius={[0, 6, 6, 0]} barSize={14} />
                       </BarChart>
                     </ResponsiveContainer>
@@ -1068,7 +1068,7 @@ export default function FinancialReports() {
                   <tr style={{ borderBottom: `1px solid ${P.border}` }}>
                     <th className="text-left py-2.5 px-2 w-8">
                       <input type="checkbox" checked={selectedInvoices.size === filteredInvoices.length && filteredInvoices.length > 0} onChange={toggleAllInvoices}
-                        className="h-3.5 w-3.5 rounded cursor-pointer accent-[#E91E63]" />
+                        className="h-3.5 w-3.5 rounded cursor-pointer accent-[#C8A44E]" />
                     </th>
                     {['Invoice', 'Project', 'Vendor', 'Category',
                       <button key="amt" onClick={() => setSortField('amount')} className="cursor-pointer flex items-center gap-1">Amount {sortField === 'amount' && (sortDir === 'asc' ? '↑' : '↓')}</button>,
@@ -1095,7 +1095,7 @@ export default function FinancialReports() {
                       >
                         <td className="py-2.5 px-2">
                           <input type="checkbox" checked={selectedInvoices.has(inv.id)} onChange={() => toggleInvoice(inv.id)}
-                            className="h-3.5 w-3.5 rounded cursor-pointer accent-[#E91E63]" />
+                            className="h-3.5 w-3.5 rounded cursor-pointer accent-[#C8A44E]" />
                         </td>
                         <td className="py-2.5 px-3 font-mono font-bold" style={{ color: P.accent }}>{inv.id}</td>
                         <td className="py-2.5 px-3 font-medium" style={{ color: P.textHi }}>{inv.project}</td>
@@ -1147,7 +1147,7 @@ export default function FinancialReports() {
                     <RechartsTooltip content={<CustomTooltip />} />
                     <Area type="monotone" dataKey="inflow" stroke="#34d399" fill="url(#inflowGrad)" strokeWidth={2} name="Inflow" />
                     <Bar dataKey="outflow" fill="#f87171" opacity={0.5} radius={[4, 4, 0, 0]} barSize={16} name="Outflow" />
-                    <Line type="monotone" dataKey="net" stroke="#E91E63" strokeWidth={2} dot={{ r: 3, fill: '#E91E63' }} name="Net" />
+                    <Line type="monotone" dataKey="net" stroke="#C8A44E" strokeWidth={2} dot={{ r: 3, fill: '#C8A44E' }} name="Net" />
                   </ComposedChart>
                 </ResponsiveContainer>
               </div>

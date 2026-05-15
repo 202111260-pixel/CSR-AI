@@ -422,13 +422,29 @@ function ProjectCard({ project, index, onSelect, onEdit }: { project: Project; i
             </div>
           </div>
 
-          {project.tags && project.tags.length > 0 && (
-            <div className="flex flex-wrap gap-1 mt-2.5">
-              {project.tags.slice(0, 3).map(t => (
-                <span key={t} className="px-1.5 py-0.5 rounded text-[9px] font-medium" style={{ background: `${P.accent}10`, color: P.accentLo, border: `1px solid ${P.accent}15` }}>{t}</span>
-              ))}
-            </div>
-          )}
+          {(() => {
+            // Be defensive: backend may return tags as an array, a JSON string, or null
+            let tagsList: string[] = [];
+            const raw = project.tags as unknown;
+            if (Array.isArray(raw)) {
+              tagsList = raw.filter(t => typeof t === 'string');
+            } else if (typeof raw === 'string' && raw.trim()) {
+              try {
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed)) tagsList = parsed.filter(t => typeof t === 'string');
+              } catch {
+                tagsList = raw.split(',').map(s => s.trim()).filter(Boolean);
+              }
+            }
+            if (tagsList.length === 0) return null;
+            return (
+              <div className="flex flex-wrap gap-1 mt-2.5">
+                {tagsList.slice(0, 3).map(t => (
+                  <span key={t} className="px-1.5 py-0.5 rounded text-[9px] font-medium" style={{ background: `${P.accent}10`, color: P.accentLo, border: `1px solid ${P.accent}15` }}>{t}</span>
+                ))}
+              </div>
+            );
+          })()}
         </div>
 
         {/* Edit Button */}

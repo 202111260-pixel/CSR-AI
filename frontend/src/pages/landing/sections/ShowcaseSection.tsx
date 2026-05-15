@@ -20,7 +20,7 @@ const CARDS = [
       <div style={{ background: '#111', border: '1px solid rgba(139,92,246,0.3)', borderRadius: 12, padding: '10px 14px', width: 148 }}>
         <p style={{ color: 'rgba(167,139,250,0.65)', fontSize: 10, marginBottom: 4 }}>Budget Utilized</p>
         <p style={{ color: '#fff', fontSize: 26, fontWeight: 800, lineHeight: 1 }}>78%</p>
-        <div style={{ height: 4, background: 'rgba(255,255,255,0.08)', borderRadius: 2, marginTop: 8 }}>
+        <div style={{ height: 4, background: 'rgba(26,26,26,0.6)', borderRadius: 2, marginTop: 8 }}>
           <div style={{ height: '100%', width: '78%', background: '#7c3aed', borderRadius: 2 }} />
         </div>
       </div>
@@ -62,7 +62,7 @@ const CARDS = [
       <div style={{ background: '#111', border: '1px solid rgba(139,92,246,0.3)', borderRadius: 12, padding: '10px 14px', width: 136 }}>
         <p style={{ color: 'rgba(167,139,250,0.65)', fontSize: 10, marginBottom: 8 }}>Risk Score</p>
         <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style={{ display: 'block', margin: '0 auto' }}>
-          <circle cx="24" cy="24" r="18" stroke="rgba(255,255,255,0.07)" strokeWidth="5" />
+          <circle cx="24" cy="24" r="18" stroke="rgba(26,26,26,0.6)" strokeWidth="5" />
           <circle cx="24" cy="24" r="18" stroke="#7c3aed" strokeWidth="5"
             strokeDasharray="72 113" strokeDashoffset="28" strokeLinecap="round"
             transform="rotate(-90 24 24)" />

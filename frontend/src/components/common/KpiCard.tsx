@@ -23,16 +23,21 @@ export function KpiCard({
   iconBg,
   trend,
 }: KpiCardProps) {
-  const { colors: P } = useTheme();
+  const { colors: P, isDark } = useTheme();
   return (
     <motion.div
-      whileHover={{ y: -4, scale: 1.02 }}
+      initial={{ opacity: 0, y: 24, filter: 'blur(6px)' }}
+      whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+      viewport={{ once: true, margin: '-60px' }}
+      whileHover={{ y: -4, transition: { duration: 0.25 } }}
       transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-      className="relative overflow-hidden rounded-[20px] p-6"
+      className="relative overflow-hidden rounded-2xl p-6"
       style={{
-        background: P.card,
-        border: `1px solid ${P.border}`,
-        boxShadow: `inset 0 1px 0 ${P.borderHi}40, 0 12px 40px rgba(0,0,0,0.05)`,
+        background: isDark ? 'rgba(10,10,10, 0.60)' : P.card,
+        border: `1px solid ${isDark ? '#1a1a1a' : P.border}`,
+        backdropFilter: isDark ? 'blur(16px)' : undefined,
+        WebkitBackdropFilter: isDark ? 'blur(16px)' : undefined,
+        boxShadow: isDark ? '0 0 20px rgba(200,164,78,0.05)' : `0 12px 40px rgba(0,0,0,0.05)`,
       }}
     >
       {/* Subtle gradient overlay */}

@@ -35,7 +35,7 @@ export function CTASection() {
     setSdgs(prev => prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]);
 
   return (
-    <section className="relative overflow-hidden py-28 sm:py-36 px-6" style={{ background: '#09090b' }}>
+    <section className="relative overflow-hidden py-28 sm:py-36 px-6" style={{ background: '#000000' }}>
       {/* Background glow */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[500px] w-[700px] rounded-full bg-white/[0.015] blur-[180px]" />
@@ -101,9 +101,9 @@ export function CTASection() {
                       fontFamily: "'DM Sans', sans-serif",
                       border: sector === opt.id
                         ? '1px solid rgba(255,255,255,0.25)'
-                        : '1px solid rgba(255,255,255,0.07)',
+                        : '1px solid rgba(26,26,26,0.6)',
                       background: sector === opt.id
-                        ? 'rgba(255,255,255,0.08)'
+                        ? 'rgba(26,26,26,0.6)'
                         : 'rgba(255,255,255,0.02)',
                       color: sector === opt.id ? '#fff' : 'rgba(255,255,255,0.45)',
                     }}
@@ -143,7 +143,7 @@ export function CTASection() {
                       style={{
                         fontFamily: "'DM Sans', sans-serif",
                         background: active ? sdg.color + '22' : 'rgba(255,255,255,0.03)',
-                        border: active ? `1px solid ${sdg.color}55` : '1px solid rgba(255,255,255,0.07)',
+                        border: active ? `1px solid ${sdg.color}55` : '1px solid rgba(26,26,26,0.6)',
                         color: active ? '#fff' : 'rgba(255,255,255,0.4)',
                       }}
                     >
@@ -179,9 +179,9 @@ export function CTASection() {
                       fontFamily: "'DM Sans', sans-serif",
                       border: teamSize === opt.id
                         ? '1px solid rgba(255,255,255,0.25)'
-                        : '1px solid rgba(255,255,255,0.07)',
+                        : '1px solid rgba(26,26,26,0.6)',
                       background: teamSize === opt.id
-                        ? 'rgba(255,255,255,0.08)'
+                        ? 'rgba(26,26,26,0.6)'
                         : 'rgba(255,255,255,0.02)',
                       color: teamSize === opt.id ? '#fff' : 'rgba(255,255,255,0.4)',
                     }}
@@ -210,7 +210,7 @@ export function CTASection() {
                 Your profile is ready. Click <strong className="text-white/60">Finish</strong> to create
                 your account and start managing CSR projects aligned with Vision 2040.
               </p>
-              <div className="rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+              <div className="rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(26,26,26,0.6)' }}>
                 <div className="flex flex-col gap-2 text-[13px]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
                   {sector && (
                     <div className="flex items-center gap-2 text-white/50">

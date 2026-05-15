@@ -1784,3 +1784,306 @@ export async function generateArchivedProjectsPDF(data: ArchivedProjectsData): P
 
   doc.save(`CSR_Archived_Projects_${ts()}.pdf`);
 }
+
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+// PROJECT ANALYSIS REPORT  (official letter \u2014 government delivery)
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+
+export interface ProjectAnalysisReportData {
+  project: {
+    name: string;
+    category: string;
+    budget: number;
+    beneficiaries: number;
+    region: string;
+    startDate: string;
+    endDate: string;
+    description: string;
+    objectives: string[];
+  };
+  agents: {
+    name: string;
+    model: string;
+    analysis: string;
+    keyFindings: string[];
+    recommendations: string[];
+  }[];
+  masterReport: {
+    summary: string;
+    recommendations: string[];
+    model: string;
+  };
+  generatedAt: string;
+}
+
+export async function generateProjectAnalysisPDF(data: ProjectAnalysisReportData): Promise<void> {
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  accentBar(doc);
+  addRunningFooter(doc);
+
+  const pageW = doc.internal.pageSize.getWidth();
+  const now = new Date(data.generatedAt);
+  const issued = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  const issuedTime = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+
+  // \u2500\u2500\u2500 COVER / LETTERHEAD \u2500\u2500\u2500
+  let y = 24;
+
+  // Ministry letterhead \u2014 left
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.setTextColor(...CLR.accent);
+  doc.text('MINISTRY OF COMMERCE & INDUSTRY', LM, y);
+  y += 5;
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7.5);
+  doc.setTextColor(...CLR.muted);
+  doc.text('Sultanate of Oman \u2014 CSR Portfolio Office', LM, y);
+
+  // Right side: reference + date
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7.5);
+  doc.setTextColor(...CLR.light);
+  const refNo = `CSR-PA-${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
+  doc.text(refNo, pageW - RM, 24, { align: 'right' });
+  doc.text(`Issued ${issued} \u2022 ${issuedTime}`, pageW - RM, 29, { align: 'right' });
+
+  // Divider
+  y += 10;
+  doc.setDrawColor(...CLR.rule);
+  doc.setLineWidth(0.4);
+  doc.line(LM, y, pageW - RM, y);
+  y += 14;
+
+  // Document title
+  doc.setFont('times', 'bold');
+  doc.setFontSize(22);
+  doc.setTextColor(...CLR.dark);
+  doc.text('Project Brief \u2014 Multi-Agent Assessment', LM, y);
+  y += 8;
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9.5);
+  doc.setTextColor(...CLR.muted);
+  doc.text(
+    'An independent reading by three specialist analytical desks. For the attention of the reviewing authority.',
+    LM, y, { maxWidth: pw(doc) },
+  );
+  y += 10;
+
+  // Classification
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8);
+  doc.setTextColor(...CLR.accent);
+  doc.text('CONFIDENTIAL \u2014 OFFICIAL USE', LM, y);
+  y += 8;
+
+  // \u2500\u2500\u2500 PROJECT METADATA TABLE \u2500\u2500\u2500
+  doc.setDrawColor(...CLR.rule);
+  doc.line(LM, y, pageW - RM, y);
+  y += 6;
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8.5);
+  doc.setTextColor(...CLR.muted);
+  doc.text('PROJECT', LM, y);
+  y += 6;
+
+  doc.setFont('times', 'bold');
+  doc.setFontSize(15);
+  doc.setTextColor(...CLR.dark);
+  const nameLines = doc.splitTextToSize(data.project.name, pw(doc));
+  doc.text(nameLines, LM, y);
+  y += nameLines.length * 6 + 6;
+
+  // Metadata grid (2 cols)
+  const meta: [string, string][] = [
+    ['Category', data.project.category],
+    ['Region', data.project.region],
+    ['Budget', fmtOMR(data.project.budget)],
+    ['Target beneficiaries', fmt(data.project.beneficiaries)],
+    ['Start date', data.project.startDate],
+    ['End date', data.project.endDate],
+  ];
+  const colW = pw(doc) / 2;
+  meta.forEach(([label, value], idx) => {
+    const col = idx % 2;
+    if (col === 0 && idx > 0) y += 6;
+    const x = LM + col * colW;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(...CLR.muted);
+    doc.text(label.toUpperCase(), x, y);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(...CLR.text);
+    doc.text(value, x, y + 5);
+  });
+  y += 12;
+
+  // Objectives
+  if (data.project.objectives.length > 0) {
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(...CLR.muted);
+    doc.text('OBJECTIVES', LM, y);
+    y += 5;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9.5);
+    doc.setTextColor(...CLR.text);
+    data.project.objectives.forEach(obj => {
+      y = ensureSpace(doc, y, 6);
+      doc.text(`\u2022  ${obj}`, LM, y);
+      y += 5;
+    });
+    y += 2;
+  }
+
+  // Description
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7.5);
+  doc.setTextColor(...CLR.muted);
+  doc.text('DESCRIPTION', LM, y);
+  y += 5;
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(10);
+  doc.setTextColor(...CLR.text);
+  const descLines = doc.splitTextToSize(data.project.description, pw(doc));
+  descLines.forEach((line: string) => {
+    y = ensureSpace(doc, y, 6);
+    doc.text(line, LM, y);
+    y += 5;
+  });
+  y += 6;
+
+  // \u2500\u2500\u2500 EXECUTIVE READING (master summary) \u2500\u2500\u2500
+  y = ensureSpace(doc, y, 22);
+  y = drawSectionHeading(doc, y, '01', 'Executive Reading');
+  y = drawParagraph(doc, y, data.masterReport.summary);
+
+  if (data.masterReport.recommendations.length > 0) {
+    y = ensureSpace(doc, y, 16);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.setTextColor(...CLR.dark);
+    doc.text('Master recommendations', LM, y);
+    y += 6;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(...CLR.text);
+    data.masterReport.recommendations.slice(0, 6).forEach((rec, idx) => {
+      y = ensureSpace(doc, y, 8);
+      const recLines = doc.splitTextToSize(`${idx + 1}.  ${rec}`, pw(doc) - 4);
+      recLines.forEach((line: string, li: number) => {
+        doc.text(line, LM + (li === 0 ? 0 : 6), y);
+        y += 5;
+      });
+      y += 1;
+    });
+    y += 3;
+  }
+
+  // \u2500\u2500\u2500 EACH DESK'S READING \u2500\u2500\u2500
+  const sectionNums = ['02', '03', '04'];
+  data.agents.forEach((agent, ai) => {
+    y = ensureSpace(doc, y, 30);
+    y = drawSectionHeading(doc, y, sectionNums[ai] ?? String(ai + 2).padStart(2, '0'), agent.name);
+
+    // Model line
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(...CLR.muted);
+    doc.text(`Model: ${agent.model}`, LM, y);
+    y += 6;
+
+    // Analysis text
+    y = drawParagraph(doc, y, agent.analysis);
+
+    // Key findings
+    if (agent.keyFindings.length > 0) {
+      y = ensureSpace(doc, y, 14);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8.5);
+      doc.setTextColor(...CLR.dark);
+      doc.text('Key findings', LM, y);
+      y += 5;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9.5);
+      doc.setTextColor(...CLR.text);
+      agent.keyFindings.slice(0, 5).forEach(f => {
+        y = ensureSpace(doc, y, 7);
+        const lines = doc.splitTextToSize(`\u2022  ${f}`, pw(doc) - 4);
+        lines.forEach((line: string) => {
+          doc.text(line, LM, y);
+          y += 4.8;
+        });
+      });
+      y += 2;
+    }
+
+    // Recommendations
+    if (agent.recommendations.length > 0) {
+      y = ensureSpace(doc, y, 14);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8.5);
+      doc.setTextColor(...CLR.dark);
+      doc.text('Recommended actions', LM, y);
+      y += 5;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9.5);
+      doc.setTextColor(...CLR.text);
+      agent.recommendations.slice(0, 4).forEach((r, idx) => {
+        y = ensureSpace(doc, y, 7);
+        const lines = doc.splitTextToSize(`${idx + 1}.  ${r}`, pw(doc) - 4);
+        lines.forEach((line: string, li: number) => {
+          doc.text(line, LM + (li === 0 ? 0 : 6), y);
+          y += 4.8;
+        });
+      });
+      y += 4;
+    }
+  });
+
+  // \u2500\u2500\u2500 SIGNATURE BLOCK \u2500\u2500\u2500
+  y = ensureSpace(doc, y, 50);
+  y += 6;
+  doc.setDrawColor(...CLR.rule);
+  doc.setLineWidth(0.4);
+  doc.line(LM, y, pageW - RM, y);
+  y += 10;
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8.5);
+  doc.setTextColor(...CLR.muted);
+  doc.text('SIGNATURES', LM, y);
+  y += 12;
+
+  const sigColW = pw(doc) / 2 - 8;
+  // Reviewer
+  doc.setDrawColor(...CLR.text);
+  doc.setLineWidth(0.4);
+  doc.line(LM, y + 14, LM + sigColW, y + 14);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8.5);
+  doc.setTextColor(...CLR.text);
+  doc.text('Reviewed by', LM, y + 18);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  doc.setTextColor(...CLR.muted);
+  doc.text('Director, CSR Portfolio', LM, y + 22);
+
+  // Authorising
+  const x2 = LM + sigColW + 16;
+  doc.setDrawColor(...CLR.text);
+  doc.line(x2, y + 14, x2 + sigColW, y + 14);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8.5);
+  doc.setTextColor(...CLR.text);
+  doc.text('Authorising authority', x2, y + 18);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  doc.setTextColor(...CLR.muted);
+  doc.text('Undersecretary, Ministry of Commerce & Industry', x2, y + 22);
+
+  doc.save(`CSR_Project_Brief_${data.project.name.replace(/[^a-z0-9]+/gi, '_').slice(0, 40)}_${ts()}.pdf`);
+}

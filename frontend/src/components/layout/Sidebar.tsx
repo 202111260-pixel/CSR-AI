@@ -316,8 +316,9 @@ function BrandHeader({ collapsed, C }: { collapsed: boolean; C: Record<string, s
       className="flex items-center shrink-0"
       style={{ height: 60, padding: collapsed ? '0 13px' : '0 20px', borderBottom: `1px solid ${C.border}` }}
     >
-      <div className="flex items-center justify-center shrink-0" style={{ width: 36, height: 36, borderRadius: 10, background: 'white', padding: 3 }}>
-        <img src="/logo2.jpeg" alt="CSR" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: 7 }} />
+      <div className="flex items-center justify-center shrink-0"
+        style={{ width: 36, height: 36, borderRadius: 12, background: 'linear-gradient(135deg, #2563eb, #4f46e5)', padding: 0 }}>
+        <img src="/logo2.jpeg" alt="CSR" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 12 }} />
       </div>
 
       <AnimatePresence initial={false}>
@@ -329,11 +330,11 @@ function BrandHeader({ collapsed, C }: { collapsed: boolean; C: Record<string, s
             transition={{ duration: 0.15 }}
             className="ml-3 overflow-hidden"
           >
-            <p className="text-[14px] font-bold tracking-tight leading-none" style={{ color: C.text }}>
+            <p className="text-[14px] font-black tracking-tight leading-none" style={{ color: C.text }}>
               CSR <span style={{ color: C.accent }}>Platform</span>
             </p>
-            <p className="text-[9px] mt-1 font-medium" style={{ color: C.textMd }}>
-              Corporate Social Responsibility
+            <p className="text-[9px] mt-1 font-mono" style={{ color: C.textMd }}>
+              AI-Powered CSR Intelligence
             </p>
           </motion.div>
         )}
@@ -459,10 +460,9 @@ function NavItemRow({ item, active, hovered, collapsed, C, isLight, onHover, onL
   const clr = item.color;
   const hasChildren = item.children && item.children.length > 0;
 
-  // Active pill: sidebar-primary in light mode, accent-tinted in dark mode
-  const activeBg = isLight ? C.primary : `${C.accent}14`;
-  const activeText = isLight ? C.primaryFg : C.accent;
-  const activeIcon = isLight ? C.primaryFg : C.accent;
+  const activeBg = isLight ? C.primary : `${clr}12`;
+  const activeText = isLight ? C.primaryFg : clr;
+  const activeIcon = isLight ? C.primaryFg : clr;
 
   return (
     <motion.li variants={navItemVariants}>
@@ -603,7 +603,6 @@ function UserCard({ collapsed, C, isLight }: { collapsed: boolean; C: Record<str
     : null;
 
   const handleLogout = () => {
-    // Call backend to revoke tokens + clear cookies, then clear local state
     import('../../services/authService').then(({ authService }) => {
       authService.logout().catch(() => {});
     });
@@ -613,6 +612,23 @@ function UserCard({ collapsed, C, isLight }: { collapsed: boolean; C: Record<str
 
   return (
     <div style={{ borderTop: `1px solid ${C.border}` }}>
+      {/* Usage bar — only when expanded */}
+      {!collapsed && (
+        <div className="px-4 pt-3 pb-1">
+          <div className="flex items-center gap-2 mb-1.5">
+            <div className="w-2 h-2 rounded-full" style={{ background: '#34d399' }} />
+            <span className="text-[11px] font-bold" style={{ color: C.text }}>
+              {meta.label}
+            </span>
+            {userRole === 'admin' && <PiCrownDuotone size={11} style={{ color: '#fbbf24' }} />}
+          </div>
+          <div className="h-1 rounded-full overflow-hidden" style={{ background: `${C.border}` }}>
+            <div className="h-full rounded-full" style={{ width: '68%', background: '#2563eb' }} />
+          </div>
+          <p className="text-[9px] mt-1" style={{ color: C.textLo }}>AI analyses available</p>
+        </div>
+      )}
+
       <div className="p-2.5">
         <div
           className="flex items-center rounded-xl cursor-pointer transition-colors"
@@ -665,11 +681,8 @@ function UserCard({ collapsed, C, isLight }: { collapsed: boolean; C: Record<str
 
           {!collapsed && (
             <div className="ml-2.5 flex-1 min-w-0">
-              <div className="flex items-center gap-1.5">
-                <p className="text-[12px] font-semibold truncate" style={{ color: C.text }}>{userName}</p>
-                {userRole === 'admin' && <PiCrownDuotone size={11} style={{ color: '#fbbf24', flexShrink: 0 }} />}
-              </div>
-              <p className="text-[9px] truncate mt-0.5 font-medium" style={{ color: C.textLo }}>
+              <p className="text-[12px] font-semibold truncate" style={{ color: C.text }}>{userName}</p>
+              <p className="text-[9px] truncate mt-0.5 font-mono" style={{ color: C.textLo }}>
                 {userEmail}
               </p>
             </div>

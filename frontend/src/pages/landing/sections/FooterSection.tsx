@@ -21,7 +21,7 @@ const LINKS = {
 
 export function FooterSection() {
   return (
-    <footer className="relative px-6 pt-16 pb-8" style={{ background: '#09090b', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+    <footer className="relative px-6 pt-16 pb-8" style={{ background: '#000000', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
       <div className="mx-auto max-w-[1200px]">
         <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-5">
           {/* Brand */}

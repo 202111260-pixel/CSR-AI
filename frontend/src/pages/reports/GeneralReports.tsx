@@ -268,7 +268,7 @@ export default function GeneralReports() {
 
   /* ── Derived data from API ── */
   const kpis = useMemo(() => [
-    { label: 'Total Projects', value: report?.totalProjects ?? 0, prev: 0, icon: FolderKanban, color: '#E91E63', format: 'number', href: '/projects' },
+    { label: 'Total Projects', value: report?.totalProjects ?? 0, prev: 0, icon: FolderKanban, color: '#C8A44E', format: 'number', href: '/projects' },
     { label: 'Completion Rate', value: report?.completionRate ?? 0, prev: 0, icon: CheckCircle2, color: '#34d399', format: '%', href: '/projects?status=completed' },
     { label: 'Total Budget', value: report?.totalBudget ?? 0, prev: 0, icon: Wallet, color: '#38bdf8', format: 'omr', href: '/reports/financial' },
     { label: 'Beneficiaries', value: report?.totalBeneficiaries ?? 0, prev: 0, icon: Users, color: '#a78bfa', format: 'number', href: '/reports/impact' },
@@ -298,7 +298,7 @@ export default function GeneralReports() {
     }));
   }, [report]);
 
-  const statusColorMap: Record<string, string> = { active: '#38bdf8', completed: '#34d399', planning: '#E91E63', on_hold: '#fbbf24' };
+  const statusColorMap: Record<string, string> = { active: '#38bdf8', completed: '#34d399', planning: '#C8A44E', on_hold: '#fbbf24' };
   const statusLabelMap: Record<string, string> = { active: 'Active', completed: 'Completed', planning: 'Planning', on_hold: 'On Hold' };
   const statusDist = useMemo(() => {
     if (!report?.statusDistribution?.length) return [];
@@ -364,7 +364,7 @@ export default function GeneralReports() {
   const handleExportPDF = useCallback(() => {
     generateGeneralReportPDF({
       kpis: [
-        { label: 'Total Projects',   value: report?.totalProjects ?? 0,    format: 'number',     color: '#E91E63' },
+        { label: 'Total Projects',   value: report?.totalProjects ?? 0,    format: 'number',     color: '#C8A44E' },
         { label: 'Completion Rate',  value: report?.completionRate ?? 0,   format: 'percentage', color: '#34d399' },
         { label: 'Total Budget',     value: report?.totalBudget ?? 0,      format: 'currency',   color: '#38bdf8' },
         { label: 'Beneficiaries',    value: report?.totalBeneficiaries ?? 0, format: 'number',   color: '#a78bfa' },
@@ -619,8 +619,8 @@ export default function GeneralReports() {
                   <ComposedChart data={trendData}>
                     <defs>
                       <linearGradient id="gradProjects" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#E91E63" stopOpacity={0.3} />
-                        <stop offset="100%" stopColor="#E91E63" stopOpacity={0} />
+                        <stop offset="0%" stopColor="#C8A44E" stopOpacity={0.3} />
+                        <stop offset="100%" stopColor="#C8A44E" stopOpacity={0} />
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke={P.border} />
@@ -630,7 +630,7 @@ export default function GeneralReports() {
                       <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fill: P.textLo, fontSize: 10 }} />
                     )}
                     <RTooltip content={<ChartTooltip />} />
-                    <Area yAxisId="left" type="monotone" dataKey="projects" name="Projects" stroke="#E91E63" fill="url(#gradProjects)" strokeWidth={2.5} dot={{ r: 3, fill: '#E91E63' }} />
+                    <Area yAxisId="left" type="monotone" dataKey="projects" name="Projects" stroke="#C8A44E" fill="url(#gradProjects)" strokeWidth={2.5} dot={{ r: 3, fill: '#C8A44E' }} />
                     {trendData.some(d => d.budget > 0) && (
                       <Line yAxisId="right" type="monotone" dataKey="budget" name="Budget (M)" stroke="#38bdf8" strokeWidth={2} dot={{ r: 3, fill: '#38bdf8' }} />
                     )}
@@ -655,7 +655,7 @@ export default function GeneralReports() {
                     <YAxis axisLine={false} tickLine={false} tick={{ fill: P.textLo, fontSize: 10 }} />
                     <RTooltip content={<ChartTooltip />} />
                     <Bar dataKey="budget" name="Budget (K)" fill="#38bdf8" radius={[4, 4, 0, 0]} opacity={0.6} />
-                    <Bar dataKey="spent" name="Spent (K)" fill="#E91E63" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="spent" name="Spent (K)" fill="#C8A44E" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -726,8 +726,8 @@ export default function GeneralReports() {
                         <stop offset="100%" stopColor="#38bdf8" stopOpacity={0} />
                       </linearGradient>
                       <linearGradient id="gradSpent" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#E91E63" stopOpacity={0.2} />
-                        <stop offset="100%" stopColor="#E91E63" stopOpacity={0} />
+                        <stop offset="0%" stopColor="#C8A44E" stopOpacity={0.2} />
+                        <stop offset="100%" stopColor="#C8A44E" stopOpacity={0} />
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke={P.border} />
@@ -735,7 +735,7 @@ export default function GeneralReports() {
                     <YAxis axisLine={false} tickLine={false} tick={{ fill: P.textLo, fontSize: 10 }} />
                     <RTooltip content={<ChartTooltip />} />
                     <Area type="monotone" dataKey="allocated" name="Allocated (K)" stroke="#38bdf8" fill="url(#gradAlloc)" strokeWidth={2} />
-                    <Area type="monotone" dataKey="spent" name="Spent (K)" stroke="#E91E63" fill="url(#gradSpent)" strokeWidth={2} />
+                    <Area type="monotone" dataKey="spent" name="Spent (K)" stroke="#C8A44E" fill="url(#gradSpent)" strokeWidth={2} />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
@@ -834,7 +834,7 @@ export default function GeneralReports() {
                 </thead>
                 <tbody>
                   {topProjects.map((p, i) => {
-                    const statusColors: Record<string, string> = { active: '#38bdf8', completed: '#34d399', planning: '#E91E63', on_hold: '#fbbf24' };
+                    const statusColors: Record<string, string> = { active: '#38bdf8', completed: '#34d399', planning: '#C8A44E', on_hold: '#fbbf24' };
                     const sc = statusColors[p.status] || P.textLo;
                     return (
                       <tr key={i} onClick={() => navigate(`/projects/${p.rank}`)} className="transition-colors cursor-pointer" style={{ borderTop: `1px solid ${P.border}` }}

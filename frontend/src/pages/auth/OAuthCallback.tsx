@@ -7,9 +7,15 @@ import { LoadingSpinner } from '../../components/common/LoadingSpinner';
 export default function OAuthCallback() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  const { setAccessToken, setUser } = useAuthStore();
+  const { user, setAccessToken, setUser } = useAuthStore();
 
   useEffect(() => {
+    // If already authenticated, go straight to dashboard
+    if (user) {
+      navigate('/dashboard', { replace: true });
+      return;
+    }
+
     const error = params.get('error');
 
     if (error) {

@@ -35,7 +35,7 @@ const stagger = (d = 0) => ({ hidden: { opacity: 0, y: 18 }, show: { opacity: 1,
 const scaleIn = (d = 0) => ({ hidden: { opacity: 0, scale: 0.92 }, show: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: EASE, delay: d } } });
 const VP = { once: true, margin: '-60px' as const };
 
-const IMPACT_C = ['#E91E63', '#38bdf8', '#34d399', '#a78bfa', '#fbbf24', '#fb923c', '#4ade80', '#f472b6'];
+const IMPACT_C = ['#C8A44E', '#38bdf8', '#34d399', '#a78bfa', '#fbbf24', '#fb923c', '#4ade80', '#f472b6'];
 
 const periods = ['This Quarter', 'This Year', '2025', '2024', 'All Time'] as const;
 
@@ -1279,7 +1279,7 @@ export default function ImpactReports() {
   /* Dynamic category tabs from API */
   const dynamicCategoryTabs = useMemo(() => {
     if (!report?.categoryBreakdown?.length) return categoryTabs;
-    const colorPalette = ['#38bdf8', '#f87171', '#4ade80', '#fbbf24', '#fb923c', '#a78bfa', '#E91E63', '#34d399', '#6366f1', '#ec4899', '#14b8a6', '#8b5cf6'];
+    const colorPalette = ['#38bdf8', '#f87171', '#4ade80', '#fbbf24', '#fb923c', '#a78bfa', '#C8A44E', '#34d399', '#6366f1', '#ec4899', '#14b8a6', '#8b5cf6'];
     const iconMap: Record<string, LucideIcon> = {
       'Education': GraduationCap, 'Healthcare': Stethoscope, 'Environment': Leaf, 'Environmental': Leaf,
       'Economy': Briefcase, 'Infrastructure': Building2, 'Technology': Cpu, 'Heritage': Building2,
@@ -1422,7 +1422,7 @@ export default function ImpactReports() {
   const handlePdfExport = useCallback(() => {
     generateImpactReportPDF({
       kpis: [
-        { label: 'Total Beneficiaries', value: report?.demographics?.total ?? 0, format: 'number', color: '#E91E63' },
+        { label: 'Total Beneficiaries', value: report?.demographics?.total ?? 0, format: 'number', color: '#C8A44E' },
         { label: 'Communities', value: report?.communitiesReached ?? 0, format: 'number', color: '#38bdf8' },
         { label: 'Projects', value: report?.totalProjects ?? 0, format: 'number', color: '#34d399' },
         { label: 'SDG Goals', value: report?.sdgAlignment?.length ?? 0, format: 'number', color: '#fbbf24' },
@@ -1579,7 +1579,7 @@ export default function ImpactReports() {
                 <div className="grid grid-cols-4 gap-3 mb-5">
                   {[
                     { label: 'Projects', value: currentCat.stats.projects, color: currentCat.color },
-                    { label: 'Beneficiaries', value: currentCat.stats.beneficiaries, color: '#E91E63' },
+                    { label: 'Beneficiaries', value: currentCat.stats.beneficiaries, color: '#C8A44E' },
                     { label: 'Budget (OMR)', value: `${(currentCat.stats.budget / 1000).toFixed(0)}K`, color: '#38bdf8' },
                     { label: 'Satisfaction', value: `${currentCat.stats.satisfaction}%`, color: '#34d399' },
                   ].map((s, i) => (
@@ -1626,7 +1626,7 @@ export default function ImpactReports() {
                         <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fill: P.textLo, fontSize: 10 }} />
                         <RTooltip content={<ChartTooltip />} />
                         <Area yAxisId="left" type="monotone" dataKey="students" name="Reach" stroke={currentCat.color} fill="url(#gradCat)" strokeWidth={2} />
-                        <Line yAxisId="right" type="monotone" dataKey="literacy" name="Score" stroke="#E91E63" strokeWidth={2} dot={{ r: 3, fill: '#E91E63' }} />
+                        <Line yAxisId="right" type="monotone" dataKey="literacy" name="Score" stroke="#C8A44E" strokeWidth={2} dot={{ r: 3, fill: '#C8A44E' }} />
                       </ComposedChart>
                     </ResponsiveContainer>
                   </div>
@@ -1651,7 +1651,7 @@ export default function ImpactReports() {
                   <div className="space-y-3">
                     {[
                       { label: 'Male', pct: malePct, value: report?.demographics?.male ?? 0, color: '#38bdf8' },
-                      { label: 'Female', pct: femalePct, value: report?.demographics?.female ?? 0, color: '#E91E63' },
+                      { label: 'Female', pct: femalePct, value: report?.demographics?.female ?? 0, color: '#C8A44E' },
                     ].map(g => (
                       <div key={g.label}>
                         <div className="flex items-center justify-between mb-1">
@@ -1737,8 +1737,8 @@ export default function ImpactReports() {
                     <ComposedChart data={impactTimeline}>
                       <defs>
                         <linearGradient id="gradBenef" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#E91E63" stopOpacity={0.3} />
-                          <stop offset="100%" stopColor="#E91E63" stopOpacity={0} />
+                          <stop offset="0%" stopColor="#C8A44E" stopOpacity={0.3} />
+                          <stop offset="100%" stopColor="#C8A44E" stopOpacity={0} />
                         </linearGradient>
                       </defs>
                       <CartesianGrid strokeDasharray="3 3" stroke={P.border} />
@@ -1746,7 +1746,7 @@ export default function ImpactReports() {
                       <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fill: P.textLo, fontSize: 10 }} />
                       <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fill: P.textLo, fontSize: 10 }} />
                       <RTooltip content={<ChartTooltip />} />
-                      <Area yAxisId="left" type="monotone" dataKey="beneficiaries" name="Beneficiaries" stroke="#E91E63" fill="url(#gradBenef)" strokeWidth={2.5} />
+                      <Area yAxisId="left" type="monotone" dataKey="beneficiaries" name="Beneficiaries" stroke="#C8A44E" fill="url(#gradBenef)" strokeWidth={2.5} />
                       <Line yAxisId="right" type="monotone" dataKey="satisfaction" name="Satisfaction %" stroke="#34d399" strokeWidth={2} dot={{ r: 3, fill: '#34d399' }} />
                       <Bar yAxisId="left" dataKey="projects" name="Projects" fill="#38bdf8" opacity={0.4} radius={[3, 3, 0, 0]} />
                     </ComposedChart>
@@ -1844,8 +1844,8 @@ export default function ImpactReports() {
                   <ComposedChart data={predictionData}>
                     <defs>
                       <linearGradient id="gradActual" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#E91E63" stopOpacity={0.3} />
-                        <stop offset="100%" stopColor="#E91E63" stopOpacity={0} />
+                        <stop offset="0%" stopColor="#C8A44E" stopOpacity={0.3} />
+                        <stop offset="100%" stopColor="#C8A44E" stopOpacity={0} />
                       </linearGradient>
                       <linearGradient id="gradPred" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="0%" stopColor="#a78bfa" stopOpacity={0.2} />
@@ -1856,7 +1856,7 @@ export default function ImpactReports() {
                     <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fill: P.textLo, fontSize: 10 }} />
                     <YAxis axisLine={false} tickLine={false} tick={{ fill: P.textLo, fontSize: 10 }} />
                     <RTooltip content={<ChartTooltip />} />
-                    <Area type="monotone" dataKey="actual" name="Actual" stroke="#E91E63" fill="url(#gradActual)" strokeWidth={2.5} connectNulls={false} dot={{ r: 4, fill: '#E91E63' }} />
+                    <Area type="monotone" dataKey="actual" name="Actual" stroke="#C8A44E" fill="url(#gradActual)" strokeWidth={2.5} connectNulls={false} dot={{ r: 4, fill: '#C8A44E' }} />
                     <Area type="monotone" dataKey="predicted" name="Predicted" stroke="#a78bfa" fill="url(#gradPred)" strokeWidth={2} strokeDasharray="6 3" connectNulls={false} dot={{ r: 3, fill: '#a78bfa', strokeDasharray: '' }} />
                   </ComposedChart>
                 </ResponsiveContainer>

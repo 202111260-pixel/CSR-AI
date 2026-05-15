@@ -7,7 +7,7 @@ import BounceCards from '../components/BounceCards';
 ───────────────────────────────────────────── */
 const CAVEAT: CSSProperties = { fontFamily: "'Caveat', cursive" };
 const GLASS: CSSProperties = {
-  background: 'rgba(255,255,255,0.06)',
+  background: 'rgba(26,26,26,0.6)',
   border: '1px solid rgba(255,255,255,0.1)',
   backdropFilter: 'blur(12px)',
   WebkitBackdropFilter: 'blur(12px)',
@@ -50,7 +50,7 @@ export function PrimaryHeroSection() {
   return (
     <section
       style={{
-        background: '#0a0a0a',
+        background: '#000000',
         minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
@@ -322,7 +322,7 @@ function DarkCharts() {
         <div style={{ ...GLASS, width: 162 }}>
           <svg width="138" height="68" viewBox="0 0 138 68" fill="none">
             {[16, 32, 48, 64].map(y => (
-              <line key={y} x1="0" y1={y} x2="138" y2={y} stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
+              <line key={y} x1="0" y1={y} x2="138" y2={y} stroke="rgba(26,26,26,0.6)" strokeWidth="1" />
             ))}
             <path
               d="M 4 58 C 18 54 26 46 38 42 C 50 38 58 44 70 34 C 82 24 94 16 110 10 L 134 6 L 134 64 L 4 64 Z"
@@ -356,7 +356,7 @@ function DarkCharts() {
         </div>
         <div style={{ ...GLASS, width: 148 }}>
           <svg width="124" height="64" viewBox="0 0 124 64" fill="none">
-            <line x1="0" y1="60" x2="124" y2="60" stroke="rgba(255,255,255,0.07)" strokeWidth="1" />
+            <line x1="0" y1="60" x2="124" y2="60" stroke="rgba(26,26,26,0.6)" strokeWidth="1" />
             {[
               { x: 6,  h: 28, accent: true },
               { x: 24, h: 42 },
@@ -442,7 +442,7 @@ function DarkCharts() {
         <div style={{ ...CAVEAT, color: GDIM, fontSize: 12, fontWeight: 700, marginBottom: 4 }}>budget utilized</div>
         <div style={{ ...GLASS, width: 116, display: 'flex', alignItems: 'center', gap: 10 }}>
           <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
-            <circle cx="26" cy="26" r="20" stroke="rgba(255,255,255,0.08)" strokeWidth="6" />
+            <circle cx="26" cy="26" r="20" stroke="rgba(26,26,26,0.6)" strokeWidth="6" />
             <circle cx="26" cy="26" r="20" stroke={G} strokeWidth="6"
               strokeDasharray="100 126" strokeDashoffset="31" strokeLinecap="round"
               transform="rotate(-90 26 26)" />
@@ -464,7 +464,7 @@ function DarkCharts() {
         <div style={{ ...GLASS, width: 148 }}>
           <svg width="124" height="52" viewBox="0 0 124 52" fill="none">
             {/* donut segments */}
-            <circle cx="26" cy="26" r="18" stroke="rgba(255,255,255,0.07)" strokeWidth="10" />
+            <circle cx="26" cy="26" r="18" stroke="rgba(26,26,26,0.6)" strokeWidth="10" />
             <circle cx="26" cy="26" r="18" stroke="#f59e0b" strokeWidth="10"
               strokeDasharray="45 113" strokeDashoffset="28" strokeLinecap="butt" transform="rotate(-90 26 26)" />
             <circle cx="26" cy="26" r="18" stroke={G} strokeWidth="10"

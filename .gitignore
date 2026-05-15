@@ -10,3 +10,21 @@ build/
 *~
 .vscode/
 .idea/
+
+# Skill/agent workspaces (local-only)
+.agents/
+.claude/
+skills-lock.json
+
+# Test snapshots & screenshots
+.playwright-mcp/
+screenshots/
+
+# Uploaded files (runtime user content)
+backend/uploads/
+
+# Generated diagrams
+diagrams/
+
+# Misc local notes
+"Untitled Diagram (2).drawio"

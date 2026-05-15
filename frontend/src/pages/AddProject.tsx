@@ -1,6 +1,6 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -10,7 +10,7 @@ import {
   CheckCircle2, AlertTriangle, Save, Eye,
   Clock, Shield, Gauge, Bell, BarChart3,
   Heart, UserCheck, Baby, Zap, Star, Award, FolderKanban,
-  Layers, Settings2, Tag, type LucideIcon,
+  Layers, Settings2, Tag, Sparkles, Loader2, type LucideIcon,
 } from 'lucide-react';
 import { cn } from '../utils/cn';
 import { useTheme } from '../hooks/useTheme';
@@ -20,6 +20,7 @@ import { projectService } from '../services/projectService';
 import { beneficiaryService } from '../services/beneficiaryService';
 import { categoryService } from '../services/categoryService';
 import { uploadService } from '../services/uploadService';
+import { aiAnalyticsService } from '../services/aiAnalyticsService';
 
 // ─── Palette ──────────────────────────────────────────────────────────────────
 
@@ -36,9 +37,9 @@ const STEPS = [
 
 const CORPORATE = {
   brand: '#0B5CAB',
-  brandSoft: 'rgba(11,92,171,0.12)',
-  borderDark: 'rgba(148,163,184,0.28)',
-  panelDark: 'rgba(14,23,38,0.96)',
+  brandSoft: 'rgba(11,92,171,0.15)',
+  borderDark: 'rgba(148,163,184,0.45)',
+  panelDark: 'rgba(10,18,36,0.98)',
 };
 
 // categories come from the store now (see component body)
@@ -199,19 +200,19 @@ function FormField({ label, required, error, hint, children, icon: Icon }: {
 }) {
   const { colors: P, isDark } = useTheme();
   return (
-    <div className="space-y-2">
-      <label className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: P.textMd }}>
-        {Icon && <Icon size={13} style={{ color: isDark ? '#93c5fd' : CORPORATE.brand }} />}
+    <div className="space-y-2.5">
+      <label className="flex items-center gap-2 text-[13px] font-semibold" style={{ color: P.textHi }}>
+        {Icon && <Icon size={14} style={{ color: isDark ? '#93c5fd' : CORPORATE.brand }} />}
         {label}
-        {required && <span style={{ color: '#f87171' }}>*</span>}
+        {required && <span className="text-[13px]" style={{ color: '#f87171' }}>*</span>}
       </label>
       {children}
       {error && (
-        <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-1 text-[11px]" style={{ color: '#f87171' }}>
-          <AlertTriangle size={10} /> {error}
+        <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-1.5 text-[13px] font-medium" style={{ color: '#f87171' }}>
+          <AlertTriangle size={13} /> {error}
         </motion.p>
       )}
-      {hint && !error && <p className="text-[11px]" style={{ color: P.textDim }}>{hint}</p>}
+      {hint && !error && <p className="text-[12px] leading-relaxed" style={{ color: P.textLo }}>{hint}</p>}
     </div>
   );
 }
@@ -222,23 +223,23 @@ function TextInput({ value, onChange, placeholder, type = 'text', icon: Icon, er
   const { colors: P, isDark } = useTheme();
   return (
     <div className="relative">
-      {Icon && <Icon size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: P.textLo }} />}
+      {Icon && <Icon size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: P.textMd }} />}
       <input
         type={type}
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
-        className={cn('w-full py-2.5 rounded-lg text-sm outline-none transition-all duration-200', Icon ? 'pl-10 pr-4' : 'px-4')}
+        className={cn('w-full py-3.5 rounded-lg text-[15px] outline-none transition-all duration-200', Icon ? 'pl-10 pr-4' : 'px-4')}
         style={{
-          background: isDark ? 'rgba(15,23,42,0.5)' : P.surface,
+          background: isDark ? 'rgba(15,23,42,0.72)' : P.surface,
           border: isDark
-            ? `1px solid ${error ? '#f87171a0' : 'rgba(148,163,184,0.28)'}`
-            : `1px solid ${error ? '#f8717160' : P.border}`,
-          color: isDark ? 'rgba(255,255,255,0.92)' : P.textHi,
+            ? `1.5px solid ${error ? '#f87171b0' : 'rgba(148,163,184,0.45)'}`
+            : `1.5px solid ${error ? '#f8717160' : P.borderHi}`,
+          color: isDark ? '#f1f5f9' : P.textHi,
           fontWeight: 500,
         }}
-        onFocus={e => { e.currentTarget.style.borderColor = error ? '#f87171' : (isDark ? '#3b82f6' : CORPORATE.brand); e.currentTarget.style.boxShadow = `0 0 0 2px ${error ? '#f8717115' : (isDark ? '#3b82f624' : '#0B5CAB1f')}`; }}
-        onBlur={e => { e.currentTarget.style.borderColor = error ? '#f8717160' : (isDark ? 'rgba(148,163,184,0.28)' : P.border); e.currentTarget.style.boxShadow = 'none'; }}
+        onFocus={e => { e.currentTarget.style.borderColor = error ? '#f87171' : (isDark ? '#60a5fa' : CORPORATE.brand); e.currentTarget.style.boxShadow = `0 0 0 3px ${error ? '#f8717118' : (isDark ? '#3b82f630' : '#0B5CAB20')}`; }}
+        onBlur={e => { e.currentTarget.style.borderColor = error ? '#f8717160' : (isDark ? 'rgba(148,163,184,0.45)' : P.borderHi); e.currentTarget.style.boxShadow = 'none'; }}
         {...props}
       />
     </div>
@@ -255,19 +256,19 @@ function TextArea({ value, onChange, placeholder, rows = 3, error }: {
       onChange={e => onChange(e.target.value)}
       placeholder={placeholder}
       rows={rows}
-      className="w-full px-4 py-3 rounded-lg text-sm outline-none transition-all duration-200 resize-none"
+      className="w-full px-4 py-3.5 rounded-lg text-[15px] outline-none transition-all duration-200 resize-none leading-relaxed"
       style={{
-        background: isDark ? 'rgba(15,23,42,0.5)' : P.surface,
+        background: isDark ? 'rgba(15,23,42,0.72)' : P.surface,
         border: isDark
-          ? `1px solid ${error ? '#f87171a0' : 'rgba(148,163,184,0.28)'}`
-          : `1px solid ${error ? '#f8717160' : P.border}`,
-        color: isDark ? 'rgba(255,255,255,0.92)' : P.textHi,
+          ? `1.5px solid ${error ? '#f87171b0' : 'rgba(148,163,184,0.45)'}`
+          : `1.5px solid ${error ? '#f8717160' : P.borderHi}`,
+        color: isDark ? '#f1f5f9' : P.textHi,
         fontWeight: 500,
         scrollbarWidth: 'thin',
         scrollbarColor: `${P.border} transparent`,
       }}
-      onFocus={e => { e.currentTarget.style.borderColor = error ? '#f87171' : (isDark ? '#3b82f6' : CORPORATE.brand); e.currentTarget.style.boxShadow = `0 0 0 2px ${error ? '#f8717115' : (isDark ? '#3b82f624' : '#0B5CAB1f')}`; }}
-      onBlur={e => { e.currentTarget.style.borderColor = error ? '#f8717160' : (isDark ? 'rgba(148,163,184,0.28)' : P.border); e.currentTarget.style.boxShadow = 'none'; }}
+      onFocus={e => { e.currentTarget.style.borderColor = error ? '#f87171' : (isDark ? '#60a5fa' : CORPORATE.brand); e.currentTarget.style.boxShadow = `0 0 0 3px ${error ? '#f8717118' : (isDark ? '#3b82f630' : '#0B5CAB20')}`; }}
+      onBlur={e => { e.currentTarget.style.borderColor = error ? '#f8717160' : (isDark ? 'rgba(148,163,184,0.45)' : P.borderHi); e.currentTarget.style.boxShadow = 'none'; }}
     />
   );
 }
@@ -291,22 +292,22 @@ function SelectInput({ value, onChange, options, placeholder, error }: {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-sm outline-none transition-all duration-200 text-left"
+        className="w-full flex items-center justify-between px-4 py-3.5 rounded-lg text-[15px] outline-none transition-all duration-200 text-left"
         style={{
-          background: isDark ? 'rgba(15,23,42,0.5)' : P.surface,
+          background: isDark ? 'rgba(15,23,42,0.72)' : P.surface,
           border: isDark
-            ? `1px solid ${error ? '#f87171a0' : (isOpen ? `${P.accent}66` : 'rgba(148,163,184,0.28)')}`
-            : `1px solid ${error ? '#f8717160' : isOpen ? `${P.accent}66` : P.border}`,
-          color: selected ? (isDark ? 'rgba(255,255,255,0.92)' : P.textHi) : P.textLo,
-          boxShadow: isOpen ? `0 0 0 2px ${isDark ? '#3b82f624' : '#0B5CAB1f'}` : 'none',
+            ? `1.5px solid ${error ? '#f87171b0' : (isOpen ? '#60a5fa' : 'rgba(148,163,184,0.45)')}`
+            : `1.5px solid ${error ? '#f8717160' : isOpen ? CORPORATE.brand : P.borderHi}`,
+          color: selected ? (isDark ? '#f1f5f9' : P.textHi) : P.textMd,
+          boxShadow: isOpen ? `0 0 0 3px ${isDark ? '#3b82f630' : '#0B5CAB20'}` : 'none',
         }}
       >
-        <div className="flex items-center gap-2">
-          {selected?.color && <span className="h-2 w-2 rounded-full" style={{ background: selected.color }} />}
-          {selected ? selected.label : placeholder || 'Select...'}
+        <div className="flex items-center gap-2.5">
+          {selected?.color && <span className="h-2.5 w-2.5 rounded-full" style={{ background: selected.color }} />}
+          <span className="font-medium">{selected ? selected.label : placeholder || 'Select...'}</span>
         </div>
         <motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
-          <ChevronDown size={14} style={{ color: P.textLo }} />
+          <ChevronDown size={16} style={{ color: P.textMd }} />
         </motion.div>
       </button>
       <AnimatePresence>
@@ -316,11 +317,11 @@ function SelectInput({ value, onChange, options, placeholder, error }: {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.96 }}
             transition={{ duration: 0.2, ease: EASE }}
-            className="absolute z-50 w-full mt-2 rounded-lg overflow-hidden max-h-60 overflow-y-auto"
+            className="absolute z-50 w-full mt-2 rounded-lg overflow-hidden max-h-64 overflow-y-auto"
             style={{
-              background: isDark ? 'rgba(15,23,42,0.98)' : P.card,
-              border: isDark ? '1px solid rgba(148,163,184,0.30)' : `1px solid ${P.borderHi}`,
-              boxShadow: '0 14px 34px rgba(2,6,23,0.45)',
+              background: isDark ? 'rgba(10,18,36,0.99)' : P.card,
+              border: isDark ? '1.5px solid rgba(148,163,184,0.45)' : `1.5px solid ${P.borderHi}`,
+              boxShadow: '0 16px 40px rgba(2,6,23,0.50)',
               scrollbarWidth: 'thin',
               scrollbarColor: `${P.border} transparent`,
             }}
@@ -330,14 +331,14 @@ function SelectInput({ value, onChange, options, placeholder, error }: {
                 key={opt.value}
                 type="button"
                 onClick={() => { onChange(opt.value); setIsOpen(false); }}
-                className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[13px] text-left transition-colors"
-                style={{ color: opt.value === value ? P.accent : P.textMd }}
-                onMouseEnter={e => { e.currentTarget.style.background = `${P.accent}10`; }}
+                className="w-full flex items-center gap-3 px-4 py-3 text-[14px] font-medium text-left transition-colors"
+                style={{ color: opt.value === value ? (isDark ? '#93c5fd' : CORPORATE.brand) : P.textHi }}
+                onMouseEnter={e => { e.currentTarget.style.background = isDark ? 'rgba(96,165,250,0.10)' : `${CORPORATE.brand}0f`; }}
                 onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
               >
-                {opt.color && <span className="h-2 w-2 rounded-full flex-shrink-0" style={{ background: opt.color }} />}
+                {opt.color && <span className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ background: opt.color }} />}
                 {opt.label}
-                {opt.value === value && <CheckCircle2 size={12} className="ml-auto" style={{ color: P.accent }} />}
+                {opt.value === value && <CheckCircle2 size={14} className="ml-auto" style={{ color: isDark ? '#93c5fd' : CORPORATE.brand }} />}
               </button>
             ))}
           </motion.div>
@@ -364,42 +365,43 @@ function DynamicList({ items, onChange, placeholder, icon: Icon }: {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2.5"
           >
-            <span className="flex items-center justify-center h-6 w-6 rounded-md text-[10px] font-semibold flex-shrink-0" style={{ background: `${P.accent}14`, color: P.accent, border: `1px solid ${P.accent}24` }}>
+            <span className="flex items-center justify-center h-7 w-7 rounded-md text-[12px] font-bold flex-shrink-0" style={{ background: `${P.accent}18`, color: P.accent, border: `1px solid ${P.accent}35` }}>
               {i + 1}
             </span>
             <div className="flex-1 relative">
-              {Icon && <Icon size={13} className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: P.textDim }} />}
+              {Icon && <Icon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: P.textMd }} />}
               <input
                 type="text"
                 value={item}
                 onChange={e => update(i, e.target.value)}
                 placeholder={placeholder}
-                className={cn('w-full py-2 rounded-lg text-[12px] outline-none transition-all', Icon ? 'pl-9 pr-3' : 'px-3')}
+                className={cn('w-full py-3 rounded-lg text-[14px] outline-none transition-all', Icon ? 'pl-9 pr-3' : 'px-3')}
                 style={{
-                  background: isDark ? 'rgba(15,23,42,0.5)' : P.surface,
-                  border: `1px solid ${isDark ? 'rgba(148,163,184,0.28)' : P.border}`,
-                  color: isDark ? 'rgba(255,255,255,0.92)' : P.textHi,
+                  background: isDark ? 'rgba(15,23,42,0.72)' : P.surface,
+                  border: `1.5px solid ${isDark ? 'rgba(148,163,184,0.45)' : P.borderHi}`,
+                  color: isDark ? '#f1f5f9' : P.textHi,
+                  fontWeight: 500,
                 }}
-                onFocus={e => { e.currentTarget.style.borderColor = `${P.accent}60`; }}
-                onBlur={e => { e.currentTarget.style.borderColor = isDark ? 'rgba(148,163,184,0.28)' : P.border; }}
+                onFocus={e => { e.currentTarget.style.borderColor = isDark ? '#60a5fa' : CORPORATE.brand; e.currentTarget.style.boxShadow = `0 0 0 3px ${isDark ? '#3b82f630' : '#0B5CAB20'}`; }}
+                onBlur={e => { e.currentTarget.style.borderColor = isDark ? 'rgba(148,163,184,0.45)' : P.borderHi; e.currentTarget.style.boxShadow = 'none'; }}
               />
             </div>
             {items.length > 1 && (
-              <button type="button" onClick={() => remove(i)} className="p-1.5 rounded-md transition-colors" style={{ color: P.textLo }}
-                onMouseEnter={e => { e.currentTarget.style.color = '#f87171'; e.currentTarget.style.background = '#f8717115'; }}
-                onMouseLeave={e => { e.currentTarget.style.color = P.textLo; e.currentTarget.style.background = 'transparent'; }}>
-                <Trash2 size={13} />
+              <button type="button" onClick={() => remove(i)} className="p-2 rounded-md transition-colors" style={{ color: P.textMd }}
+                onMouseEnter={e => { e.currentTarget.style.color = '#f87171'; e.currentTarget.style.background = '#f8717118'; }}
+                onMouseLeave={e => { e.currentTarget.style.color = P.textMd; e.currentTarget.style.background = 'transparent'; }}>
+                <Trash2 size={15} />
               </button>
             )}
           </motion.div>
         ))}
       </AnimatePresence>
-      <button type="button" onClick={add} className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-medium transition-colors" style={{ color: P.accent, background: `${P.accent}08`, border: `1px dashed ${P.accent}30` }}
-        onMouseEnter={e => { e.currentTarget.style.background = `${P.accent}15`; }}
-        onMouseLeave={e => { e.currentTarget.style.background = `${P.accent}08`; }}>
-        <Plus size={12} /> Add Item
+      <button type="button" onClick={add} className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-[13px] font-semibold transition-colors" style={{ color: isDark ? '#93c5fd' : CORPORATE.brand, background: isDark ? 'rgba(96,165,250,0.10)' : `${CORPORATE.brand}0e`, border: `1.5px dashed ${isDark ? 'rgba(96,165,250,0.40)' : `${CORPORATE.brand}40`}` }}
+        onMouseEnter={e => { e.currentTarget.style.background = isDark ? 'rgba(96,165,250,0.18)' : `${CORPORATE.brand}18`; }}
+        onMouseLeave={e => { e.currentTarget.style.background = isDark ? 'rgba(96,165,250,0.10)' : `${CORPORATE.brand}0e`; }}>
+        <Plus size={15} /> Add Item
       </button>
     </div>
   );
@@ -414,12 +416,12 @@ function TagInput({ tags, onChange, suggestions }: { tags: string[]; onChange: (
 
   return (
     <div className="space-y-2">
-      <div className="flex flex-wrap gap-1.5">
+      <div className="flex flex-wrap gap-2">
         <AnimatePresence>
           {tags.map(tag => (
-            <motion.span key={tag} initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium" style={{ background: `${P.accent}15`, color: P.accent, border: `1px solid ${P.accent}25` }}>
+            <motion.span key={tag} initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[13px] font-semibold" style={{ background: isDark ? 'rgba(96,165,250,0.15)' : `${CORPORATE.brand}12`, color: isDark ? '#93c5fd' : CORPORATE.brand, border: `1.5px solid ${isDark ? 'rgba(96,165,250,0.35)' : `${CORPORATE.brand}35`}` }}>
               {tag}
-              <button type="button" onClick={() => remove(tag)}><X size={10} /></button>
+              <button type="button" onClick={() => remove(tag)} className="opacity-70 hover:opacity-100 transition-opacity"><X size={12} /></button>
             </motion.span>
           ))}
         </AnimatePresence>
@@ -430,20 +432,21 @@ function TagInput({ tags, onChange, suggestions }: { tags: string[]; onChange: (
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); add(input); } }}
           placeholder="Type and press Enter..."
-          className="w-full px-3 py-2 rounded-lg text-[12px] outline-none transition-all"
+          className="w-full px-4 py-3 rounded-lg text-[14px] outline-none transition-all"
           style={{
-            background: isDark ? 'rgba(15,23,42,0.5)' : P.surface,
-            border: `1px solid ${isDark ? 'rgba(148,163,184,0.28)' : P.border}`,
-            color: isDark ? 'rgba(255,255,255,0.92)' : P.textHi,
+            background: isDark ? 'rgba(15,23,42,0.72)' : P.surface,
+            border: `1.5px solid ${isDark ? 'rgba(148,163,184,0.45)' : P.borderHi}`,
+            color: isDark ? '#f1f5f9' : P.textHi,
+            fontWeight: 500,
           }}
-          onFocus={e => { e.currentTarget.style.borderColor = `${P.accent}60`; }}
-          onBlur={e => { setTimeout(() => { e.currentTarget.style.borderColor = isDark ? 'rgba(148,163,184,0.28)' : P.border; }, 200); }}
+          onFocus={e => { e.currentTarget.style.borderColor = isDark ? '#60a5fa' : CORPORATE.brand; e.currentTarget.style.boxShadow = `0 0 0 3px ${isDark ? '#3b82f630' : '#0B5CAB20'}`; }}
+          onBlur={e => { setTimeout(() => { e.currentTarget.style.borderColor = isDark ? 'rgba(148,163,184,0.45)' : P.borderHi; e.currentTarget.style.boxShadow = 'none'; }, 200); }}
         />
         {input && filteredSuggestions.length > 0 && (
-          <div className="absolute z-40 w-full mt-1 rounded-lg overflow-hidden max-h-32 overflow-y-auto" style={{ background: isDark ? 'rgba(15,23,42,0.98)' : P.card, border: isDark ? '1px solid rgba(148,163,184,0.30)' : `1px solid ${P.borderHi}`, boxShadow: '0 10px 30px rgba(2,6,23,0.32)' }}>
+          <div className="absolute z-40 w-full mt-1 rounded-lg overflow-hidden max-h-40 overflow-y-auto" style={{ background: isDark ? 'rgba(10,18,36,0.99)' : P.card, border: isDark ? '1.5px solid rgba(148,163,184,0.45)' : `1.5px solid ${P.borderHi}`, boxShadow: '0 12px 32px rgba(2,6,23,0.40)' }}>
             {filteredSuggestions.slice(0, 5).map(s => (
-              <button key={s} type="button" onMouseDown={e => { e.preventDefault(); add(s); }} className="w-full px-3 py-2 text-[12px] text-left transition-colors" style={{ color: P.textMd }}
-                onMouseEnter={e => { e.currentTarget.style.background = `${P.accent}10`; }}
+              <button key={s} type="button" onMouseDown={e => { e.preventDefault(); add(s); }} className="w-full px-4 py-3 text-[14px] font-medium text-left transition-colors" style={{ color: P.textHi }}
+                onMouseEnter={e => { e.currentTarget.style.background = isDark ? 'rgba(96,165,250,0.10)' : `${CORPORATE.brand}0f`; }}
                 onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}>
                 {s}
               </button>
@@ -471,9 +474,9 @@ function CustomSlider({ value, onChange, min, max, step, unit, color }: {
         />
         <div className="absolute top-1/2 -translate-y-1/2 h-5 w-5 rounded-full transition-all shadow-lg" style={{ left: `calc(${pct}% - 10px)`, background: color, border: `2px solid ${P.bg}`, boxShadow: `0 0 12px ${color}50` }} />
       </div>
-      <div className="flex justify-between text-[10px]" style={{ color: P.textLo }}>
+      <div className="flex justify-between text-[12px] font-medium" style={{ color: P.textMd }}>
         <span>{min}{unit}</span>
-        <span className="font-bold px-2 py-0.5 rounded-md" style={{ background: `${color}15`, color }}>{value}{unit}</span>
+        <span className="font-bold px-2.5 py-1 rounded-md" style={{ background: `${color}20`, color }}>{value}{unit}</span>
         <span>{max}{unit}</span>
       </div>
     </div>
@@ -483,7 +486,42 @@ function CustomSlider({ value, onChange, min, max, step, unit, color }: {
 // ─── Step Components ────────────────────────────────────────────────────────
 
 function Step1Basic({ data, errors, onChange, categoryOptions }: { data: FormData; errors: ValidationErrors; onChange: (d: Partial<FormData>) => void; categoryOptions: { value: string; label: string }[] }) {
-  const { colors: P } = useTheme();
+  const { colors: P, isDark } = useTheme();
+  const toast = useToast();
+  const [isSuggestingSDGs, setIsSuggestingSDGs] = useState(false);
+  const [aiSuggestedIds, setAiSuggestedIds] = useState<number[]>([]);
+  const [aiReasoning, setAiReasoning] = useState('');
+
+  const canSuggest = data.name.trim().length >= 3 || data.shortDescription.trim().length >= 10;
+
+  async function handleSuggestSDGs() {
+    if (!canSuggest || isSuggestingSDGs) return;
+    setIsSuggestingSDGs(true);
+    setAiReasoning('');
+    try {
+      const result = await aiAnalyticsService.suggestSdgs({
+        projectName: data.name,
+        category: categoryOptions.find(c => c.value === data.category)?.label,
+        shortDescription: data.shortDescription,
+        fullDescription: data.fullDescription,
+        objectives: data.objectives.filter(o => o.trim()),
+        targetGroup: data.targetGroup,
+      });
+      if (result.success && result.data.suggestedSdgs.length > 0) {
+        setAiSuggestedIds(result.data.suggestedSdgs);
+        setAiReasoning(result.data.reasoning);
+        onChange({ sdgGoals: result.data.suggestedSdgs });
+        toast.success('SDGs Selected', `AI identified ${result.data.suggestedSdgs.length} relevant goals`);
+      } else {
+        toast.warning('No SDGs Found', 'AI could not determine SDGs — please select manually');
+      }
+    } catch {
+      toast.error('AI Error', 'Failed to get SDG suggestion');
+    } finally {
+      setIsSuggestingSDGs(false);
+    }
+  }
+
   return (
     <motion.div variants={fadeUp} initial="hidden" animate="show" className="space-y-6">
       {/* Section Header */}
@@ -493,7 +531,7 @@ function Step1Basic({ data, errors, onChange, categoryOptions }: { data: FormDat
         </div>
         <div>
           <h2 className="text-lg font-bold tracking-tight" style={{ color: P.textHi }}>Basic Information</h2>
-          <p className="text-xs mt-0.5" style={{ color: P.textLo }}>Define the project fundamentals and objectives</p>
+          <p className="text-sm font-medium mt-0.5" style={{ color: P.textMd }}>Define the project fundamentals and objectives</p>
         </div>
       </div>
 
@@ -515,7 +553,7 @@ function Step1Basic({ data, errors, onChange, categoryOptions }: { data: FormDat
       <FormField label="Short Description" required error={errors.shortDescription} hint="Brief summary for project listings (max 200 characters)">
         <TextInput value={data.shortDescription} onChange={v => onChange({ shortDescription: v })} placeholder="Brief description of the project..." maxLength={200} error={!!errors.shortDescription} />
         <div className="flex justify-end">
-          <span className="text-[10px] tabular-nums" style={{ color: data.shortDescription.length > 180 ? '#fbbf24' : P.textDim }}>{data.shortDescription.length}/200</span>
+          <span className="text-[12px] font-medium tabular-nums" style={{ color: data.shortDescription.length > 180 ? '#f59e0b' : P.textMd }}>{data.shortDescription.length}/200</span>
         </div>
       </FormField>
 
@@ -535,24 +573,90 @@ function Step1Basic({ data, errors, onChange, categoryOptions }: { data: FormDat
 
       {/* SDG Goals */}
       <FormField label="SDG Goals Alignment" icon={Globe} hint="Select relevant UN Sustainable Development Goals">
-        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2">
+        {/* AI Suggest Button */}
+        <div className="flex items-center gap-3 mb-3">
+          <motion.button
+            type="button"
+            whileHover={canSuggest && !isSuggestingSDGs ? { scale: 1.03 } : {}}
+            whileTap={canSuggest && !isSuggestingSDGs ? { scale: 0.97 } : {}}
+            onClick={handleSuggestSDGs}
+            disabled={!canSuggest || isSuggestingSDGs}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all"
+            style={{
+              background: canSuggest
+                ? 'linear-gradient(135deg, #7C3AED22, #2563EB22)'
+                : 'transparent',
+              border: `1px solid ${canSuggest ? '#7C3AED50' : P.border}`,
+              color: canSuggest ? '#A78BFA' : P.textDim,
+              cursor: canSuggest && !isSuggestingSDGs ? 'pointer' : 'not-allowed',
+              opacity: isSuggestingSDGs ? 0.7 : 1,
+            }}
+          >
+            {isSuggestingSDGs
+              ? <Loader2 size={13} className="animate-spin" />
+              : <Sparkles size={13} />
+            }
+            {isSuggestingSDGs ? 'Analyzing project...' : 'AI Suggest SDGs'}
+          </motion.button>
+          {!canSuggest && (
+            <span className="text-[12px]" style={{ color: P.textMd }}>
+              Fill project name or description first
+            </span>
+          )}
+          {aiSuggestedIds.length > 0 && !isSuggestingSDGs && (
+            <span className="text-[10px] flex items-center gap-1" style={{ color: '#A78BFA' }}>
+              <Sparkles size={10} />
+              AI selected {aiSuggestedIds.length} goals — you can still adjust
+            </span>
+          )}
+        </div>
+
+        {/* AI Reasoning */}
+        <AnimatePresence>
+          {aiReasoning && !isSuggestingSDGs && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.3 }}
+              className="mb-3 px-3 py-2 rounded-lg text-[11px] leading-relaxed"
+              style={{
+                background: '#7C3AED10',
+                border: '1px solid #7C3AED30',
+                color: P.textLo,
+              }}
+            >
+              <span style={{ color: '#A78BFA', fontWeight: 600 }}>AI Reasoning: </span>
+              {aiReasoning}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2.5">
           {sdgGoals.map(sdg => {
             const active = data.sdgGoals.includes(sdg.id);
+            const isAiPicked = aiSuggestedIds.includes(sdg.id);
             return (
               <motion.button
                 key={sdg.id}
                 type="button"
-                whileHover={{ scale: 1.03 }}
+                whileHover={{ scale: 1.04, y: -1 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => onChange({ sdgGoals: active ? data.sdgGoals.filter(g => g !== sdg.id) : [...data.sdgGoals, sdg.id] })}
-                className="flex flex-col items-center gap-1 p-2 rounded-full text-center transition-all"
+                className="relative flex flex-col items-center gap-1.5 py-3 px-1 rounded-xl text-center transition-all"
                 style={{
-                  background: active ? `${sdg.color}18` : 'transparent',
-                  border: `1px solid ${active ? sdg.color + '50' : P.border}`,
+                  background: active ? `${sdg.color}1e` : (isDark ? 'rgba(255,255,255,0.03)' : P.cardHi),
+                  border: `2px solid ${active ? sdg.color + '70' : (isDark ? 'rgba(255,255,255,0.12)' : P.border)}`,
+                  boxShadow: isAiPicked && active ? `0 0 12px ${sdg.color}50, 0 2px 8px ${sdg.color}30` : active ? `0 2px 8px ${sdg.color}25` : 'none',
                 }}
               >
-                <span className="text-sm font-black" style={{ color: active ? sdg.color : P.textLo }}>{sdg.id}</span>
-                <span className="text-[8px] font-medium leading-tight" style={{ color: active ? sdg.color : P.textDim }}>{sdg.label}</span>
+                {isAiPicked && active && (
+                  <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full flex items-center justify-center shadow-md" style={{ background: '#7C3AED' }}>
+                    <Sparkles size={9} color="white" />
+                  </span>
+                )}
+                <span className="text-[15px] font-black leading-none" style={{ color: active ? sdg.color : P.textMd }}>{sdg.id}</span>
+                <span className="text-[10px] font-semibold leading-tight px-0.5" style={{ color: active ? sdg.color : P.textMd, lineHeight: '1.2' }}>{sdg.label}</span>
               </motion.button>
             );
           })}
@@ -569,11 +673,11 @@ function Step1Basic({ data, errors, onChange, categoryOptions }: { data: FormDat
                 key={pillar}
                 type="button"
                 onClick={() => onChange({ visionPillars: active ? data.visionPillars.filter(p => p !== pillar) : [...data.visionPillars, pillar] })}
-                className="px-3 py-1.5 rounded-full text-[11px] font-medium transition-all"
+                className="px-4 py-2 rounded-xl text-[13px] font-semibold transition-all"
                 style={{
-                  background: active ? `${P.accent}15` : 'transparent',
-                  color: active ? P.accent : P.textLo,
-                  border: `1px solid ${active ? P.accent + '40' : P.border}`,
+                  background: active ? `${P.accent}18` : (isDark ? 'rgba(255,255,255,0.04)' : P.cardHi),
+                  color: active ? P.accent : P.textHi,
+                  border: `1.5px solid ${active ? P.accent + '50' : (isDark ? 'rgba(255,255,255,0.15)' : P.border)}`,
                 }}
               >
                 {pillar}
@@ -605,7 +709,7 @@ function Step2Budget({ data, errors, onChange }: { data: FormData; errors: Valid
         </div>
         <div>
           <h2 className="text-lg font-bold tracking-tight" style={{ color: P.textHi }}>Budget & Timeline</h2>
-          <p className="text-[11px]" style={{ color: P.textLo }}>Set financial parameters and early warning thresholds</p>
+          <p className="text-sm font-medium" style={{ color: P.textMd }}>Set financial parameters and early warning thresholds</p>
         </div>
       </div>
 
@@ -676,7 +780,7 @@ function Step2Budget({ data, errors, onChange }: { data: FormData; errors: Valid
                     <span className="text-[12px] font-semibold" style={{ color: P.textMd }}>Budget Threshold</span>
                   </div>
                   <CustomSlider value={data.budgetThreshold} onChange={v => onChange({ budgetThreshold: v })} min={50} max={100} step={5} unit="%" color="#fb923c" />
-                  <p className="text-[10px]" style={{ color: P.textDim }}>Alert when spending exceeds this % of budget</p>
+                  <p className="text-[12px]" style={{ color: P.textMd }}>Alert when spending exceeds this % of budget</p>
                 </div>
 
                 <div className="space-y-2">
@@ -685,7 +789,7 @@ function Step2Budget({ data, errors, onChange }: { data: FormData; errors: Valid
                     <span className="text-[12px] font-semibold" style={{ color: P.textMd }}>Delay Threshold</span>
                   </div>
                   <CustomSlider value={data.delayThreshold} onChange={v => onChange({ delayThreshold: v })} min={3} max={60} step={1} unit=" days" color="#f87171" />
-                  <p className="text-[10px]" style={{ color: P.textDim }}>Alert when project is delayed by this many days</p>
+                  <p className="text-[12px]" style={{ color: P.textMd }}>Alert when project is delayed by this many days</p>
                 </div>
 
                 <div className="space-y-2">
@@ -694,7 +798,7 @@ function Step2Budget({ data, errors, onChange }: { data: FormData; errors: Valid
                     <span className="text-[12px] font-semibold" style={{ color: P.textMd }}>Quality Threshold</span>
                   </div>
                   <CustomSlider value={data.qualityThreshold} onChange={v => onChange({ qualityThreshold: v })} min={1} max={5} step={0.5} unit="" color="#a78bfa" />
-                  <p className="text-[10px]" style={{ color: P.textDim }}>Alert when average rating drops below this</p>
+                  <p className="text-[12px]" style={{ color: P.textMd }}>Alert when average rating drops below this</p>
                 </div>
               </div>
             </motion.div>
@@ -731,7 +835,7 @@ function Step3Beneficiaries({ data, errors, onChange }: { data: FormData; errors
         </div>
         <div>
           <h2 className="text-lg font-bold tracking-tight" style={{ color: P.textHi }}>Beneficiaries</h2>
-          <p className="text-[11px]" style={{ color: P.textLo }}>Define the target population and expected reach</p>
+          <p className="text-sm font-medium" style={{ color: P.textMd }}>Define the target population and expected reach</p>
         </div>
       </div>
 
@@ -851,7 +955,7 @@ function Step4Location({ data, errors, onChange }: { data: FormData; errors: Val
         </div>
         <div>
           <h2 className="text-lg font-bold tracking-tight" style={{ color: P.textHi }}>Location & Partners</h2>
-          <p className="text-[11px]" style={{ color: P.textLo }}>Specify project location and collaborating partners</p>
+          <p className="text-sm font-medium" style={{ color: P.textMd }}>Specify project location and collaborating partners</p>
         </div>
       </div>
 
@@ -897,7 +1001,7 @@ function Step4Location({ data, errors, onChange }: { data: FormData; errors: Val
                 : 'Select a location to preview on map'}
             </p>
             {data.latitude && data.longitude && (
-              <p className="text-[10px] mt-1 tabular-nums" style={{ color: P.textDim }}>{String(data.latitude)}, {String(data.longitude)}</p>
+              <p className="text-[12px] mt-1 tabular-nums font-medium" style={{ color: P.textMd }}>{String(data.latitude)}, {String(data.longitude)}</p>
             )}
           </div>
 
@@ -1003,7 +1107,7 @@ function Step5Media({ data, onChange }: { data: FormData; errors: ValidationErro
         </div>
         <div>
           <h2 className="text-lg font-bold tracking-tight" style={{ color: P.textHi }}>Media & Documents</h2>
-          <p className="text-[11px]" style={{ color: P.textLo }}>Upload project images and supporting documents</p>
+          <p className="text-sm font-medium" style={{ color: P.textMd }}>Upload project images and supporting documents</p>
         </div>
       </div>
 
@@ -1029,7 +1133,7 @@ function Step5Media({ data, onChange }: { data: FormData; errors: ValidationErro
             <p className="text-[13px] font-medium mb-1" style={{ color: P.textHi }}>
               {imgDragActive ? 'Drop images here...' : 'Drag & drop images, or click to browse'}
             </p>
-            <p className="text-[11px]" style={{ color: P.textDim }}>PNG, JPG, WebP, SVG — Max 10MB each</p>
+            <p className="text-[13px]" style={{ color: P.textMd }}>PNG, JPG, WebP, SVG — Max 10MB each</p>
           </motion.div>
         </div>
 
@@ -1089,7 +1193,7 @@ function Step5Media({ data, onChange }: { data: FormData; errors: ValidationErro
             <p className="text-[13px] font-medium mb-1" style={{ color: P.textHi }}>
               {docDragActive ? 'Drop files here...' : 'Drag & drop documents, or click to browse'}
             </p>
-            <p className="text-[11px]" style={{ color: P.textDim }}>PDF, DOC, DOCX, XLS, XLSX — Max 25MB each</p>
+            <p className="text-[13px]" style={{ color: P.textMd }}>PDF, DOC, DOCX, XLS, XLSX — Max 25MB each</p>
           </motion.div>
         </div>
 
@@ -1110,14 +1214,14 @@ function Step5Media({ data, onChange }: { data: FormData; errors: ValidationErro
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-[12px] font-medium truncate" style={{ color: P.textHi }}>{doc.name}</p>
-                    <p className="text-[10px]" style={{ color: P.textDim }}>{(doc.file.size / 1024).toFixed(1)} KB</p>
+                    <p className="text-[12px]" style={{ color: P.textMd }}>{(doc.file.size / 1024).toFixed(1)} KB</p>
                   </div>
                   <div className="flex items-center gap-1">
                     {docCategories.map(cat => (
-                      <button key={cat.value} type="button" onClick={() => updateDocCategory(doc.id, cat.value)} className="px-2 py-1 rounded-lg text-[9px] font-medium transition-all" style={{
-                        background: doc.category === cat.value ? `${P.accent}15` : 'transparent',
-                        color: doc.category === cat.value ? P.accent : P.textDim,
-                        border: `1px solid ${doc.category === cat.value ? P.accent + '30' : 'transparent'}`,
+                      <button key={cat.value} type="button" onClick={() => updateDocCategory(doc.id, cat.value)} className="px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all" style={{
+                        background: doc.category === cat.value ? `${P.accent}18` : 'transparent',
+                        color: doc.category === cat.value ? P.accent : P.textMd,
+                        border: `1px solid ${doc.category === cat.value ? P.accent + '40' : 'transparent'}`,
                       }}>
                         {cat.label}
                       </button>
@@ -1212,7 +1316,7 @@ function Step6Review({ data, onChange, categoryOptions }: { data: FormData; erro
         </div>
         <div>
           <h2 className="text-lg font-bold tracking-tight" style={{ color: P.textHi }}>Review & Submit</h2>
-          <p className="text-[11px]" style={{ color: P.textLo }}>Verify all information before creating the project</p>
+          <p className="text-sm font-medium" style={{ color: P.textMd }}>Verify all information before creating the project</p>
         </div>
       </div>
 
@@ -1254,8 +1358,8 @@ function Step6Review({ data, onChange, categoryOptions }: { data: FormData; erro
                 <div className="space-y-2">
                   {section.items.map(item => (
                     <div key={item.label} className="flex justify-between gap-4">
-                      <span className="text-[11px] flex-shrink-0" style={{ color: P.textLo }}>{item.label}</span>
-                      <span className="text-[11px] font-medium text-right truncate" style={{ color: item.value === 'Not set' || item.value === 'None' ? P.textDim : P.textMd, maxWidth: '60%' }}>{item.value}</span>
+                      <span className="text-[13px] font-medium flex-shrink-0" style={{ color: P.textMd }}>{item.label}</span>
+                      <span className="text-[13px] font-semibold text-right truncate" style={{ color: item.value === 'Not set' || item.value === 'None' ? P.textLo : P.textHi, maxWidth: '60%' }}>{item.value}</span>
                     </div>
                   ))}
                 </div>
@@ -1292,8 +1396,8 @@ function Step6Review({ data, onChange, categoryOptions }: { data: FormData; erro
             </div>
           </div>
           <div>
-            <p className="text-[12px] font-medium" style={{ color: P.textHi }}>I confirm that all information provided is accurate</p>
-            <p className="text-[10px] mt-0.5" style={{ color: P.textLo }}>By submitting, you agree that this project will go through the standard approval workflow and all data will be audited.</p>
+            <p className="text-[14px] font-semibold" style={{ color: P.textHi }}>I confirm that all information provided is accurate</p>
+            <p className="text-[13px] mt-1 leading-relaxed" style={{ color: P.textMd }}>By submitting, you agree that this project will go through the standard approval workflow and all data will be audited.</p>
           </div>
         </label>
       </GlassCard>
@@ -1318,24 +1422,24 @@ function WizardProgress({ currentStep, completedSteps, onStepClick }: { currentS
             onClick={() => onStepClick(i)}
             whileHover={{ y: -1 }}
             whileTap={{ scale: 0.98 }}
-            className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all relative cursor-pointer text-left"
+            className="flex items-center gap-3 px-3 py-3 rounded-xl transition-all relative cursor-pointer text-left"
             style={{
               background: isActive
-                ? `${step.color}16`
-                : (isDark ? 'rgba(15,23,42,0.46)' : P.surface),
-              border: `1px solid ${isActive ? `${step.color}55` : (isDark ? 'rgba(148,163,184,0.28)' : P.border)}`,
-              boxShadow: isActive ? `0 0 0 1px ${step.color}33 inset` : 'none',
+                ? `${step.color}1a`
+                : (isDark ? 'rgba(15,23,42,0.55)' : P.surface),
+              border: `1.5px solid ${isActive ? `${step.color}70` : (isDark ? 'rgba(148,163,184,0.40)' : P.borderHi)}`,
+              boxShadow: isActive ? `0 0 0 1px ${step.color}30 inset, 0 2px 8px ${step.color}20` : 'none',
             }}
           >
-            <div className="h-8 w-8 rounded-md flex items-center justify-center transition-all" style={{
-              background: isCompleted ? `${step.color}24` : (isDark ? 'rgba(255,255,255,0.03)' : P.surface),
-              border: `1px solid ${isCompleted || isActive ? `${step.color}66` : (isDark ? 'rgba(255,255,255,0.10)' : P.border)}`,
+            <div className="h-9 w-9 rounded-lg flex items-center justify-center transition-all flex-shrink-0" style={{
+              background: isCompleted ? `${step.color}28` : isActive ? `${step.color}18` : (isDark ? 'rgba(255,255,255,0.06)' : P.cardHi),
+              border: `1.5px solid ${isCompleted || isActive ? `${step.color}70` : (isDark ? 'rgba(255,255,255,0.15)' : P.border)}`,
             }}>
-              {isCompleted ? <Check size={14} style={{ color: step.color }} /> : <Icon size={14} style={{ color: isActive ? step.color : P.textDim }} />}
+              {isCompleted ? <Check size={15} style={{ color: step.color }} /> : <Icon size={15} style={{ color: isActive ? step.color : P.textMd }} />}
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] font-bold" style={{ color: isActive ? step.color : P.textLo }}>Step {i + 1}</p>
-              <p className="text-[11px] font-bold truncate" style={{ color: isActive ? (isDark ? '#FFFFFF' : P.textHi) : P.textMd }}>{step.label}</p>
+              <p className="text-[11px] font-semibold" style={{ color: isActive ? step.color : P.textMd }}>Step {i + 1}</p>
+              <p className="text-[13px] font-bold truncate" style={{ color: isActive ? (isDark ? '#f1f5f9' : P.textHi) : P.textHi }}>{step.label}</p>
             </div>
           </motion.button>
         );
@@ -1358,19 +1462,33 @@ export default function AddProject() {
     queryKey: ['categories'],
     queryFn: () => categoryService.getCategories(),
   });
-  const categoryOptions = categoriesData?.data?.items?.map((c: any) => ({ value: c.id, label: c.name })) ?? [];
+  const categoriesRaw = (categoriesData as any)?.data?.items ?? (categoriesData as any)?.data ?? [];
+  const categoryOptions = Array.isArray(categoriesRaw) ? categoriesRaw.map((c: any) => ({ value: c.id, label: c.name })) : [];
 
   const createMutation = useMutation({
     mutationFn: (projectData: Record<string, unknown>) => projectService.createProject(projectData as any),
   });
 
+  // Read prefill from router state (handed off by Project Studio in FuturePortal)
+  const location = useLocation();
+  const prefill = (location.state as { prefill?: Partial<FormData> } | null)?.prefill;
+  const seededData: FormData = useMemo(() => prefill ? { ...initialFormData, ...prefill } : initialFormData, [prefill]);
+
   const [currentStep, setCurrentStep] = useState(0);
   const [direction, setDirection] = useState(0);
-  const [data, setData] = useState<FormData>(initialFormData);
+  const [data, setData] = useState<FormData>(seededData);
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
   const [saving, setSaving] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Clear prefill from history once consumed so a fresh visit to /projects/add starts blank
+  useEffect(() => {
+    if (prefill) {
+      window.history.replaceState({}, '');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const onChange = useCallback((partial: Partial<FormData>) => {
     setData(prev => ({ ...prev, ...partial }));
@@ -1552,7 +1670,7 @@ export default function AddProject() {
                   <FolderKanban size={20} style={{ color: isDark ? '#93c5fd' : CORPORATE.brand }} />
                   Add New Project
                 </h1>
-                <p className="text-xs mt-0.5" style={{ color: P.textLo }}>Enterprise project intake form with audit-ready structure</p>
+                <p className="text-sm mt-0.5 font-medium" style={{ color: P.textMd }}>Enterprise project intake form with audit-ready structure</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -1560,9 +1678,9 @@ export default function AddProject() {
                 <div className="h-1.5 w-24 rounded-full overflow-hidden" style={{ background: isDark ? 'rgba(255,255,255,0.10)' : P.border }}>
                   <motion.div animate={{ width: `${overallProgress}%` }} className="h-full rounded-full" style={{ background: isDark ? '#3b82f6' : CORPORATE.brand }} />
                 </div>
-                <span className="text-[10px] font-bold tabular-nums" style={{ color: isDark ? '#93c5fd' : CORPORATE.brand }}>{overallProgress}%</span>
+                <span className="text-[12px] font-bold tabular-nums" style={{ color: isDark ? '#93c5fd' : CORPORATE.brand }}>{overallProgress}%</span>
               </div>
-              <button type="button" onClick={() => navigate('/projects')} className="px-4 py-2 rounded-xl text-[12px] font-medium transition-colors" style={{ background: isDark ? 'rgba(255,255,255,0.03)' : P.surface, border: `1px solid ${isDark ? 'rgba(255,255,255,0.10)' : P.border}`, color: P.textMd }}
+              <button type="button" onClick={() => navigate('/projects')} className="px-4 py-2.5 rounded-xl text-[13px] font-semibold transition-colors" style={{ background: isDark ? 'rgba(255,255,255,0.05)' : P.surface, border: `1.5px solid ${isDark ? 'rgba(255,255,255,0.18)' : P.borderHi}`, color: P.textHi }}
                 onMouseEnter={e => { e.currentTarget.style.borderColor = '#f8717140'; }}
                 onMouseLeave={e => { e.currentTarget.style.borderColor = isDark ? 'rgba(255,255,255,0.10)' : P.border; }}>
                 Cancel
@@ -1575,19 +1693,19 @@ export default function AddProject() {
         <div className="grid grid-cols-1 xl:grid-cols-[320px_1fr] gap-5 items-start">
           <div className="xl:sticky xl:top-5 space-y-5">
             <GlassCard className="p-4">
-              <p className="text-[11px] font-bold mb-3 uppercase tracking-[0.14em]" style={{ color: P.textLo }}>Project Workflow</p>
+              <p className="text-[13px] font-bold mb-3" style={{ color: P.textHi }}>Project Workflow</p>
               <WizardProgress currentStep={currentStep} completedSteps={completedSteps} onStepClick={goToStep} />
             </GlassCard>
 
             <GlassCard className="p-4">
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-[12px] font-bold" style={{ color: P.textHi }}>Completion</p>
-                <span className="text-[11px] font-black" style={{ color: isDark ? '#93c5fd' : CORPORATE.brand }}>{overallProgress}%</span>
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-[14px] font-bold" style={{ color: P.textHi }}>Completion</p>
+                <span className="text-[14px] font-black" style={{ color: isDark ? '#93c5fd' : CORPORATE.brand }}>{overallProgress}%</span>
               </div>
-              <div className="h-2 rounded-full overflow-hidden" style={{ background: isDark ? 'rgba(255,255,255,0.12)' : P.border }}>
+              <div className="h-2.5 rounded-full overflow-hidden" style={{ background: isDark ? 'rgba(255,255,255,0.15)' : P.borderHi }}>
                 <motion.div animate={{ width: `${overallProgress}%` }} className="h-full rounded-full" style={{ background: isDark ? '#3b82f6' : CORPORATE.brand }} />
               </div>
-              <p className="text-[10px] mt-2" style={{ color: P.textDim }}>Structured flow. All entries remain preserved between steps.</p>
+              <p className="text-[12px] mt-2.5 leading-relaxed" style={{ color: P.textMd }}>All entries are preserved between steps.</p>
             </GlassCard>
           </div>
 
@@ -1625,7 +1743,7 @@ export default function AddProject() {
                     Previous
                   </button>
 
-                  <div className="flex items-center gap-2 text-[11px]" style={{ color: P.textDim }}>
+                  <div className="flex items-center gap-2 text-[13px] font-semibold" style={{ color: P.textMd }}>
                     Step {currentStep + 1} of {STEPS.length}
                   </div>
 
@@ -1648,8 +1766,8 @@ export default function AddProject() {
                       disabled={!data.agreedToTerms || saving}
                       whileHover={{ y: data.agreedToTerms ? -1 : 0 }}
                       whileTap={{ scale: data.agreedToTerms ? 0.98 : 1 }}
-                      className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-[12px] font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                      style={{ background: data.agreedToTerms ? '#34d399' : P.border, color: data.agreedToTerms ? '#042f2e' : P.textDim, border: `1px solid ${data.agreedToTerms ? '#34d399' : P.border}` }}
+                      className="flex items-center gap-2 px-6 py-3 rounded-lg text-[14px] font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      style={{ background: data.agreedToTerms ? '#34d399' : (isDark ? 'rgba(255,255,255,0.08)' : P.border), color: data.agreedToTerms ? '#022c22' : P.textMd, border: `1.5px solid ${data.agreedToTerms ? '#34d399' : (isDark ? 'rgba(255,255,255,0.20)' : P.borderHi)}` }}
                     >
                       {saving ? (
                         <>

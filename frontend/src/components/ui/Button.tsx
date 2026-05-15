@@ -3,7 +3,7 @@ import { Slot } from '@radix-ui/react-slot';
 import { cn } from '../../utils/cn';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Chakra-inspired Button — classic, human, theme-aware
+// Gold Glass Morphism Button — ai-smart-preview inspired
 // Variants: solid | outline | ghost | subtle | link
 // Schemes:  accent | danger | success | warning | neutral
 // Sizes:    xs | sm | md | lg | xl | icon | icon-sm | icon-lg
@@ -21,10 +21,10 @@ const SCHEMES: Record<ButtonScheme, {
   subtle:  { bg: string; text: string; bgHover: string };
 }> = {
   accent: {
-    solid:   { bg: 'var(--btn-accent)',    bgHover: 'var(--btn-accent-hover)',    text: 'var(--btn-accent-fg)',    shadow: 'var(--btn-accent-shadow)' },
-    outline: { border: 'var(--btn-accent)', text: 'var(--btn-accent)',             bgHover: 'var(--btn-accent-subtle)' },
-    ghost:   { text: 'var(--btn-accent)',   bgHover: 'var(--btn-accent-subtle)' },
-    subtle:  { bg: 'var(--btn-accent-subtle)', text: 'var(--btn-accent)',          bgHover: 'var(--btn-accent-subtle-hover)' },
+    solid:   { bg: 'linear-gradient(135deg, #C8A44E, #DFC170)', bgHover: 'linear-gradient(135deg, #DFC170, #E8CF85)', text: '#000000', shadow: 'rgba(200,164,78,0.25)' },
+    outline: { border: '#1a1a1a', text: 'var(--btn-accent)',    bgHover: 'rgba(200,164,78,0.08)' },
+    ghost:   { text: 'var(--btn-accent)',   bgHover: 'rgba(200,164,78,0.08)' },
+    subtle:  { bg: 'var(--btn-accent-subtle)', text: 'var(--btn-accent)', bgHover: 'var(--btn-accent-subtle-hover)' },
   },
   danger: {
     solid:   { bg: '#dc2626', bgHover: '#b91c1c', text: '#fff',       shadow: 'rgba(220,38,38,0.25)' },
@@ -53,14 +53,14 @@ const SCHEMES: Record<ButtonScheme, {
 };
 
 const SIZE_CLASSES: Record<ButtonSize, string> = {
-  'xs':      'h-7 px-2.5 text-[11px] gap-1 rounded-md',
-  'sm':      'h-8 px-3 text-xs gap-1.5 rounded-md',
-  'md':      'h-9 px-4 text-sm gap-2 rounded-md',
-  'lg':      'h-10 px-5 text-sm gap-2 rounded-lg',
-  'xl':      'h-12 px-7 text-base gap-2.5 rounded-lg font-semibold',
-  'icon':    'h-9 w-9 rounded-md',
-  'icon-sm': 'h-8 w-8 rounded-md',
-  'icon-lg': 'h-10 w-10 rounded-lg',
+  'xs':      'h-7 px-2.5 text-[11px] gap-1 rounded-lg',
+  'sm':      'h-8 px-3 text-xs gap-1.5 rounded-lg',
+  'md':      'h-9 px-4 text-sm gap-2 rounded-xl',
+  'lg':      'h-10 px-5 text-sm gap-2 rounded-xl',
+  'xl':      'h-12 px-7 text-base gap-2.5 rounded-xl font-semibold',
+  'icon':    'h-9 w-9 rounded-xl',
+  'icon-sm': 'h-8 w-8 rounded-lg',
+  'icon-lg': 'h-10 w-10 rounded-xl',
 };
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -101,7 +101,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       variantStyle = {
         background: tokens.solid.bg,
         color: tokens.solid.text,
-        boxShadow: `0 1px 3px ${tokens.solid.shadow}, inset 0 1px 0 rgba(255,255,255,0.08)`,
+        boxShadow: `0 0 24px ${tokens.solid.shadow}, inset 0 1px 0 rgba(255,255,255,0.12)`,
       };
     } else if (variant === 'outline') {
       variantStyle = {
@@ -136,10 +136,10 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={isDisabled}
         className={cn(
           // Base
-          'inline-flex items-center justify-center font-medium whitespace-nowrap',
-          'transition-all duration-150 ease-out',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
-          'active:scale-[0.96]',
+          'group relative inline-flex items-center justify-center font-medium whitespace-nowrap overflow-hidden',
+          'transition-all duration-300 ease-out',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C8A44E]/50 focus-visible:ring-offset-2',
+          'active:scale-[0.98]',
           'disabled:pointer-events-none disabled:opacity-40',
           '[&_svg]:pointer-events-none [&_svg]:shrink-0',
           'select-none cursor-pointer',
@@ -152,9 +152,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           const el = e.currentTarget as HTMLElement;
           if (variant === 'solid') {
             el.style.background = tokens.solid.bgHover;
-            el.style.boxShadow = `0 2px 6px ${tokens.solid.shadow}, inset 0 1px 0 rgba(255,255,255,0.08)`;
+            el.style.boxShadow = `0 0 40px ${tokens.solid.shadow}, inset 0 1px 0 rgba(255,255,255,0.12)`;
+            el.style.transform = 'scale(1.02)';
           } else if (variant === 'outline') {
             el.style.background = tokens.outline.bgHover;
+            el.style.borderColor = 'rgba(200,164,78,0.4)';
           } else if (variant === 'ghost') {
             el.style.background = tokens.ghost.bgHover;
           } else if (variant === 'subtle') {
@@ -167,9 +169,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           const el = e.currentTarget as HTMLElement;
           if (variant === 'solid') {
             el.style.background = tokens.solid.bg;
-            el.style.boxShadow = `0 1px 3px ${tokens.solid.shadow}, inset 0 1px 0 rgba(255,255,255,0.08)`;
+            el.style.boxShadow = `0 0 24px ${tokens.solid.shadow}, inset 0 1px 0 rgba(255,255,255,0.12)`;
+            el.style.transform = 'scale(1)';
           } else if (variant === 'outline') {
             el.style.background = 'transparent';
+            el.style.borderColor = tokens.outline.border;
           } else if (variant === 'ghost') {
             el.style.background = 'transparent';
           } else if (variant === 'subtle') {
@@ -179,6 +183,12 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         }}
         {...props}
       >
+        {/* Shine sweep effect for solid accent buttons */}
+        {variant === 'solid' && scheme === 'accent' && (
+          <span className="pointer-events-none absolute inset-0">
+            <span className="absolute -left-full top-0 h-full w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-[400%]" />
+          </span>
+        )}
         {loading && (
           <svg
             className="animate-spin"

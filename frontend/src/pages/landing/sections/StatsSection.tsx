@@ -16,7 +16,7 @@ export function StatsSection() {
   return (
     <section
       ref={ref}
-      style={{ background: '#09090b', padding: '80px 0', borderTop: '1px solid rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}
+      style={{ background: '#000000', padding: '80px 0', borderTop: '1px solid rgba(26,26,26,0.6)', borderBottom: '1px solid rgba(26,26,26,0.6)' }}
     >
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 48px' }}>
 
@@ -42,7 +42,7 @@ export function StatsSection() {
               transition={{ duration: 0.5, delay: i * 0.07 }}
               style={{
                 padding: '32px 28px',
-                borderRight: i < STATS.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+                borderRight: i < STATS.length - 1 ? '1px solid rgba(26,26,26,0.6)' : 'none',
                 position: 'relative',
               }}
             >

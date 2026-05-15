@@ -476,7 +476,8 @@ export default function EditProject() {
     queryKey: ['categories'],
     queryFn: () => categoryService.getCategories(),
   });
-  const categoryOptions = categoriesData?.data?.items?.map((c: any) => ({ id: c.id, name: c.name })) ?? [];
+  const categoriesRaw = (categoriesData as any)?.data?.items ?? (categoriesData as any)?.data ?? [];
+  const categoryOptions = Array.isArray(categoriesRaw) ? categoriesRaw.map((c: any) => ({ id: c.id, name: c.name })) : [];
 
   const { data: projectData, isLoading } = useQuery({
     queryKey: ['project', id],

@@ -52,18 +52,18 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex" style={{ background: '#050508' }}>
+    <div className="min-h-screen flex" style={{ background: '#0a0a0a' }}>
 
-      {/* ╔══ LEFT PANEL — Photo + Quote ══╗ */}
+      {/* ╔══ LEFT PANEL — Editorial brand panel ══╗ */}
       <motion.div
         className="hidden lg:flex lg:w-[40%] relative flex-col justify-between p-10 overflow-hidden"
-        style={{ background: '#000000' }}
+        style={{ background: '#000000', borderRight: '1px solid #1a1a1a' }}
         initial={{ opacity: 0, x: -30 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
       >
         {/* Background video — centered & scaled down */}
-        <div className="absolute inset-0 flex items-center justify-center">
+        <div className="absolute inset-0 flex items-center justify-center opacity-80">
           <video
             src="/login.mp4"
             autoPlay
@@ -81,12 +81,46 @@ export default function Login() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.5 }}
         >
-          <img src="/logo2.jpeg" alt="nion logo" style={{ width: 36, height: 36, borderRadius: 9, objectFit: 'cover', background: '#fff' }} />
-          <span className="text-white/80 text-sm font-semibold tracking-wide">CSR Platform</span>
+          <img src="/logo2.jpeg" alt="nion logo" style={{ width: 36, height: 36, borderRadius: 9, objectFit: 'cover', background: 'rgba(255,255,255,0.04)' }} />
+          <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13, fontWeight: 600, letterSpacing: '0.02em' }}>CSR Platform</span>
         </motion.div>
 
-        {/* spacer */}
-        <div />
+        {/* Bottom — Editorial caption */}
+        <motion.div
+          className="relative z-10"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6, duration: 0.6 }}
+        >
+          <div style={{
+            fontSize: 9.5, fontWeight: 700,
+            letterSpacing: '0.22em', textTransform: 'uppercase',
+            color: 'rgba(200,164,78,0.85)',
+            fontFamily: 'ui-monospace, SF Mono, monospace',
+            marginBottom: 14,
+          }}>
+            Sultanate of Oman · Edition 26
+          </div>
+          <div style={{ width: 18, height: 2, background: '#C8A44E', marginBottom: 14 }} />
+          <h2 style={{
+            fontSize: 28, fontWeight: 700,
+            color: 'rgba(255,255,255,0.96)',
+            letterSpacing: '-0.025em',
+            lineHeight: 1.2,
+            margin: 0,
+            maxWidth: '22ch',
+          }}>
+            CSR intelligence,<br />
+            <span style={{ color: 'rgba(255,255,255,0.55)' }}>without the noise.</span>
+          </h2>
+          <p style={{
+            fontSize: 12.5, color: 'rgba(255,255,255,0.45)',
+            marginTop: 14, marginBottom: 0,
+            lineHeight: 1.6, maxWidth: '38ch',
+          }}>
+            Track 47 active projects, 13.2K beneficiaries, and OMR 2.4M of partnered impact across 11 governorates.
+          </p>
+        </motion.div>
       </motion.div>
 
       {/* ╔══ RIGHT PANEL — Form ══╗ */}
@@ -102,38 +136,57 @@ export default function Login() {
           initial="hidden"
           animate="show"
         >
-          {/* Hero headline — above form */}
-          <motion.div variants={fadeChild} className="mb-8">
-            <h1
-              className="text-white/90 leading-[1.15] mb-3"
-              style={{ fontFamily: "'Caveat', cursive", fontSize: 'clamp(1.8rem, 3vw, 3rem)' }}
-            >
-              Making Impact<br />
-              <span className="bg-gradient-to-r from-blue-300 via-blue-400 to-cyan-300 bg-clip-text text-transparent">
-                Visible
-              </span>
+          {/* Editorial eyebrow + tight headline */}
+          <motion.div variants={fadeChild} className="mb-9">
+            <div style={{
+              fontSize: 9.5, fontWeight: 700,
+              letterSpacing: '0.22em', textTransform: 'uppercase',
+              color: 'rgba(200,164,78,0.7)',
+              fontFamily: 'ui-monospace, SF Mono, monospace',
+              marginBottom: 12,
+            }}>
+              Authenticate · Step 1 of 1
+            </div>
+            <h1 style={{
+              fontSize: 30, fontWeight: 700,
+              color: 'rgba(255,255,255,0.96)',
+              letterSpacing: '-0.03em',
+              lineHeight: 1.15,
+              margin: 0,
+            }}>
+              Sign in to continue.
             </h1>
-            <p className="text-white/30 text-[13px] leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              Track CSR projects, measure real impact, and generate transparent reports across Oman's 11 governorates.
+            <p style={{
+              fontSize: 13, color: 'rgba(255,255,255,0.42)',
+              marginTop: 10, marginBottom: 0,
+              lineHeight: 1.55, maxWidth: '52ch',
+            }}>
+              University addresses receive admin access on first sign-in. All other accounts default to employee.
             </p>
           </motion.div>
 
           {/* Mobile logo */}
           <motion.div variants={fadeChild} className="lg:hidden flex items-center gap-2 mb-8">
-            <div className="w-9 h-9 rounded-lg bg-blue-500/15 border border-blue-500/20 flex items-center justify-center">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(96,165,250,0.9)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <div style={{ width: 36, height: 36, borderRadius: 9, background: 'rgba(200,164,78,0.10)', border: '1px solid rgba(200,164,78,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C8A44E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
               </svg>
             </div>
-            <span className="text-white/50 text-sm font-medium">CSR Platform</span>
+            <span style={{ color: 'rgba(255,255,255,0.55)', fontSize: 13, fontWeight: 500 }}>CSR Platform</span>
           </motion.div>
 
-          {/* Header */}
-          <motion.div variants={fadeChild} className="mb-8">
-            <h2 className="text-[28px] font-bold text-white/95 tracking-tight">Sign in</h2>
-            <p className="text-white/35 text-[14px] mt-1.5" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              Welcome back — enter your credentials to continue
-            </p>
+          {/* Header (subordinate — hero is the editorial block above) */}
+          <motion.div variants={fadeChild} className="mb-7">
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 10,
+              fontSize: 9.5, fontWeight: 700,
+              letterSpacing: '0.22em', textTransform: 'uppercase',
+              color: 'rgba(255,255,255,0.35)',
+              fontFamily: 'ui-monospace, SF Mono, monospace',
+            }}>
+              <span>Credentials</span>
+              <span style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
+            </div>
           </motion.div>
 
           {/* Error */}
@@ -202,8 +255,8 @@ export default function Login() {
                   className="w-full px-4 py-3 rounded-full text-[14px] text-white/90 placeholder-white/20 outline-none transition-all duration-300"
                   style={{
                     background: 'rgba(255,255,255,0.03)',
-                    border: `1px solid ${focusedField === 'email' ? 'rgba(96,165,250,0.4)' : 'rgba(255,255,255,0.08)'}`,
-                    boxShadow: focusedField === 'email' ? '0 0 0 3px rgba(96,165,250,0.08), inset 0 1px 0 rgba(255,255,255,0.02)' : 'inset 0 1px 0 rgba(255,255,255,0.02)',
+                    border: `1px solid ${focusedField === 'email' ? 'rgba(200,164,78,0.55)' : 'rgba(255,255,255,0.08)'}`,
+                    boxShadow: focusedField === 'email' ? '0 0 0 3px rgba(200,164,78,0.10), inset 0 1px 0 rgba(255,255,255,0.02)' : 'inset 0 1px 0 rgba(255,255,255,0.02)',
                   }}
                 />
               </div>
@@ -224,8 +277,8 @@ export default function Login() {
                   className="w-full px-4 py-3 pr-11 rounded-full text-[14px] text-white/90 placeholder-white/20 outline-none transition-all duration-300"
                   style={{
                     background: 'rgba(255,255,255,0.03)',
-                    border: `1px solid ${focusedField === 'password' ? 'rgba(96,165,250,0.4)' : 'rgba(255,255,255,0.08)'}`,
-                    boxShadow: focusedField === 'password' ? '0 0 0 3px rgba(96,165,250,0.08), inset 0 1px 0 rgba(255,255,255,0.02)' : 'inset 0 1px 0 rgba(255,255,255,0.02)',
+                    border: `1px solid ${focusedField === 'password' ? 'rgba(200,164,78,0.55)' : 'rgba(255,255,255,0.08)'}`,
+                    boxShadow: focusedField === 'password' ? '0 0 0 3px rgba(200,164,78,0.10), inset 0 1px 0 rgba(255,255,255,0.02)' : 'inset 0 1px 0 rgba(255,255,255,0.02)',
                   }}
                 />
                 <button
@@ -240,7 +293,7 @@ export default function Login() {
 
             {/* Forgot */}
             <motion.div variants={fadeChild} className="flex justify-end mb-6">
-              <Link to="/forgot-password" className="text-[12px] text-blue-400/70 hover:text-blue-400 transition-colors">
+              <Link to="/forgot-password" style={{ fontSize: 12, color: 'rgba(200,164,78,0.75)', textDecoration: 'none' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#C8A44E')} onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(200,164,78,0.75)')}>
                 Forgot password?
               </Link>
             </motion.div>
@@ -250,12 +303,14 @@ export default function Login() {
               <motion.button
                 type="submit"
                 disabled={loading || !email || !password}
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full py-3.5 rounded-full text-[14px] font-semibold text-white transition-all disabled:opacity-40 flex items-center justify-center gap-2 cursor-pointer relative overflow-hidden"
+                whileHover={{ scale: 1.005 }}
+                whileTap={{ scale: 0.99 }}
+                className="w-full py-3.5 rounded-full text-[14px] font-semibold transition-all disabled:opacity-40 flex items-center justify-center gap-2 cursor-pointer relative overflow-hidden"
                 style={{
-                  background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-                  boxShadow: '0 4px 20px rgba(59,130,246,0.3), inset 0 1px 0 rgba(255,255,255,0.1)',
+                  background: '#C8A44E',
+                  color: '#0a0a0a',
+                  letterSpacing: '0.01em',
+                  boxShadow: '0 1px 0 rgba(255,255,255,0.20) inset, 0 8px 24px rgba(200,164,78,0.18)',
                 }}
               >
                 {loading ? (
@@ -275,16 +330,16 @@ export default function Login() {
             <img
               src="/logo2.jpeg"
               alt="nion logo"
-              style={{ width: 28, height: 28, borderRadius: 7, objectFit: 'cover', background: '#fff' }}
+              style={{ width: 28, height: 28, borderRadius: 7, objectFit: 'cover', background: 'rgba(255,255,255,0.04)' }}
             />
-            <span className="text-[13px] text-white/30">Don't have an account?</span>
-            <Link to="/register" className="text-[13px] font-medium text-blue-400/80 hover:text-blue-400 transition-colors">
+            <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.30)' }}>Don't have an account?</span>
+            <Link to="/register" style={{ fontSize: 13, fontWeight: 600, color: '#C8A44E', textDecoration: 'none' }}>
               Create one
             </Link>
           </motion.div>
 
           {/* Mobile footer */}
-          <motion.p variants={fadeChild} className="lg:hidden text-center text-white/15 text-[11px] mt-10">
+          <motion.p variants={fadeChild} className="lg:hidden text-center text-[11px] mt-10" style={{ color: 'rgba(255,255,255,0.18)' }}>
             © 2026 CSR Platform · Sultanate of Oman
           </motion.p>
         </motion.div>

@@ -4,7 +4,7 @@ import { prisma } from '../config/database.js';
 import { authenticate } from '../middleware/auth.middleware.js';
 import { requireRole } from '../middleware/rbac.middleware.js';
 import { validate } from '../middleware/validate.middleware.js';
-import { aiAnalyticsService, SELECTABLE_MODELS } from '../services/aiAnalyticsService.js';
+import { aiAnalyticsService, SELECTABLE_MODELS, AGENT_MODELS } from '../services/aiAnalyticsService.js';
 import { emailService } from '../services/emailService.js';
 
 const router = Router();
@@ -38,9 +38,9 @@ router.post('/analyze', validate(analyzeSchema), async (req: Request, res: Respo
     // 2. Build dynamic system prompt with raw DB data
     const systemPrompt = aiAnalyticsService.buildSystemPrompt(contextData);
 
-    // 3. Call GitHub Models (auto retries free models; specific model = no retry)
+    // 3. Call ZenMux AI (auto retries free models; specific model = no retry)
     const { content: rawResponse, modelUsed } =
-      await aiAnalyticsService.callGitHubModels(systemPrompt, question, model);
+      await aiAnalyticsService.callZenMux(systemPrompt, question, model);
 
     // 4. Parse response — local fallback if all free models rate-limited
     const result = rawResponse === '__LOCAL__'
@@ -84,6 +84,97 @@ router.post('/analyze', validate(analyzeSchema), async (req: Request, res: Respo
   }
 });
 
+// ── SDG Suggestion Schema ───────────────────────────────────────────────────
+
+const suggestSdgsSchema = z.object({
+  projectName: z.string().min(1).max(200),
+  category: z.string().optional(),
+  shortDescription: z.string().max(500).optional(),
+  fullDescription: z.string().max(2000).optional(),
+  objectives: z.array(z.string()).max(10).optional(),
+  targetGroup: z.string().max(200).optional(),
+});
+
+const SDG_REFERENCE = [
+  'SDG 1: No Poverty', 'SDG 2: Zero Hunger', 'SDG 3: Good Health and Well-being',
+  'SDG 4: Quality Education', 'SDG 5: Gender Equality', 'SDG 6: Clean Water and Sanitation',
+  'SDG 7: Affordable and Clean Energy', 'SDG 8: Decent Work and Economic Growth',
+  'SDG 9: Industry, Innovation and Infrastructure', 'SDG 10: Reduced Inequalities',
+  'SDG 11: Sustainable Cities and Communities', 'SDG 12: Responsible Consumption and Production',
+  'SDG 13: Climate Action', 'SDG 14: Life Below Water', 'SDG 15: Life on Land',
+  'SDG 16: Peace, Justice and Strong Institutions', 'SDG 17: Partnerships for the Goals',
+];
+
+// POST /api/ai-analytics/suggest-sdgs
+router.post('/suggest-sdgs', validate(suggestSdgsSchema), async (req: Request, res: Response) => {
+  try {
+    const { projectName, category, shortDescription, fullDescription, objectives, targetGroup } = req.body;
+
+    const systemPrompt = `You are a UN SDG alignment specialist for an Oman CSR (Corporate Social Responsibility) platform.
+Analyze CSR project data and identify which of the 17 UN Sustainable Development Goals (SDGs) the project directly contributes to.
+
+The 17 SDGs:
+${SDG_REFERENCE.join('\n')}
+
+RULES:
+- Select 2–5 SDGs with PRIMARY and DIRECT alignment (not tangential)
+- Be selective — choose only the most relevant goals
+- Return ONLY valid JSON with NO markdown fences
+
+REQUIRED JSON:
+{"suggestedSdgs":[3,4,10],"reasoning":"Brief 1-2 sentence explanation"}`;
+
+    const userQuestion = `Analyze this Omani CSR project and return the SDG alignment JSON:
+
+Project: ${projectName}
+Category: ${category || 'Not specified'}
+Short Description: ${shortDescription || 'Not provided'}
+Full Description: ${fullDescription || 'Not provided'}
+Objectives: ${objectives?.filter(Boolean).join('; ') || 'Not specified'}
+Target Group: ${targetGroup || 'Not specified'}`;
+
+    const { content, modelUsed } = await aiAnalyticsService.callZenMux(systemPrompt, userQuestion);
+
+    let suggestedSdgs: number[] = [];
+    let reasoning = '';
+
+    if (content !== '__LOCAL__') {
+      try {
+        const jsonMatch = content.match(/\{[\s\S]*?\}/);
+        if (jsonMatch) {
+          const parsed = JSON.parse(jsonMatch[0]);
+          suggestedSdgs = Array.isArray(parsed.suggestedSdgs)
+            ? parsed.suggestedSdgs.filter((n: unknown) => typeof n === 'number' && n >= 1 && n <= 17).slice(0, 5)
+            : [];
+          reasoning = typeof parsed.reasoning === 'string' ? parsed.reasoning : '';
+        }
+      } catch {
+        // Fallback: extract numbers 1-17 from raw text
+        const nums = content.match(/\b(1[0-7]|[1-9])\b/g);
+        if (nums) suggestedSdgs = [...new Set(nums.map(Number))].filter(n => n >= 1 && n <= 17).slice(0, 5);
+      }
+    }
+
+    await prisma.activityLog.create({
+      data: {
+        userId: req.user!.id,
+        action: 'ai_sdg_suggestion',
+        entity: 'ai_analytics',
+        entityId: 'system',
+        details: `SDG suggestion (${modelUsed}): "${projectName}" → [${suggestedSdgs.join(', ')}]`,
+        type: 'query',
+      },
+    });
+
+    res.json({
+      success: true,
+      data: { suggestedSdgs, reasoning, metadata: { model: modelUsed, timestamp: new Date().toISOString() } },
+    });
+  } catch {
+    res.status(500).json({ success: false, error: { code: 'SDG_SUGGESTION_FAILED', message: 'Failed to suggest SDGs' } });
+  }
+});
+
 // ── Analyze Alerts Schema ───────────────────────────────────────────────────
 
 const analyzeAlertsSchema = z.object({
@@ -108,9 +199,9 @@ router.post('/analyze-alerts', validate(analyzeAlertsSchema), async (req: Reques
     // 3. Build alert-specific system prompt
     const systemPrompt = aiAnalyticsService.buildAlertSystemPrompt(alertContext);
 
-    // 4. Call GitHub Models
+    // 4. Call ZenMux AI
     const { content: rawResponse, modelUsed } =
-      await aiAnalyticsService.callGitHubModels(systemPrompt, question);
+      await aiAnalyticsService.callZenMux(systemPrompt, question);
 
     // 5. Parse response — local fallback if needed
     const result = rawResponse === '__LOCAL__'
@@ -153,6 +244,82 @@ router.post('/analyze-alerts', validate(analyzeAlertsSchema), async (req: Reques
       },
     });
   }
+});
+
+// ── Multi-Agent Pipeline ────────────────────────────────────────────────────
+
+const agentAnalyzeSchema = z.object({
+  question: z.string().min(3).max(1000),
+  scope: z.enum(['projects', 'financial', 'impact', 'partners', 'overview'])
+    .optional()
+    .default('overview'),
+});
+
+// POST /api/ai-analytics/agent-analyze — 3 agents + master synthesizer
+router.post('/agent-analyze', validate(agentAnalyzeSchema), async (req: Request, res: Response) => {
+  try {
+    const { question, scope } = req.body;
+
+    // 1. Fetch real data from PostgreSQL
+    const contextData = await aiAnalyticsService.fetchContextData(scope);
+
+    // 2. Run multi-agent pipeline (3 parallel agents + master)
+    const result = await aiAnalyticsService.runAgentPipeline(contextData, question);
+
+    // 3. Activity log
+    await prisma.activityLog.create({
+      data: {
+        userId: req.user!.id,
+        action: 'ai_agent_analysis',
+        entity: 'ai_analytics',
+        entityId: 'system',
+        details: `Multi-agent analysis (${result.agents.map(a => a.model).join(', ')} → ${result.masterReport.modelUsed}): "${question.substring(0, 100)}"`,
+        type: 'query',
+      },
+    });
+
+    // 4. Respond
+    res.json({
+      success: true,
+      data: {
+        question,
+        scope,
+        agents: result.agents,
+        masterReport: {
+          ...result.masterReport,
+          metadata: {
+            model: result.masterReport.modelUsed,
+            dataScope: scope,
+            agentCount: result.agents.length,
+            timestamp: new Date().toISOString(),
+          },
+        },
+      },
+    });
+  } catch {
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'AGENT_ANALYSIS_FAILED',
+        message: 'Multi-agent analysis failed',
+      },
+    });
+  }
+});
+
+// GET /api/ai-analytics/agent-models — return agent model configuration
+router.get('/agent-models', (_req: Request, res: Response) => {
+  res.json({
+    success: true,
+    data: {
+      agents: [
+        { id: 'financial', name: 'Financial Analyst', model: AGENT_MODELS.financial, color: '#2563eb' },
+        { id: 'impact', name: 'Impact Strategist', model: AGENT_MODELS.impact, color: '#059669' },
+        { id: 'risk', name: 'Risk Assessor', model: AGENT_MODELS.risk, color: '#d97706' },
+      ],
+      master: { id: 'master', name: 'Grand Master', model: AGENT_MODELS.master },
+    },
+  });
 });
 
 // ── Simulate Solution Schema ────────────────────────────────────────────────

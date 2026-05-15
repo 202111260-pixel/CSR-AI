@@ -65,42 +65,46 @@ interface ContextData {
   }[];
 }
 
-// ── Model Registry (GitHub Models — verified available) ──────────────────────
+// ── Model Registry (ZenMux AI Gateway) ──────────────────────────────────────
 
 export const SELECTABLE_MODELS = [
   // OpenAI
-  { id: 'gpt-4.1',                              label: 'GPT-4.1 (Latest)',     tier: 'pro' },
-  { id: 'gpt-4.1-mini',                         label: 'GPT-4.1 Mini',        tier: 'pro' },
-  { id: 'gpt-4.1-nano',                         label: 'GPT-4.1 Nano',        tier: 'pro' },
-  { id: 'gpt-4o',                               label: 'GPT-4o',              tier: 'pro' },
-  { id: 'gpt-4o-mini',                          label: 'GPT-4o Mini',         tier: 'pro' },
+  { id: 'openai/gpt-5.4-mini',                          label: 'GPT-5.4 Mini',        tier: 'pro' },
+  { id: 'openai/gpt-5.4-nano',                          label: 'GPT-5.4 Nano',        tier: 'pro' },
+  { id: 'openai/gpt-5-mini',                            label: 'GPT-5 Mini',          tier: 'pro' },
+  { id: 'openai/gpt-4o',                                label: 'GPT-4o',              tier: 'free' },
+  { id: 'openai/gpt-4o-mini',                           label: 'GPT-4o Mini',         tier: 'free' },
+  // Anthropic
+  { id: 'anthropic/claude-opus-4.6',                    label: 'Claude Opus 4.6',     tier: 'pro' },
+  { id: 'anthropic/claude-sonnet-4.6',                  label: 'Claude Sonnet 4.6',   tier: 'pro' },
+  { id: 'anthropic/claude-sonnet-4.5',                  label: 'Claude Sonnet 4.5',   tier: 'pro' },
+  // Google
+  { id: 'google/gemini-3.1-pro-preview',                label: 'Gemini 3.1 Pro',      tier: 'pro' },
+  { id: 'google/gemini-2.5-flash',                      label: 'Gemini 2.5 Flash',    tier: 'pro' },
   // Meta Llama
-  { id: 'Llama-4-Scout-17B-16E-Instruct',       label: 'Llama 4 Scout',       tier: 'pro' },
-  { id: 'Meta-Llama-3.1-405B-Instruct',         label: 'Llama 3.1 405B',      tier: 'pro' },
-  { id: 'Meta-Llama-3.1-70B-Instruct',          label: 'Llama 3.1 70B',       tier: 'pro' },
+  { id: 'meta/llama-4-scout-17b-16e-instruct',          label: 'Llama 4 Scout',       tier: 'pro' },
   // DeepSeek
-  { id: 'DeepSeek-R1',                           label: 'DeepSeek R1',         tier: 'pro' },
-  // Microsoft
-  { id: 'MAI-DS-R1',                             label: 'MAI DS-R1',           tier: 'pro' },
-  { id: 'Phi-4',                                 label: 'Phi-4',               tier: 'pro' },
-  // Mistral
-  { id: 'Mistral-large-2407',                    label: 'Mistral Large',       tier: 'pro' },
-  { id: 'Codestral-2501',                        label: 'Codestral',           tier: 'pro' },
-  // Cohere
-  { id: 'Cohere-command-r-plus-08-2024',         label: 'Cohere Command R+',   tier: 'pro' },
+  { id: 'deepseek/deepseek-reasoner',                   label: 'DeepSeek V3.2 R',     tier: 'pro' },
+  { id: 'deepseek/deepseek-chat',                       label: 'DeepSeek V3.2',       tier: 'free' },
+  // Qwen
+  { id: 'qwen/qwen3.5-flash',                           label: 'Qwen 3.5 Flash',      tier: 'free' },
 ] as const;
 
-// Retry pool for auto mode — ordered by availability (verified working first)
+// Agent-specific models for multi-agent pipeline
+export const AGENT_MODELS = {
+  financial:  'deepseek/deepseek-reasoner',
+  impact:     'google/gemini-3.1-pro-preview',
+  risk:       'anthropic/claude-sonnet-4.6',
+  master:     'anthropic/claude-opus-4.6',
+} as const;
+
+// Retry pool for auto mode — ordered by availability
 const FREE_MODELS: string[] = [
-  'gpt-4o-mini',          // verified 200 ✓
-  'gpt-4o',               // verified 200 ✓
-  'gpt-4.1-mini',
-  'gpt-4.1',
-  'Phi-4',
-  'Llama-4-Scout-17B-16E-Instruct',
-  'Meta-Llama-3.1-70B-Instruct',
-  'Mistral-large-2407',
-  'DeepSeek-R1',
+  'openai/gpt-4o-mini',
+  'deepseek/deepseek-chat',
+  'qwen/qwen3.5-flash',
+  'openai/gpt-4o',
+  'google/gemini-2.5-flash',
 ];
 
 // ── Data Fetcher ───────────────────────────────────────────────────────────────
@@ -316,46 +320,69 @@ RULES:
 LIVE DATA (PostgreSQL): ${dataJson}`;
 }
 
-// ── GitHub Models API Caller ──────────────────────────────────────────────────
+// ── ZenMux AI Gateway Caller ──────────────────────────────────────────────────
 
-const GITHUB_MODELS_URL = 'https://models.inference.ai.azure.com/chat/completions';
+function getZenMuxConfig() {
+  const apiKey = process.env.ZENMUX_API_KEY || process.env.GITHUB_MODELS_TOKEN || process.env.GITHUB_TOKEN!;
+  const baseUrl = process.env.ZENMUX_BASE_URL || 'https://zenmux.ai/api/v1';
+  return { apiKey, baseUrl };
+}
 
-async function callGitHubModels(
+// Detect reasoning models that need max_completion_tokens instead of max_tokens
+function isReasoningModel(model: string): boolean {
+  return /^(openai\/(gpt-5|o[1-9])|deepseek\/deepseek-r|deepseek\/deepseek-reasoner)/.test(model);
+}
+
+function buildRequestBody(model: string, systemPrompt: string, userQuestion: string) {
+  const reasoning = isReasoningModel(model);
+  return {
+    model,
+    messages: [
+      { role: 'system', content: systemPrompt },
+      { role: 'user',   content: userQuestion  },
+    ],
+    temperature: 0.3,
+    ...(reasoning
+      ? { max_completion_tokens: 4096 }
+      : { max_tokens: 4096 }),
+  };
+}
+
+function extractContent(data: any, model: string): string | null {
+  const msg = data.choices?.[0]?.message;
+  // Reasoning models may put response in `reasoning` when content is null
+  return msg?.content ?? msg?.reasoning ?? null;
+}
+
+async function callZenMux(
   systemPrompt: string,
   userQuestion: string,
   model?: string
 ): Promise<{ content: string; modelUsed: string }> {
-  const apiKey = process.env.GITHUB_MODELS_TOKEN || process.env.GITHUB_TOKEN!;
+  const { apiKey, baseUrl } = getZenMuxConfig();
+  const url = `${baseUrl}/chat/completions`;
 
   // Single model mode — no retry
   if (model) {
-    console.log(`[AI] → GitHub Models: model="${model}", promptLength=${systemPrompt.length}`);
+    console.log(`[AI] → ZenMux: model="${model}", promptLength=${systemPrompt.length}`);
 
-    const response = await fetch(GITHUB_MODELS_URL, {
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        model,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userQuestion },
-        ],
-        temperature: 0.3,
-        max_tokens: 2000,
-      }),
+      body: JSON.stringify(buildRequestBody(model, systemPrompt, userQuestion)),
     });
 
     if (!response.ok) {
       const errBody = await response.text();
-      throw new Error(`GitHub Models "${model}" failed (${response.status}): ${errBody}`);
+      throw new Error(`ZenMux "${model}" failed (${response.status}): ${errBody}`);
     }
 
     const data: any = await response.json();
-    const content = data.choices?.[0]?.message?.content;
-    if (!content) throw new Error(`GitHub Models "${model}" returned empty response`);
+    const content = extractContent(data, model);
+    if (!content) throw new Error(`ZenMux "${model}" returned empty response — increase token budget`);
 
     console.log(`[AI] ← Response from model="${model}", contentLength=${content.length}`);
     return { content, modelUsed: model };
@@ -364,23 +391,15 @@ async function callGitHubModels(
   // Auto mode — retry through free models in order
   let lastError = '';
   for (const freeModel of FREE_MODELS) {
-    console.log(`[AI] → GitHub Models: model="${freeModel}", promptLength=${systemPrompt.length}`);
+    console.log(`[AI] → ZenMux: model="${freeModel}", promptLength=${systemPrompt.length}`);
     try {
-      const response = await fetch(GITHUB_MODELS_URL, {
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          model: freeModel,
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: userQuestion },
-          ],
-          temperature: 0.3,
-          max_tokens: 2000,
-        }),
+        body: JSON.stringify(buildRequestBody(freeModel, systemPrompt, userQuestion)),
       });
 
       if (!response.ok) {
@@ -391,7 +410,7 @@ async function callGitHubModels(
       }
 
       const data: any = await response.json();
-      const content = data.choices?.[0]?.message?.content;
+      const content = extractContent(data, freeModel);
       if (!content) {
         lastError = `${freeModel}: empty response`;
         console.warn(`[AI] Model "${freeModel}" returned empty response, trying next...`);
@@ -407,27 +426,84 @@ async function callGitHubModels(
   }
 
   // All models failed — fall back to local analysis engine
-  console.warn(`[AI] All GitHub Models failed. Falling back to local analysis engine.`);
+  console.warn(`[AI] All ZenMux models failed. Last error: ${lastError}. Falling back to local analysis engine.`);
   return { content: '__LOCAL__', modelUsed: 'local-analysis-engine' };
 }
 
-// ── Response Parser ────────────────────────────────────────────────────────────
+// ── Response Parser (robust — matches ai-smart-preview approach) ───────────────
+
+/** Attempt to repair truncated JSON (close open strings, arrays, objects) */
+function repairJSON(s: string): string {
+  let str = s.trim();
+
+  // Count unmatched quotes — if odd, the last string is unterminated
+  const quoteCount = (str.match(/(?<!\\)"/g) || []).length;
+  if (quoteCount % 2 !== 0) str += '"';
+
+  // Close any unclosed brackets / braces
+  const stack: string[] = [];
+  let inString = false;
+  let escaped = false;
+  for (const ch of str) {
+    if (escaped) { escaped = false; continue; }
+    if (ch === '\\') { escaped = true; continue; }
+    if (ch === '"') { inString = !inString; continue; }
+    if (inString) continue;
+    if (ch === '{') stack.push('}');
+    else if (ch === '[') stack.push(']');
+    else if (ch === '}' || ch === ']') stack.pop();
+  }
+
+  // Remove trailing comma before closing
+  str = str.replace(/,\s*$/, '');
+
+  // Append missing closers
+  while (stack.length) str += stack.pop();
+  return str;
+}
+
+/** Strip markdown code fences then parse JSON, with auto-repair for truncated responses */
+function parseJSON<T = unknown>(raw: string): T {
+  if (!raw) throw new Error('Empty response from model');
+
+  // Step 1: Strip markdown code fences
+  let cleaned = raw
+    .replace(/^```json\s*/m, '')
+    .replace(/^```\s*/m, '')
+    .replace(/```\s*$/m, '')
+    .trim();
+
+  // Step 2: Direct parse
+  try {
+    return JSON.parse(cleaned) as T;
+  } catch { /* fallthrough */ }
+
+  // Step 3: Extract the first JSON object from anywhere in the text
+  // (handles models that wrap JSON in markdown prose / reasoning)
+  const objStart = cleaned.indexOf('{');
+  const objEnd = cleaned.lastIndexOf('}');
+  if (objStart !== -1 && objEnd > objStart) {
+    const extracted = cleaned.slice(objStart, objEnd + 1);
+    try {
+      return JSON.parse(extracted) as T;
+    } catch {
+      // Step 4: Repair truncated JSON then parse
+      const repaired = repairJSON(extracted);
+      try {
+        return JSON.parse(repaired) as T;
+      } catch { /* fallthrough */ }
+    }
+  }
+
+  // Step 5: Last resort — repair the whole cleaned string
+  const repaired = repairJSON(cleaned);
+  return JSON.parse(repaired) as T;
+}
 
 function parseAiResponse(raw: string): AiAnalysisResult {
   console.log(`[AI] Raw response preview: ${raw.substring(0, 200)}...`);
 
-  let cleaned = raw.trim();
-  // Strip markdown code fences if model wrapped response despite instructions
-  if (cleaned.startsWith('```')) {
-    cleaned = cleaned.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
-  }
-
-  let parsed: any;
-  try {
-    parsed = JSON.parse(cleaned);
-  } catch {
-    throw new Error(`AI returned invalid JSON. Response started with: "${raw.substring(0, 100)}"`);
-  }
+  const parsed: any = parseJSON(raw);
 
   return {
     analysis: typeof parsed.analysis === 'string' ? parsed.analysis : 'No analysis generated.',
@@ -799,15 +875,180 @@ function generateLocalAlertAnalysis(alertContext: AlertContextData, question: st
   };
 }
 
+// ── Multi-Agent Pipeline ────────────────────────────────────────────────────
+
+export interface AgentResult {
+  agentId: string;
+  agentName: string;
+  model: string;
+  status: 'waiting' | 'analyzing' | 'complete' | 'error';
+  analysis: string;
+  keyFindings: string[];
+  recommendations: string[];
+  chartData: AiChart[];
+  error?: string;
+}
+
+export interface AgentPipelineResult {
+  agents: AgentResult[];
+  masterReport: AiAnalysisResult & { modelUsed: string };
+}
+
+const AGENT_PROMPTS: Record<string, (data: string) => string> = {
+  financial: (data) => `You are "Financial Analyst Agent" for the Oman CSR Platform. You specialize in budget analysis, expense optimization, ROI calculations, and financial forecasting.
+Analyze ONLY the financial aspects of the data. Be precise with numbers.
+Reply ONLY with ONE valid JSON object — no code fences, no text outside JSON.
+Format: {"analysis":"2-3 paragraphs focusing on financial insights","keyFindings":["..."],"recommendations":["..."],"chartData":[{"title":"...","type":"bar","xKey":"field","yKeys":["num"],"data":[...]}],"sdgConnections":[]}
+RULES: Include 1-2 charts (budget/expense focused). Respond in the SAME language as the user's question.
+LIVE DATA: ${data}`,
+  impact: (data) => `You are "Impact Strategist Agent" for the Oman CSR Platform. You specialize in beneficiary analysis, SDG alignment, community impact assessment, and social outcomes measurement.
+Analyze ONLY the impact/beneficiary aspects of the data. Focus on SDG connections.
+Reply ONLY with ONE valid JSON object — no code fences, no text outside JSON.
+Format: {"analysis":"2-3 paragraphs focusing on impact insights","keyFindings":["..."],"recommendations":["..."],"chartData":[{"title":"...","type":"bar","xKey":"field","yKeys":["num"],"data":[...]}],"sdgConnections":["SDG X: ..."]}
+RULES: Include 1-2 charts (beneficiary/SDG focused). Respond in the SAME language as the user's question.
+LIVE DATA: ${data}`,
+  risk: (data) => `You are "Risk Assessor Agent" for the Oman CSR Platform. You specialize in identifying project risks, timeline delays, budget overruns, quality issues, and early warning signals.
+Analyze ONLY the risk aspects of the data. Prioritize critical > high > medium > low.
+Reply ONLY with ONE valid JSON object — no code fences, no text outside JSON.
+Format: {"analysis":"2-3 paragraphs focusing on risk assessment","keyFindings":["..."],"recommendations":["..."],"chartData":[{"title":"...","type":"bar","xKey":"field","yKeys":["num"],"data":[...]}],"sdgConnections":[]}
+RULES: Include 1-2 charts (risk distribution focused). Respond in the SAME language as the user's question.
+LIVE DATA: ${data}`,
+};
+
+async function runAgentPipeline(
+  contextData: ContextData,
+  question: string,
+): Promise<AgentPipelineResult> {
+  const dataJson = JSON.stringify(buildCompactData(contextData));
+  
+  const agentDefs = [
+    { id: 'financial', name: 'Financial Analyst', model: AGENT_MODELS.financial, color: '#2563eb' },
+    { id: 'impact', name: 'Impact Strategist', model: AGENT_MODELS.impact, color: '#059669' },
+    { id: 'risk', name: 'Risk Assessor', model: AGENT_MODELS.risk, color: '#d97706' },
+  ];
+
+  // Run 3 agents in parallel
+  const agentPromises = agentDefs.map(async (agent): Promise<AgentResult> => {
+    try {
+      const prompt = AGENT_PROMPTS[agent.id](dataJson);
+      const { content, modelUsed } = await callZenMux(prompt, question, agent.model);
+      
+      if (content === '__LOCAL__') {
+        const local = generateLocalAnalysis(contextData, question);
+        return {
+          agentId: agent.id,
+          agentName: agent.name,
+          model: 'local-engine',
+          status: 'complete',
+          analysis: local.analysis,
+          keyFindings: local.keyFindings,
+          recommendations: local.recommendations,
+          chartData: local.chartData,
+        };
+      }
+
+      const parsed = parseAiResponse(content);
+      return {
+        agentId: agent.id,
+        agentName: agent.name,
+        model: modelUsed,
+        status: 'complete',
+        analysis: parsed.analysis,
+        keyFindings: parsed.keyFindings,
+        recommendations: parsed.recommendations,
+        chartData: parsed.chartData,
+      };
+    } catch (err: any) {
+      return {
+        agentId: agent.id,
+        agentName: agent.name,
+        model: agent.model,
+        status: 'error',
+        analysis: '',
+        keyFindings: [],
+        recommendations: [],
+        chartData: [],
+        error: err.message,
+      };
+    }
+  });
+
+  const agents = await Promise.all(agentPromises);
+
+  // Master synthesis — combine all agent results
+  const completedAgents = agents.filter(a => a.status === 'complete');
+  const agentSummaries = completedAgents.map(a =>
+    `## ${a.agentName} (${a.model}):\nAnalysis: ${a.analysis}\nKey Findings: ${a.keyFindings.join('; ')}\nRecommendations: ${a.recommendations.join('; ')}`
+  ).join('\n\n');
+
+  const masterPrompt = `You are the "Grand Master Synthesizer" for the Oman CSR Platform multi-agent analysis system.
+Three specialist AI agents have analyzed the same question from different angles. Your job is to:
+1. Synthesize their findings into a unified executive summary
+2. Resolve any contradictions between agents
+3. Prioritize the most actionable recommendations
+4. Create 2-3 comprehensive charts combining insights from all agents
+
+Reply ONLY with ONE valid JSON object — no code fences, no text outside JSON.
+Format: {"analysis":"Executive summary (3-4 paragraphs synthesizing all agent insights)","keyFindings":["unified finding 1","..."],"recommendations":["prioritized action 1","..."],"chartData":[{"title":"...","type":"bar","xKey":"field","yKeys":["num"],"data":[...]}],"sdgConnections":["SDG X: ..."]}
+Respond in the SAME language as the original question.
+
+AGENT REPORTS:
+${agentSummaries}
+
+ORIGINAL QUESTION: ${question}
+LIVE DATA: ${dataJson}`;
+
+  let masterReport: AiAnalysisResult & { modelUsed: string };
+  try {
+    const { content, modelUsed } = await callZenMux(masterPrompt, question, AGENT_MODELS.master);
+    if (content === '__LOCAL__') {
+      const local = generateLocalAnalysis(contextData, question);
+      masterReport = { ...local, modelUsed: 'local-engine' };
+    } else {
+      const parsed = parseAiResponse(content);
+      masterReport = { ...parsed, modelUsed };
+    }
+  } catch {
+    const local = generateLocalAnalysis(contextData, question);
+    masterReport = { ...local, modelUsed: 'local-engine' };
+  }
+
+  return { agents, masterReport };
+}
+
+// Helper: build compact data object for prompts
+function buildCompactData(contextData: ContextData) {
+  const totalProjects = contextData.projectsByStatus.reduce((s, p) => s + p.count, 0);
+  const totalBudget = contextData.projectsByStatus.reduce((s, p) => s + p.totalBudget, 0);
+  return {
+    totals: { projects: totalProjects, budget: Math.round(totalBudget) },
+    byStatus: contextData.projectsByStatus.map(s => ({ status: s.status, count: s.count, budget: Math.round(s.totalBudget) })),
+    byRegion: contextData.projectsByRegion.map(r => ({ region: r.region, count: r.count })),
+    categories: contextData.categories,
+    ...(contextData.financials ? {
+      financials: {
+        totalBudget: Math.round(contextData.financials.totalBudget),
+        totalSpent: Math.round(contextData.financials.totalSpent),
+        expensesByCategory: contextData.financials.expensesByCategory.map(e => ({ cat: e.category, amt: Math.round(e.totalAmount) })),
+      }
+    } : {}),
+    ...(contextData.impact ? { impact: contextData.impact } : {}),
+    ...(contextData.partners?.length ? {
+      partners: contextData.partners.map(p => ({ n: p.name, type: p.type, donated: Math.round(p.totalDonated) }))
+    } : {}),
+  };
+}
+
 // ── Export ─────────────────────────────────────────────────────────────────────
 
 export const aiAnalyticsService = {
   fetchContextData,
   buildSystemPrompt,
-  callGitHubModels,
+  callZenMux,
   parseAiResponse,
   generateLocalAnalysis,
   fetchAlertContext,
   buildAlertSystemPrompt,
   generateLocalAlertAnalysis,
+  runAgentPipeline,
 };

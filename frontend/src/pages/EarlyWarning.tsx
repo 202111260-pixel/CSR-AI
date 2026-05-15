@@ -35,18 +35,94 @@ import { generateEarlyWarningPDF } from '../utils/pdfReportGenerator';
 
 // ─── Risk Configuration ─────────────────────────────────────────────────────
 const riskCfg = {
-  low:      { color: '#34d399', bg: 'rgba(52,211,153,0.1)',   text: '#6ee7b7', label: 'Low',      icon: ShieldCheck },
-  medium:   { color: '#fbbf24', bg: 'rgba(251,191,36,0.1)',   text: '#fde68a', label: 'Medium',   icon: Shield      },
-  high:     { color: '#fb923c', bg: 'rgba(251,146,60,0.1)',   text: '#fdba74', label: 'High',     icon: ShieldAlert },
-  critical: { color: '#f87171', bg: 'rgba(248,113,113,0.1)',  text: '#fca5a5', label: 'Critical', icon: ShieldX     },
+  low:      { color: '#2EBC85', bg: 'rgba(46,188,133,0.10)',  text: '#7AD9B3', label: 'Low',      icon: ShieldCheck },
+  medium:   { color: '#E0A024', bg: 'rgba(224,160,36,0.10)',  text: '#F2D78A', label: 'Medium',   icon: Shield      },
+  high:     { color: '#E07F33', bg: 'rgba(224,127,51,0.10)',  text: '#F1B788', label: 'High',     icon: ShieldAlert },
+  critical: { color: '#DB5C5C', bg: 'rgba(219,92,92,0.10)',   text: '#ED9D9D', label: 'Critical', icon: ShieldX     },
 } as const;
 
 const alertTypeCfg = {
-  budget:   { icon: Wallet,          color: '#fbbf24', label: 'Budget Risk',  emoji: '💰' },
-  timeline: { icon: Clock,           color: '#38bdf8', label: 'Time Risk',    emoji: '⏱️' },
-  quality:  { icon: Star,            color: '#a78bfa', label: 'Quality Risk', emoji: '⭐' },
-  impact:   { icon: HeartHandshake,  color: '#f472b6', label: 'Impact Risk',  emoji: '👥' },
+  budget:   { icon: Wallet,          color: '#E0A024', label: 'Budget Risk'  },
+  timeline: { icon: Clock,           color: '#3B97D2', label: 'Time Risk'    },
+  quality:  { icon: Star,            color: '#9079D8', label: 'Quality Risk' },
+  impact:   { icon: HeartHandshake,  color: '#D86B95', label: 'Impact Risk'  },
 } as const;
+
+// ─── Desk / Agent Identity ──────────────────────────────────────────────────
+// Each alert and scenario action is "filed by" one of three autonomous desks
+type DeskKey = 'financial' | 'impact' | 'risk';
+const deskCfg: Record<DeskKey, { name: string; nameAr: string; initials: string; color: string }> = {
+  financial: { name: 'Financial Desk', nameAr: 'مكتب الشؤون المالية',  initials: 'FD', color: '#E0A024' },
+  impact:    { name: 'Impact Desk',    nameAr: 'مكتب الأثر الاجتماعي', initials: 'ID', color: '#2EBC85' },
+  risk:      { name: 'Risk Desk',      nameAr: 'مكتب المخاطر التشغيلية', initials: 'RD', color: '#3B97D2' },
+};
+
+function deskForAlertType(type: keyof typeof alertTypeCfg): DeskKey {
+  if (type === 'budget') return 'financial';
+  if (type === 'impact') return 'impact';
+  return 'risk';
+}
+
+function deskForScenarioId(scenarioId: string): DeskKey {
+  const s = (scenarioId || '').toLowerCase();
+  if (s.includes('budget') || s.includes('realloc') || s.includes('underspend')) return 'financial';
+  if (s.includes('impact') || s.includes('outreach') || s.includes('benef') || s.includes('rescue') || s.includes('community')) return 'impact';
+  return 'risk';
+}
+
+// Ink-style stamp shown when a proposal is signed
+function ApprovedStamp({ color }: { color: string }) {
+  return (
+    <div className="relative" style={{ width: 96, height: 96 }}>
+      <svg viewBox="0 0 100 100" width={96} height={96} style={{ transform: 'rotate(-12deg)' }}>
+        <circle cx="50" cy="50" r="44" fill="none" stroke={color} strokeWidth="2.2" opacity={0.55} />
+        <circle cx="50" cy="50" r="37" fill="none" stroke={color} strokeWidth="0.8" opacity={0.4} />
+        <text x="50" y="44" textAnchor="middle" style={{ fontFamily: "'Geist Mono', ui-monospace, monospace", fontWeight: 800, fontSize: 11, letterSpacing: '0.2em', fill: color, opacity: 0.85 }}>APPROVED</text>
+        <line x1="20" y1="56" x2="80" y2="56" stroke={color} strokeWidth="0.6" opacity={0.35} />
+        <text x="50" y="68" textAnchor="middle" style={{ fontFamily: "'Geist Mono', ui-monospace, monospace", fontWeight: 600, fontSize: 8, letterSpacing: '0.18em', fill: color, opacity: 0.7 }}>CSR · OMAN</text>
+      </svg>
+    </div>
+  );
+}
+
+function RejectedStamp({ color }: { color: string }) {
+  return (
+    <div className="relative" style={{ width: 96, height: 96 }}>
+      <svg viewBox="0 0 100 100" width={96} height={96} style={{ transform: 'rotate(8deg)' }}>
+        <rect x="10" y="32" width="80" height="36" fill="none" stroke={color} strokeWidth="2.2" opacity={0.55} />
+        <rect x="14" y="36" width="72" height="28" fill="none" stroke={color} strokeWidth="0.6" opacity={0.4} />
+        <text x="50" y="55" textAnchor="middle" style={{ fontFamily: "'Geist Mono', ui-monospace, monospace", fontWeight: 800, fontSize: 13, letterSpacing: '0.24em', fill: color, opacity: 0.85 }}>VETOED</text>
+      </svg>
+    </div>
+  );
+}
+
+// Small SVG seal used to identify the desk that filed an alert / proposal
+function DeskSeal({ desk, size = 32 }: { desk: DeskKey; size?: number }) {
+  const cfg = deskCfg[desk];
+  return (
+    <svg width={size} height={size} viewBox="0 0 40 40" style={{ flexShrink: 0 }}>
+      <defs>
+        <linearGradient id={`seal-${desk}`} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor={cfg.color} stopOpacity={0.85} />
+          <stop offset="100%" stopColor={cfg.color} stopOpacity={0.55} />
+        </linearGradient>
+      </defs>
+      <circle cx="20" cy="20" r="18" fill="none" stroke={cfg.color} strokeWidth="0.6" strokeOpacity={0.45} />
+      <circle cx="20" cy="20" r="15" fill={`url(#seal-${desk})`} />
+      <circle cx="20" cy="20" r="14" fill="none" stroke="#000" strokeOpacity={0.18} strokeWidth="0.5" />
+      {Array.from({ length: 18 }).map((_, i) => {
+        const a = (i / 18) * Math.PI * 2;
+        return (
+          <circle key={i} cx={20 + Math.cos(a) * 17} cy={20 + Math.sin(a) * 17} r={0.6} fill={cfg.color} opacity={0.7} />
+        );
+      })}
+      <text x="20" y="24" textAnchor="middle" style={{ fontFamily: "'Geist Mono', ui-monospace, monospace", fontWeight: 700, fontSize: 11, fill: '#fff', letterSpacing: '0.06em' }}>
+        {cfg.initials}
+      </text>
+    </svg>
+  );
+}
 
 // ─── Framer Variants ────────────────────────────────────────────────────────
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -154,8 +230,8 @@ function SectionHeading({ icon: Icon, title, sub, action }: { icon: React.Elemen
       </div>
       <div className="flex items-center gap-3">
         {action && (
-          <button onClick={action.onClick} className="text-[11px] font-medium px-3.5 py-1.5 rounded-full transition-all duration-200 flex items-center gap-1 active:scale-[0.97]" style={{ color: P.accent, background: `${P.accent}0a`, border: `1px solid ${P.accent}15` }} onMouseEnter={e => { e.currentTarget.style.background = `${P.accent}18`; }} onMouseLeave={e => { e.currentTarget.style.background = `${P.accent}0a`; }}>
-            {action.label} <ArrowUpRight size={11} />
+          <button onClick={action.onClick} className="text-xs font-medium px-3.5 py-1.5 rounded-full transition-all duration-200 flex items-center gap-1 active:scale-[0.97]" style={{ color: P.accent, background: `${P.accent}0a`, border: `1px solid ${P.accent}15` }} onMouseEnter={e => { e.currentTarget.style.background = `${P.accent}18`; }} onMouseLeave={e => { e.currentTarget.style.background = `${P.accent}0a`; }}>
+            {action.label} <ArrowUpRight size={13} />
           </button>
         )}
         <motion.div
@@ -281,8 +357,8 @@ function RiskSummaryCard({ item, i, projects, onViewAll }: {
         )}
         {item.level === 'low' && (
           <div className="flex items-center gap-2 px-3 py-2 rounded-full" style={{ background: 'rgba(52,211,153,0.06)', border: '1px solid rgba(52,211,153,0.15)' }}>
-            <ShieldCheck size={13} style={{ color: '#34d399' }} />
-            <span className="text-[11px] font-medium" style={{ color: '#6ee7b7' }}>All within safe thresholds</span>
+            <ShieldCheck size={13} style={{ color: '#2EBC85' }} />
+            <span className="text-xs font-medium" style={{ color: '#7AD9B3' }}>All within safe thresholds</span>
           </div>
         )}
         <motion.div
@@ -313,7 +389,7 @@ function StarRating({ rating, size = 12 }: { rating: number; size?: number }) {
   return (
     <div className="flex items-center gap-0.5">
       {[1, 2, 3, 4, 5].map(s => (
-        <Star key={s} size={size} style={{ color: s <= Math.round(rating) ? '#fbbf24' : P.textDim }} fill={s <= Math.round(rating) ? '#fbbf24' : 'none'} />
+        <Star key={s} size={size} style={{ color: s <= Math.round(rating) ? '#E0A024' : P.textDim }} fill={s <= Math.round(rating) ? '#E0A024' : 'none'} />
       ))}
     </div>
   );
@@ -370,7 +446,7 @@ function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
                     <p className="text-xs" style={{ color: P.textLo }}>Configure thresholds and notification preferences</p>
                   </div>
                 </div>
-                <button onClick={onClose} className="h-9 w-9 flex items-center justify-center rounded-full transition-all duration-200 active:scale-[0.95]" style={{ background: P.surface, border: `1px solid ${P.border}` }} onMouseEnter={e => { e.currentTarget.style.borderColor = '#f87171'; }} onMouseLeave={e => { e.currentTarget.style.borderColor = P.border; }}>
+                <button onClick={onClose} className="h-9 w-9 flex items-center justify-center rounded-full transition-all duration-200 active:scale-[0.95]" style={{ background: P.surface, border: `1px solid ${P.border}` }} onMouseEnter={e => { e.currentTarget.style.borderColor = '#DB5C5C'; }} onMouseLeave={e => { e.currentTarget.style.borderColor = P.border; }}>
                   <X size={16} style={{ color: P.textMd }} />
                 </button>
               </div>
@@ -387,16 +463,16 @@ function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <Wallet size={13} style={{ color: '#fbbf24' }} />
-                          <span className="text-xs font-medium" style={{ color: P.textMd }}>Budget Threshold</span>
+                          <Wallet size={13} style={{ color: '#E0A024' }} />
+                          <span className="text-[13px] font-medium" style={{ color: P.textMd }}>Budget Threshold</span>
                         </div>
-                        <span className="text-sm font-bold tabular-nums px-2.5 py-0.5 rounded-lg" style={{ color: '#fbbf24', background: 'rgba(251,191,36,0.1)' }}>{budgetThreshold}%</span>
+                        <span className="text-sm font-bold tabular-nums px-2.5 py-0.5 rounded-lg" style={{ color: '#E0A024', background: 'rgba(251,191,36,0.1)' }}>{budgetThreshold}%</span>
                       </div>
                       <input
                         type="range" min={60} max={100} value={budgetThreshold}
                         onChange={e => setBudgetThreshold(+e.target.value)}
                         className="w-full h-1.5 rounded-full appearance-none cursor-pointer"
-                        style={{ background: `linear-gradient(to right, #fbbf24 ${((budgetThreshold - 60) / 40) * 100}%, ${P.border} ${((budgetThreshold - 60) / 40) * 100}%)` }}
+                        style={{ background: `linear-gradient(to right, #E0A024 ${((budgetThreshold - 60) / 40) * 100}%, ${P.border} ${((budgetThreshold - 60) / 40) * 100}%)` }}
                       />
                       <div className="flex justify-between text-[10px] mt-1" style={{ color: P.textDim }}>
                         <span>60%</span><span>100%</span>
@@ -407,16 +483,16 @@ function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <Clock size={13} style={{ color: '#38bdf8' }} />
-                          <span className="text-xs font-medium" style={{ color: P.textMd }}>Delay Threshold</span>
+                          <Clock size={13} style={{ color: '#3B97D2' }} />
+                          <span className="text-[13px] font-medium" style={{ color: P.textMd }}>Delay Threshold</span>
                         </div>
-                        <span className="text-sm font-bold tabular-nums px-2.5 py-0.5 rounded-lg" style={{ color: '#38bdf8', background: 'rgba(56,189,248,0.1)' }}>{delayThreshold} days</span>
+                        <span className="text-sm font-bold tabular-nums px-2.5 py-0.5 rounded-lg" style={{ color: '#3B97D2', background: 'rgba(56,189,248,0.1)' }}>{delayThreshold} days</span>
                       </div>
                       <input
                         type="range" min={0} max={60} value={delayThreshold}
                         onChange={e => setDelayThreshold(+e.target.value)}
                         className="w-full h-1.5 rounded-full appearance-none cursor-pointer"
-                        style={{ background: `linear-gradient(to right, #38bdf8 ${(delayThreshold / 60) * 100}%, ${P.border} ${(delayThreshold / 60) * 100}%)` }}
+                        style={{ background: `linear-gradient(to right, #3B97D2 ${(delayThreshold / 60) * 100}%, ${P.border} ${(delayThreshold / 60) * 100}%)` }}
                       />
                       <div className="flex justify-between text-[10px] mt-1" style={{ color: P.textDim }}>
                         <span>0 days</span><span>60 days</span>
@@ -427,16 +503,16 @@ function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <Star size={13} style={{ color: '#a78bfa' }} />
-                          <span className="text-xs font-medium" style={{ color: P.textMd }}>Quality Threshold</span>
+                          <Star size={13} style={{ color: '#9079D8' }} />
+                          <span className="text-[13px] font-medium" style={{ color: P.textMd }}>Quality Threshold</span>
                         </div>
-                        <span className="text-sm font-bold tabular-nums px-2.5 py-0.5 rounded-lg" style={{ color: '#a78bfa', background: 'rgba(167,139,250,0.1)' }}>{qualityThreshold} stars</span>
+                        <span className="text-sm font-bold tabular-nums px-2.5 py-0.5 rounded-lg" style={{ color: '#9079D8', background: 'rgba(167,139,250,0.1)' }}>{qualityThreshold} stars</span>
                       </div>
                       <input
                         type="range" min={1} max={5} step={0.5} value={qualityThreshold}
                         onChange={e => setQualityThreshold(+e.target.value)}
                         className="w-full h-1.5 rounded-full appearance-none cursor-pointer"
-                        style={{ background: `linear-gradient(to right, #a78bfa ${((qualityThreshold - 1) / 4) * 100}%, ${P.border} ${((qualityThreshold - 1) / 4) * 100}%)` }}
+                        style={{ background: `linear-gradient(to right, #9079D8 ${((qualityThreshold - 1) / 4) * 100}%, ${P.border} ${((qualityThreshold - 1) / 4) * 100}%)` }}
                       />
                       <div className="flex justify-between text-[10px] mt-1" style={{ color: P.textDim }}>
                         <span>1 star</span><span>5 stars</span>
@@ -475,7 +551,7 @@ function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
                           <n.icon size={14} style={{ color: notifications[n.key] ? P.accent : P.textLo }} />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-medium" style={{ color: notifications[n.key] ? P.textHi : P.textMd }}>{n.label}</p>
+                          <p className="text-[13px] font-medium" style={{ color: notifications[n.key] ? P.textHi : P.textMd }}>{n.label}</p>
                           <p className="text-[10px]" style={{ color: P.textLo }}>{n.desc}</p>
                         </div>
                         <div className="h-5 w-9 rounded-full flex items-center px-0.5 transition-all duration-200" style={{ background: notifications[n.key] ? P.accent : P.border }}>
@@ -544,23 +620,23 @@ function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
                       <Users size={14} style={{ color: P.accent }} />
                       <h3 className="text-sm font-bold" style={{ color: P.textHi }}>Alert Recipients</h3>
                     </div>
-                    <button className="flex items-center gap-1.5 text-[11px] font-medium px-3 py-1.5 rounded-lg transition-colors" style={{ color: P.accent, background: `${P.accent}10`, border: `1px solid ${P.accent}25` }}>
-                      <Plus size={12} /> Add Person
+                    <button className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors" style={{ color: P.accent, background: `${P.accent}10`, border: `1px solid ${P.accent}25` }}>
+                      <Plus size={14} /> Add Person
                     </button>
                   </div>
-                  <div className="rounded-xl overflow-hidden" style={{ border: `1px solid ${P.border}` }}>
-                    <table className="w-full">
+                  <div className="rounded-xl overflow-x-auto" style={{ border: `1px solid ${P.border}` }}>
+                    <table className="w-full min-w-[560px]">
                       <thead>
                         <tr style={{ background: P.surface, borderBottom: `1px solid ${P.border}` }}>
                           {['Name', 'Role', 'Alert Level', 'Actions'].map(h => (
-                            <th key={h} className="px-4 py-2.5 text-left text-[10px] font-semibold tracking-[0.12em] uppercase" style={{ color: P.textLo }}>{h}</th>
+                            <th key={h} className="px-4 py-2.5 text-left text-[11px] font-semibold tracking-[0.14em] uppercase" style={{ color: P.textLo }}>{h}</th>
                           ))}
                         </tr>
                       </thead>
                       <tbody>
                         {recipients.length === 0 ? (
                           <tr>
-                            <td colSpan={4} className="px-4 py-8 text-center text-xs" style={{ color: P.textLo }}>
+                            <td colSpan={4} className="px-4 py-8 text-center text-[13px]" style={{ color: P.textLo }}>
                               No recipients configured. Use "Add Person" to add alert recipients.
                             </td>
                           </tr>
@@ -568,17 +644,17 @@ function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
                           <tr key={r.id} style={{ borderBottom: i < recipients.length - 1 ? `1px solid ${P.border}80` : 'none' }}>
                             <td className="px-4 py-3">
                               <div className="flex items-center gap-2.5">
-                                <div className="h-7 w-7 rounded-full flex items-center justify-center text-[10px] font-bold" style={{ background: `${P.accent}12`, color: P.accent }}>
+                                <div className="h-9 w-9 rounded-full flex items-center justify-center text-[12px] font-bold" style={{ background: `${P.accent}14`, color: P.accent, letterSpacing: '0.04em' }}>
                                   {r.name.split(' ').map(n => n[0]).join('')}
                                 </div>
-                                <span className="text-xs font-medium" style={{ color: P.textHi }}>{r.name}</span>
+                                <span className="text-[13px] font-medium" style={{ color: P.textHi }}>{r.name}</span>
                               </div>
                             </td>
-                            <td className="px-4 py-3 text-xs" style={{ color: P.textMd }}>{r.role}</td>
+                            <td className="px-4 py-3.5 text-[13px]" style={{ color: P.textMd }}>{r.role}</td>
                             <td className="px-4 py-3">
-                              <span className="text-[11px] font-medium px-2 py-0.5 rounded-full" style={{
+                              <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{
                                 background: r.alertLevel === 'all' ? 'rgba(52,211,153,0.1)' : 'rgba(248,113,113,0.1)',
-                                color: r.alertLevel === 'all' ? '#6ee7b7' : '#fca5a5',
+                                color: r.alertLevel === 'all' ? '#7AD9B3' : '#fca5a5',
                               }}>
                                 {r.alertLevel === 'all' ? 'All Levels' : 'Critical Only'}
                               </span>
@@ -586,7 +662,7 @@ function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
                             <td className="px-4 py-3">
                               <div className="flex items-center gap-1.5">
                                 <button className="h-7 w-7 flex items-center justify-center rounded-lg transition-colors" style={{ background: P.surface }} onMouseEnter={e => { e.currentTarget.style.background = `${P.accent}15`; }} onMouseLeave={e => { e.currentTarget.style.background = P.surface; }}>
-                                  <Edit3 size={12} style={{ color: P.textMd }} />
+                                  <Edit3 size={14} style={{ color: P.textMd }} />
                                 </button>
                                 <button
                                   className="h-7 w-7 flex items-center justify-center rounded-lg transition-colors"
@@ -595,7 +671,7 @@ function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
                                   onMouseLeave={e => { e.currentTarget.style.background = P.surface; }}
                                   onClick={() => setRecipients(prev => prev.filter(x => x.id !== r.id))}
                                 >
-                                  <Trash2 size={12} style={{ color: '#f87171' }} />
+                                  <Trash2 size={14} style={{ color: '#DB5C5C' }} />
                                 </button>
                               </div>
                             </td>
@@ -702,7 +778,7 @@ function AiInsightBanner({ riskGroups, projectsRiskData, onAskAi }: {
           className="flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200 active:scale-[0.97]"
           style={{ background: P.accent, color: P.bg, boxShadow: `0 2px 10px ${P.accent}25` }}
         >
-          Ask AI More <ArrowUpRight size={12} />
+          Ask AI More <ArrowUpRight size={14} />
         </button>
         <button
           onClick={() => setDismissed(true)}
@@ -724,7 +800,7 @@ function AiAlertChartRenderer({ chart, P }: { chart: AiChart; P: ReturnType<type
   const data = chart.data;
   if (!data || data.length === 0) return null;
 
-  const CHART_COLORS = ['#C9C036', '#38bdf8', '#34d399', '#fbbf24', '#a78bfa', '#f87171', '#fb923c', '#f472b6'];
+  const CHART_COLORS = ['#C9C036', '#3B97D2', '#2EBC85', '#E0A024', '#9079D8', '#DB5C5C', '#E07F33', '#D86B95'];
 
   if (chart.type === 'donut') {
     return (
@@ -736,7 +812,7 @@ function AiAlertChartRenderer({ chart, P }: { chart: AiChart; P: ReturnType<type
               <Pie data={data} cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={3} dataKey="value" nameKey="name">
                 {data.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} stroke={P.card} strokeWidth={2} />)}
               </Pie>
-              <RechartsTooltip contentStyle={{ background: P.card, border: `1px solid ${P.borderHi}`, borderRadius: 10, fontSize: 11, color: P.textHi }} />
+              <RechartsTooltip contentStyle={{ background: P.card, border: `1px solid ${P.borderHi}`, borderRadius: 10, fontSize: 13, color: P.textHi, padding: '10px 12px' }} />
             </PieChart>
           </ResponsiveContainer>
         </div>
@@ -755,9 +831,9 @@ function AiAlertChartRenderer({ chart, P }: { chart: AiChart; P: ReturnType<type
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data as any[]} margin={{ top: 5, right: 10, left: -15, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={P.border} vertical={false} />
-              <XAxis dataKey={xKey} tick={{ fill: P.textLo, fontSize: 10 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: P.textLo, fontSize: 10 }} axisLine={false} tickLine={false} />
-              <RechartsTooltip contentStyle={{ background: P.card, border: `1px solid ${P.borderHi}`, borderRadius: 10, fontSize: 11, color: P.textHi }} />
+              <XAxis dataKey={xKey} tick={{ fill: P.textMd, fontSize: 12, fontWeight: 500 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: P.textMd, fontSize: 12, fontWeight: 500 }} axisLine={false} tickLine={false} />
+              <RechartsTooltip contentStyle={{ background: P.card, border: `1px solid ${P.borderHi}`, borderRadius: 10, fontSize: 13, color: P.textHi, padding: '10px 12px' }} />
               {yKeys.map((key, i) => (
                 <Bar key={key} dataKey={key} fill={CHART_COLORS[i % CHART_COLORS.length]} radius={[4, 4, 0, 0]} />
               ))}
@@ -776,9 +852,9 @@ function AiAlertChartRenderer({ chart, P }: { chart: AiChart; P: ReturnType<type
         <ResponsiveContainer width="100%" height="100%">
           <RechartsLine data={data as any[]} margin={{ top: 5, right: 10, left: -15, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke={P.border} vertical={false} />
-            <XAxis dataKey={xKey} tick={{ fill: P.textLo, fontSize: 10 }} axisLine={false} tickLine={false} />
-            <YAxis tick={{ fill: P.textLo, fontSize: 10 }} axisLine={false} tickLine={false} />
-            <RechartsTooltip contentStyle={{ background: P.card, border: `1px solid ${P.borderHi}`, borderRadius: 10, fontSize: 11, color: P.textHi }} />
+            <XAxis dataKey={xKey} tick={{ fill: P.textMd, fontSize: 12, fontWeight: 500 }} axisLine={false} tickLine={false} />
+            <YAxis tick={{ fill: P.textMd, fontSize: 12, fontWeight: 500 }} axisLine={false} tickLine={false} />
+            <RechartsTooltip contentStyle={{ background: P.card, border: `1px solid ${P.borderHi}`, borderRadius: 10, fontSize: 13, color: P.textHi, padding: '10px 12px' }} />
             {yKeys.map((key, i) => (
               <Line key={key} type="monotone" dataKey={key} stroke={CHART_COLORS[i % CHART_COLORS.length]} strokeWidth={2} dot={false} />
             ))}
@@ -803,10 +879,10 @@ function AiRiskAdvisor({ riskGroups, projectsRiskData, localAlerts }: {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const quickActions = [
-    { label: 'Analyze critical risks & suggest actions', icon: ShieldX, color: '#f87171', q: 'Analyze all critical and high-risk projects. What are the root causes and what immediate actions should be taken to mitigate each risk?' },
-    { label: 'Budget overrun predictions', icon: Wallet, color: '#fbbf24', q: 'Which projects are most likely to exceed their budget based on current spending patterns? Provide specific budget reallocation recommendations.' },
-    { label: 'Timeline recovery plans', icon: Clock, color: '#38bdf8', q: 'Identify all projects with timeline delays and recommend specific schedule recovery plans with milestones.' },
-    { label: 'Quality improvement strategy', icon: Star, color: '#a78bfa', q: 'Evaluate quality risks across all projects and suggest improvement strategies with measurable KPIs.' },
+    { label: 'Analyze critical risks & suggest actions', icon: ShieldX, color: '#DB5C5C', q: 'Analyze all critical and high-risk projects. What are the root causes and what immediate actions should be taken to mitigate each risk?' },
+    { label: 'Budget overrun predictions', icon: Wallet, color: '#E0A024', q: 'Which projects are most likely to exceed their budget based on current spending patterns? Provide specific budget reallocation recommendations.' },
+    { label: 'Timeline recovery plans', icon: Clock, color: '#3B97D2', q: 'Identify all projects with timeline delays and recommend specific schedule recovery plans with milestones.' },
+    { label: 'Quality improvement strategy', icon: Star, color: '#9079D8', q: 'Evaluate quality risks across all projects and suggest improvement strategies with measurable KPIs.' },
   ];
 
   const mutation = useMutation({
@@ -844,7 +920,7 @@ function AiRiskAdvisor({ riskGroups, projectsRiskData, localAlerts }: {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-[9px] font-bold px-2 py-1 rounded-full" style={{ background: 'rgba(52,211,153,0.12)', color: '#34d399' }}>
+          <span className="text-[9px] font-bold px-2 py-1 rounded-full" style={{ background: 'rgba(52,211,153,0.12)', color: '#2EBC85' }}>
             GitHub Models
           </span>
           <button
@@ -887,7 +963,7 @@ function AiRiskAdvisor({ riskGroups, projectsRiskData, localAlerts }: {
                       <div className="h-7 w-7 flex-shrink-0 flex items-center justify-center rounded-lg" style={{ background: `${action.color}15` }}>
                         <action.icon size={13} style={{ color: action.color }} />
                       </div>
-                      <span className="text-[11px] font-medium leading-tight" style={{ color: P.textMd }}>{action.label}</span>
+                      <span className="text-xs font-medium leading-tight" style={{ color: P.textMd }}>{action.label}</span>
                     </motion.button>
                   ))}
                 </div>
@@ -919,7 +995,7 @@ function AiRiskAdvisor({ riskGroups, projectsRiskData, localAlerts }: {
                         {/* Analysis text */}
                         <div className="px-4 py-3 rounded-2xl rounded-bl-md" style={{ background: P.surface, border: `1px solid ${P.border}` }}>
                           <div className="flex items-center gap-2 mb-2">
-                            <Brain size={12} style={{ color: P.accent }} />
+                            <Brain size={14} style={{ color: P.accent }} />
                             <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: P.accent }}>AI Analysis</span>
                             {entry.result?.metadata?.model && (
                               <span className="text-[9px] px-1.5 py-0.5 rounded-full" style={{ background: `${P.accent}10`, color: P.textLo }}>
@@ -935,11 +1011,11 @@ function AiRiskAdvisor({ riskGroups, projectsRiskData, localAlerts }: {
                         {/* Key Findings */}
                         {entry.result?.keyFindings?.length > 0 && (
                           <div className="px-4 py-3 rounded-full" style={{ background: 'rgba(56,189,248,0.04)', border: '1px solid rgba(56,189,248,0.12)' }}>
-                            <p className="text-[10px] font-bold uppercase tracking-wider mb-2" style={{ color: '#38bdf8' }}>Key Findings</p>
+                            <p className="text-[10px] font-bold uppercase tracking-wider mb-2" style={{ color: '#3B97D2' }}>Key Findings</p>
                             <ul className="space-y-1.5">
                               {entry.result.keyFindings.map((f: string, j: number) => (
                                 <li key={j} className="flex items-start gap-2 text-[11px]" style={{ color: P.textMd }}>
-                                  <span className="h-1.5 w-1.5 rounded-full mt-1.5 flex-shrink-0" style={{ background: '#38bdf8' }} />
+                                  <span className="h-1.5 w-1.5 rounded-full mt-1.5 flex-shrink-0" style={{ background: '#3B97D2' }} />
                                   {f}
                                 </li>
                               ))}
@@ -950,11 +1026,11 @@ function AiRiskAdvisor({ riskGroups, projectsRiskData, localAlerts }: {
                         {/* Recommendations */}
                         {entry.result?.recommendations?.length > 0 && (
                           <div className="px-4 py-3 rounded-full" style={{ background: 'rgba(52,211,153,0.04)', border: '1px solid rgba(52,211,153,0.12)' }}>
-                            <p className="text-[10px] font-bold uppercase tracking-wider mb-2" style={{ color: '#34d399' }}>Recommendations</p>
+                            <p className="text-[10px] font-bold uppercase tracking-wider mb-2" style={{ color: '#2EBC85' }}>Recommendations</p>
                             <ol className="space-y-1.5">
                               {entry.result.recommendations.map((r: string, j: number) => (
                                 <li key={j} className="flex items-start gap-2 text-[11px]" style={{ color: P.textMd }}>
-                                  <span className="text-[10px] font-bold flex-shrink-0 h-4 w-4 flex items-center justify-center rounded-full" style={{ background: 'rgba(52,211,153,0.15)', color: '#34d399' }}>{j + 1}</span>
+                                  <span className="text-[10px] font-bold flex-shrink-0 h-4 w-4 flex items-center justify-center rounded-full" style={{ background: 'rgba(52,211,153,0.15)', color: '#2EBC85' }}>{j + 1}</span>
                                   {r}
                                 </li>
                               ))}
@@ -1001,7 +1077,7 @@ function AiRiskAdvisor({ riskGroups, projectsRiskData, localAlerts }: {
                         <Brain size={16} style={{ color: P.accent }} />
                       </motion.div>
                       <div>
-                        <p className="text-xs font-medium" style={{ color: P.textMd }}>Analyzing risk data...</p>
+                        <p className="text-[13px] font-medium" style={{ color: P.textMd }}>Analyzing risk data...</p>
                         <p className="text-[10px]" style={{ color: P.textLo }}>Querying alerts & project metrics via GitHub Models</p>
                       </div>
                     </motion.div>
@@ -1010,9 +1086,9 @@ function AiRiskAdvisor({ riskGroups, projectsRiskData, localAlerts }: {
                   {/* Error */}
                   {mutation.isError && (
                     <div className="flex items-start gap-3 rounded-xl p-3" style={{ background: 'rgba(248,113,113,0.06)', border: '1px solid rgba(248,113,113,0.15)' }}>
-                      <AlertTriangle size={14} style={{ color: '#f87171', marginTop: 1 }} />
+                      <AlertTriangle size={14} style={{ color: '#DB5C5C', marginTop: 1 }} />
                       <div>
-                        <p className="text-[11px] font-medium" style={{ color: '#f87171' }}>Analysis failed</p>
+                        <p className="text-xs font-medium" style={{ color: '#DB5C5C' }}>Analysis failed</p>
                         <p className="text-[10px] mt-0.5" style={{ color: P.textMd }}>
                           {(mutation.error as any)?.response?.data?.error?.message || 'Unexpected error. Please try again.'}
                         </p>
@@ -1297,10 +1373,10 @@ export default function EarlyWarning() {
 
   // Donut chart data — uses active alert counts so it updates when alerts are resolved
   const donutData = useMemo(() => [
-    { name: 'Critical', value: activeAlertCounts.critical, color: '#f87171' },
-    { name: 'High',     value: activeAlertCounts.high,     color: '#fb923c' },
-    { name: 'Medium',   value: activeAlertCounts.medium,   color: '#fbbf24' },
-    { name: 'Low',      value: activeAlertCounts.low,      color: '#34d399' },
+    { name: 'Critical', value: activeAlertCounts.critical, color: '#DB5C5C' },
+    { name: 'High',     value: activeAlertCounts.high,     color: '#E07F33' },
+    { name: 'Medium',   value: activeAlertCounts.medium,   color: '#E0A024' },
+    { name: 'Low',      value: activeAlertCounts.low,      color: '#2EBC85' },
   ], [activeAlertCounts]);
 
   // Sorted projects by risk for tabs
@@ -1332,10 +1408,10 @@ export default function EarlyWarning() {
   const visibleTimeline = showAllTimeline ? localAlerts : localAlerts.slice(0, 8);
 
   const tabs = [
-    { key: 'budget'   as const, label: 'Budget Risk',  emoji: '💰', color: '#fbbf24' },
-    { key: 'timeline' as const, label: 'Time Risk',    emoji: '⏱️', color: '#38bdf8' },
-    { key: 'quality'  as const, label: 'Quality Risk', emoji: '⭐', color: '#a78bfa' },
-    { key: 'impact'   as const, label: 'Impact Risk',  emoji: '👥', color: '#f472b6' },
+    { key: 'budget'   as const, label: 'Budget Risk',  icon: Wallet,         color: '#E0A024' },
+    { key: 'timeline' as const, label: 'Time Risk',    icon: Clock,          color: '#3B97D2' },
+    { key: 'quality'  as const, label: 'Quality Risk', icon: Star,           color: '#9079D8' },
+    { key: 'impact'   as const, label: 'Impact Risk',  icon: HeartHandshake, color: '#D86B95' },
   ];
 
   // Simulate Solution handler
@@ -1450,10 +1526,10 @@ export default function EarlyWarning() {
         resolved: a.resolved,
       })),
       levelDistribution: [
-        { name: 'Critical', value: levelCounts.critical || 0, color: '#f87171' },
-        { name: 'High', value: levelCounts.high || 0, color: '#fb923c' },
-        { name: 'Medium', value: levelCounts.medium || 0, color: '#fbbf24' },
-        { name: 'Low', value: levelCounts.low || 0, color: '#34d399' },
+        { name: 'Critical', value: levelCounts.critical || 0, color: '#DB5C5C' },
+        { name: 'High', value: levelCounts.high || 0, color: '#E07F33' },
+        { name: 'Medium', value: levelCounts.medium || 0, color: '#E0A024' },
+        { name: 'Low', value: levelCounts.low || 0, color: '#2EBC85' },
       ].filter(d => d.value > 0),
     });
   }, [localAlerts]);
@@ -1483,11 +1559,11 @@ export default function EarlyWarning() {
               animate={{ boxShadow: ['0 0 0px rgba(248,113,113,0)', '0 0 20px rgba(248,113,113,0.3)', '0 0 0px rgba(248,113,113,0)'] }}
               transition={{ duration: 2.5, repeat: Infinity }}
             >
-              <AlertTriangle size={22} style={{ color: '#f87171' }} />
+              <AlertTriangle size={22} style={{ color: '#DB5C5C' }} />
               {riskGroups.critical.length > 0 && (
                 <motion.span
                   className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center rounded-full text-[10px] font-black"
-                  style={{ background: '#f87171', color: '#fff' }}
+                  style={{ background: '#DB5C5C', color: '#fff' }}
                   animate={{ scale: [1, 1.15, 1] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
                 >
@@ -1499,7 +1575,7 @@ export default function EarlyWarning() {
               <h1 className="text-xl font-black leading-tight" style={{ color: P.textHi, fontFamily: 'Playfair Display, serif' }}>
                 Early Warning Center
               </h1>
-              <p className="mt-1 text-xs leading-relaxed" style={{ color: P.textLo }}>
+              <p className="mt-1.5 text-[13px] leading-relaxed" style={{ color: P.textLo }}>
                 <span style={{ color: '#fca5a5', fontWeight: 600 }}>{riskGroups.critical.length} critical</span> &bull;{' '}
                 <span style={{ color: '#fdba74', fontWeight: 600 }}>{riskGroups.high.length} high</span> &bull;{' '}
                 <span style={{ color: '#fde68a', fontWeight: 600 }}>{riskGroups.medium.length} medium</span> risk projects require attention
@@ -1510,25 +1586,25 @@ export default function EarlyWarning() {
           <div className="flex items-center gap-2">
             {/* Live pulse */}
             <div className="flex items-center gap-2 px-3 py-2 rounded-full" style={{ background: P.surface, border: `1px solid ${P.border}` }}>
-              <motion.span className="h-2 w-2 rounded-full" style={{ background: '#f87171' }} animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 1.5, repeat: Infinity }} />
-              <span className="text-[11px] font-medium" style={{ color: P.textMd }}>Monitoring Active</span>
+              <motion.span className="h-2 w-2 rounded-full" style={{ background: '#DB5C5C' }} animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 1.5, repeat: Infinity }} />
+              <span className="text-xs font-medium" style={{ color: P.textMd }}>Monitoring Active</span>
             </div>
             {/* Export Buttons */}
             <button 
               onClick={handleExportExcel}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium transition-all duration-200 active:scale-[0.97]"
-              style={{ background: '#34d39912', color: '#34d399', border: '1px solid #34d39920' }}>
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[13px] font-medium transition-all duration-200 active:scale-[0.97]"
+              style={{ background: '#2EBC8512', color: '#2EBC85', border: '1px solid #2EBC8520' }}>
               <FileSpreadsheet size={13} />Excel
             </button>
             <button 
               onClick={handleExportPDF}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium transition-all duration-200 active:scale-[0.97]"
-              style={{ background: '#f8717112', color: '#f87171', border: '1px solid #f8717120' }}>
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[13px] font-medium transition-all duration-200 active:scale-[0.97]"
+              style={{ background: '#DB5C5C12', color: '#DB5C5C', border: '1px solid #DB5C5C20' }}>
               <FileText size={13} />PDF
             </button>
             <button 
               onClick={handlePrint}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium transition-all duration-200 active:scale-[0.97]"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[13px] font-medium transition-all duration-200 active:scale-[0.97]"
               style={{ background: P.surface, color: P.textMd, border: `1px solid ${P.border}` }}>
               <Printer size={13} />Print
             </button>
@@ -1538,7 +1614,7 @@ export default function EarlyWarning() {
               onClick={handleTriggerAudit}
               disabled={auditLoading}
               className="flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-200"
-              style={{ background: 'rgba(139,92,246,0.12)', color: '#a78bfa', border: '1px solid rgba(139,92,246,0.25)', opacity: auditLoading ? 0.6 : 1 }}
+              style={{ background: 'rgba(139,92,246,0.12)', color: '#9079D8', border: '1px solid rgba(139,92,246,0.25)', opacity: auditLoading ? 0.6 : 1 }}
             >
               {auditLoading ? (
                 <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}>
@@ -1607,9 +1683,9 @@ export default function EarlyWarning() {
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-5">
             {/* Donut Chart */}
             <motion.div className="lg:col-span-2" variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true, margin: '-60px' }}>
-              <Card className="p-6 h-full" accent="#f87171" glow="rgba(248,113,113,0.08)">
+              <Card className="p-6 h-full" accent="#DB5C5C" glow="rgba(248,113,113,0.08)">
                 <h3 className="text-sm font-bold mb-1" style={{ color: P.textHi, fontFamily: 'Playfair Display, serif' }}>Risk Level Distribution</h3>
-                <p className="text-xs mb-4" style={{ color: P.textLo }}>Across {projectsRiskData.length} monitored projects</p>
+                <p className="text-[13px] mb-5" style={{ color: P.textLo }}>Across {projectsRiskData.length} monitored projects</p>
                 <div style={{ height: 300 }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
@@ -1641,7 +1717,7 @@ export default function EarlyWarning() {
                   {donutData.map(d => (
                     <div key={d.name} className="flex items-center gap-2 px-3 py-2 rounded-full" style={{ background: `${d.color}08`, border: `1px solid ${d.color}15` }}>
                       <span className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ background: d.color }} />
-                      <span className="text-[11px] font-medium" style={{ color: P.textMd }}>{d.name}</span>
+                      <span className="text-xs font-medium" style={{ color: P.textMd }}>{d.name}</span>
                       <span className="text-[11px] font-bold ml-auto tabular-nums" style={{ color: d.color }}>{d.value}</span>
                     </div>
                   ))}
@@ -1651,16 +1727,16 @@ export default function EarlyWarning() {
 
             {/* Line Chart */}
             <motion.div className="lg:col-span-3" variants={stagger(0.15)} initial="hidden" whileInView="show" viewport={{ once: true, margin: '-60px' }}>
-              <Card className="p-6 h-full" accent="#38bdf8">
+              <Card className="p-6 h-full" accent="#3B97D2">
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <h3 className="text-sm font-bold" style={{ color: P.textHi, fontFamily: 'Playfair Display, serif' }}>Alert Trend (Last 30 Days)</h3>
-                    <p className="text-xs mt-1" style={{ color: P.textLo }}>Daily alert count by severity level</p>
+                    <p className="text-[13px] mt-1.5" style={{ color: P.textLo }}>Daily alert count by severity level</p>
                   </div>
                   <div className="flex gap-3 text-[10px]" style={{ color: P.textLo }}>
-                    <span className="flex items-center gap-1.5"><span className="h-1.5 w-5 rounded-full inline-block" style={{ background: '#f87171' }} />Critical</span>
-                    <span className="flex items-center gap-1.5"><span className="h-1.5 w-5 rounded-full inline-block" style={{ background: '#fb923c' }} />High</span>
-                    <span className="flex items-center gap-1.5"><span className="h-1.5 w-5 rounded-full inline-block" style={{ background: '#fbbf24' }} />Medium</span>
+                    <span className="flex items-center gap-1.5"><span className="h-1.5 w-5 rounded-full inline-block" style={{ background: '#DB5C5C' }} />Critical</span>
+                    <span className="flex items-center gap-1.5"><span className="h-1.5 w-5 rounded-full inline-block" style={{ background: '#E07F33' }} />High</span>
+                    <span className="flex items-center gap-1.5"><span className="h-1.5 w-5 rounded-full inline-block" style={{ background: '#E0A024' }} />Medium</span>
                   </div>
                 </div>
                 <div style={{ height: 300 }}>
@@ -1668,17 +1744,17 @@ export default function EarlyWarning() {
                     <RechartsLine data={alertTrendData} margin={{ top: 5, right: 10, left: -22, bottom: 0 }}>
                       <defs>
                         <linearGradient id="critGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#f87171" stopOpacity={0.3} />
-                          <stop offset="100%" stopColor="#f87171" stopOpacity={0} />
+                          <stop offset="0%" stopColor="#DB5C5C" stopOpacity={0.3} />
+                          <stop offset="100%" stopColor="#DB5C5C" stopOpacity={0} />
                         </linearGradient>
                       </defs>
                       <CartesianGrid strokeDasharray="3 3" stroke={P.border} vertical={false} />
-                      <XAxis dataKey="day" tick={{ fill: P.textLo, fontSize: 10 }} axisLine={false} tickLine={false} interval={4} />
-                      <YAxis tick={{ fill: P.textLo, fontSize: 10 }} axisLine={false} tickLine={false} />
+                      <XAxis dataKey="day" tick={{ fill: P.textMd, fontSize: 12, fontWeight: 500 }} axisLine={false} tickLine={false} interval={4} />
+                      <YAxis tick={{ fill: P.textMd, fontSize: 12, fontWeight: 500 }} axisLine={false} tickLine={false} />
                       <RechartsTooltip content={({ active, payload, label }: { active?: boolean; payload?: { name?: string; value?: number; color?: string }[]; label?: string | number }) => <Tip active={active} payload={payload} label={label} />} cursor={{ stroke: P.borderHi, strokeWidth: 1 }} />
-                      <Line type="monotone" dataKey="critical" name="Critical" stroke="#f87171" strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: '#f87171', stroke: P.card, strokeWidth: 2 }} />
-                      <Line type="monotone" dataKey="high"     name="High"     stroke="#fb923c" strokeWidth={2}   dot={false} activeDot={{ r: 4, fill: '#fb923c', stroke: P.card, strokeWidth: 2 }} />
-                      <Line type="monotone" dataKey="medium"   name="Medium"   stroke="#fbbf24" strokeWidth={2}   dot={false} activeDot={{ r: 4, fill: '#fbbf24', stroke: P.card, strokeWidth: 2 }} />
+                      <Line type="monotone" dataKey="critical" name="Critical" stroke="#DB5C5C" strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: '#DB5C5C', stroke: P.card, strokeWidth: 2 }} />
+                      <Line type="monotone" dataKey="high"     name="High"     stroke="#E07F33" strokeWidth={2}   dot={false} activeDot={{ r: 4, fill: '#E07F33', stroke: P.card, strokeWidth: 2 }} />
+                      <Line type="monotone" dataKey="medium"   name="Medium"   stroke="#E0A024" strokeWidth={2}   dot={false} activeDot={{ r: 4, fill: '#E0A024', stroke: P.card, strokeWidth: 2 }} />
                     </RechartsLine>
                   </ResponsiveContainer>
                 </div>
@@ -1686,8 +1762,8 @@ export default function EarlyWarning() {
                 {alertTrendData.length > 0 && (
                 <div className="flex items-center gap-4 mt-3">
                   {[
-                    { label: 'Avg/day (Critical)', val: (alertTrendData.reduce((a, d) => a + d.critical, 0) / alertTrendData.length).toFixed(1), color: '#f87171' },
-                    { label: 'Avg/day (High)',     val: (alertTrendData.reduce((a, d) => a + d.high, 0) / alertTrendData.length).toFixed(1),     color: '#fb923c' },
+                    { label: 'Avg/day (Critical)', val: (alertTrendData.reduce((a, d) => a + d.critical, 0) / alertTrendData.length).toFixed(1), color: '#DB5C5C' },
+                    { label: 'Avg/day (High)',     val: (alertTrendData.reduce((a, d) => a + d.high, 0) / alertTrendData.length).toFixed(1),     color: '#E07F33' },
                     { label: 'Peak Day',           val: `${Math.max(...alertTrendData.map(d => d.critical + d.high + d.medium))} alerts`, color: P.accent },
                   ].map(s => (
                     <div key={s.label} className="flex items-center gap-2 px-3 py-1.5 rounded-lg" style={{ background: P.surface, border: `1px solid ${P.border}` }}>
@@ -1708,20 +1784,23 @@ export default function EarlyWarning() {
 
           {/* Tab bar */}
           <div className="flex items-center gap-1.5 p-1 rounded-xl mb-5 w-fit" style={{ background: P.surface, border: `1px solid ${P.border}` }}>
-            {tabs.map(tab => (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                className="px-4 py-2 rounded-lg text-xs font-medium transition-all duration-200 flex items-center gap-2"
-                style={{
-                  background: activeTab === tab.key ? `${tab.color}15` : 'transparent',
-                  color: activeTab === tab.key ? tab.color : P.textLo,
-                  border: activeTab === tab.key ? `1px solid ${tab.color}30` : '1px solid transparent',
-                }}
-              >
-                <span>{tab.emoji}</span> {tab.label}
-              </button>
-            ))}
+            {tabs.map(tab => {
+              const TabIcon = tab.icon;
+              return (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key)}
+                  className="px-4 py-2.5 rounded-lg text-[13px] font-medium transition-all duration-200 flex items-center gap-2"
+                  style={{
+                    background: activeTab === tab.key ? `${tab.color}15` : 'transparent',
+                    color: activeTab === tab.key ? tab.color : P.textMd,
+                    border: activeTab === tab.key ? `1px solid ${tab.color}30` : '1px solid transparent',
+                  }}
+                >
+                  <TabIcon size={14} /> {tab.label}
+                </button>
+              );
+            })}
           </div>
 
           <AnimatePresence mode="wait">
@@ -1736,12 +1815,12 @@ export default function EarlyWarning() {
                       message="No projects with budget data are currently being monitored."
                     />
                   ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
+                  <div className="overflow-x-auto -mx-1 px-1" style={{ scrollbarColor: `${P.borderHi} transparent`, scrollbarWidth: 'thin' }}>
+                    <table className="w-full min-w-[1100px]">
                       <thead>
                         <tr style={{ borderBottom: `1px solid ${P.border}` }}>
                           {['Project', 'Allocated (OMR)', 'Spent (OMR)', 'Remaining (OMR)', 'Utilization', 'Risk Level', 'Actions'].map(h => (
-                            <th key={h} className="px-4 py-3.5 text-left text-[10px] font-semibold tracking-[0.12em] uppercase whitespace-nowrap" style={{ color: P.textLo }}>{h}</th>
+                            <th key={h} className="px-4 py-3.5 text-left text-[11px] font-semibold tracking-[0.14em] uppercase whitespace-nowrap" style={{ color: P.textLo }}>{h}</th>
                           ))}
                         </tr>
                       </thead>
@@ -1767,9 +1846,9 @@ export default function EarlyWarning() {
                                   {proj.name}
                                 </button>
                               </td>
-                              <td className="px-4 py-3.5 whitespace-nowrap text-xs tabular-nums font-mono" style={{ color: P.textMd }}>{proj.budget.toLocaleString()}</td>
-                              <td className="px-4 py-3.5 whitespace-nowrap text-xs tabular-nums font-mono" style={{ color: barColor }}>{proj.spent.toLocaleString()}</td>
-                              <td className="px-4 py-3.5 whitespace-nowrap text-xs tabular-nums font-mono" style={{ color: remaining < 0 ? '#f87171' : P.textLo }}>{remaining.toLocaleString()}</td>
+                              <td className="px-4 py-3.5 whitespace-nowrap text-[13px] tabular-nums font-mono" style={{ color: P.textMd }}>{proj.budget.toLocaleString()}</td>
+                              <td className="px-4 py-3.5 whitespace-nowrap text-[13px] tabular-nums font-mono" style={{ color: barColor }}>{proj.spent.toLocaleString()}</td>
+                              <td className="px-4 py-3.5 whitespace-nowrap text-[13px] tabular-nums font-mono" style={{ color: remaining < 0 ? '#DB5C5C' : P.textLo }}>{remaining.toLocaleString()}</td>
                               <td className="px-4 py-3.5 whitespace-nowrap">
                                 <div className="flex items-center gap-2.5">
                                   <div className="w-24">
@@ -1781,12 +1860,12 @@ export default function EarlyWarning() {
                               <td className="px-4 py-3.5 whitespace-nowrap"><RiskBadge level={rLevel as keyof typeof riskCfg} /></td>
                               <td className="px-4 py-3.5 whitespace-nowrap">
                                 <div className="flex items-center gap-1.5">
-                                  <button onClick={() => navigate(`/projects/${proj.id}`)} className="flex items-center gap-1 text-[11px] font-medium px-2.5 py-1.5 rounded-lg transition-colors" style={{ color: P.accent, background: `${P.accent}08` }} onMouseEnter={e => { e.currentTarget.style.background = `${P.accent}18`; }} onMouseLeave={e => { e.currentTarget.style.background = `${P.accent}08`; }}>
-                                    <Eye size={11} /> View
+                                  <button onClick={() => navigate(`/projects/${proj.id}`)} className="flex items-center gap-1 text-xs font-medium px-2.5 py-1.5 rounded-lg transition-colors" style={{ color: P.accent, background: `${P.accent}08` }} onMouseEnter={e => { e.currentTarget.style.background = `${P.accent}18`; }} onMouseLeave={e => { e.currentTarget.style.background = `${P.accent}08`; }}>
+                                    <Eye size={13} /> View
                                   </button>
                                   {/* Resolve: marks all localAlerts for this project as resolved so KPI cards and donut chart update */}
-                                  <button onClick={() => { const ids = localAlerts.filter(a => a.projectId === proj.id && !a.resolved).map(a => a.id); if (ids.length) resolveMutation.mutate(ids); }} className="flex items-center gap-1 text-[11px] font-medium px-2.5 py-1.5 rounded-lg transition-colors" style={{ color: '#34d399', background: 'rgba(52,211,153,0.08)' }} onMouseEnter={e => { e.currentTarget.style.background = 'rgba(52,211,153,0.18)'; }} onMouseLeave={e => { e.currentTarget.style.background = 'rgba(52,211,153,0.08)'; }}>
-                                    <CheckCircle2 size={11} /> Resolve
+                                  <button onClick={() => { const ids = localAlerts.filter(a => a.projectId === proj.id && !a.resolved).map(a => a.id); if (ids.length) resolveMutation.mutate(ids); }} className="flex items-center gap-1 text-xs font-medium px-2.5 py-1.5 rounded-lg transition-colors" style={{ color: '#2EBC85', background: 'rgba(52,211,153,0.08)' }} onMouseEnter={e => { e.currentTarget.style.background = 'rgba(52,211,153,0.18)'; }} onMouseLeave={e => { e.currentTarget.style.background = 'rgba(52,211,153,0.08)'; }}>
+                                    <CheckCircle2 size={13} /> Resolve
                                   </button>
                                 </div>
                               </td>
@@ -1812,12 +1891,12 @@ export default function EarlyWarning() {
                       message="No projects with elapsed timeline data are currently being monitored."
                     />
                   ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
+                  <div className="overflow-x-auto -mx-1 px-1" style={{ scrollbarColor: `${P.borderHi} transparent`, scrollbarWidth: 'thin' }}>
+                    <table className="w-full min-w-[1100px]">
                       <thead>
                         <tr style={{ borderBottom: `1px solid ${P.border}` }}>
                           {['Project', 'Start Date', 'End Date', 'Completion', 'Time Elapsed', 'Delay (days)', 'Risk Level', 'Actions'].map(h => (
-                            <th key={h} className="px-4 py-3.5 text-left text-[10px] font-semibold tracking-[0.12em] uppercase whitespace-nowrap" style={{ color: P.textLo }}>{h}</th>
+                            <th key={h} className="px-4 py-3.5 text-left text-[11px] font-semibold tracking-[0.14em] uppercase whitespace-nowrap" style={{ color: P.textLo }}>{h}</th>
                           ))}
                         </tr>
                       </thead>
@@ -1843,18 +1922,18 @@ export default function EarlyWarning() {
                                   {proj.name}
                                 </button>
                               </td>
-                              <td className="px-4 py-3.5 whitespace-nowrap text-xs" style={{ color: P.textLo }}>
-                                <div className="flex items-center gap-1"><Calendar size={11} />{proj.startDate}</div>
+                              <td className="px-4 py-3.5 whitespace-nowrap text-[13px]" style={{ color: P.textLo }}>
+                                <div className="flex items-center gap-1"><Calendar size={13} />{proj.startDate}</div>
                               </td>
-                              <td className="px-4 py-3.5 whitespace-nowrap text-xs" style={{ color: P.textLo }}>
-                                <div className="flex items-center gap-1"><Calendar size={11} />{proj.endDate}</div>
+                              <td className="px-4 py-3.5 whitespace-nowrap text-[13px]" style={{ color: P.textLo }}>
+                                <div className="flex items-center gap-1"><Calendar size={13} />{proj.endDate}</div>
                               </td>
                               <td className="px-4 py-3.5 whitespace-nowrap">
                                 <div className="flex items-center gap-2.5">
                                   <div className="w-20">
-                                    <ProgressBar value={proj.progress} max={100} color="#34d399" delay={i * 0.04} />
+                                    <ProgressBar value={proj.progress} max={100} color="#2EBC85" delay={i * 0.04} />
                                   </div>
-                                  <span className="text-[11px] font-bold tabular-nums w-9 text-right" style={{ color: '#6ee7b7' }}>{proj.progress}%</span>
+                                  <span className="text-[11px] font-bold tabular-nums w-9 text-right" style={{ color: '#7AD9B3' }}>{proj.progress}%</span>
                                 </div>
                               </td>
                               <td className="px-4 py-3.5 whitespace-nowrap">
@@ -1865,18 +1944,18 @@ export default function EarlyWarning() {
                                   <span className="text-[11px] font-bold tabular-nums w-9 text-right" style={{ color: barColor }}>{proj.elapsed}%</span>
                                 </div>
                               </td>
-                              <td className="px-4 py-3.5 whitespace-nowrap text-xs font-bold tabular-nums" style={{ color: delayDays > 0 ? barColor : '#34d399' }}>
+                              <td className="px-4 py-3.5 whitespace-nowrap text-xs font-bold tabular-nums" style={{ color: delayDays > 0 ? barColor : '#2EBC85' }}>
                                 {delayDays > 0 ? `+${delayDays}` : 'On track'}
                               </td>
                               <td className="px-4 py-3.5 whitespace-nowrap"><RiskBadge level={rLevel as keyof typeof riskCfg} /></td>
                               <td className="px-4 py-3.5 whitespace-nowrap">
                                 <div className="flex items-center gap-1.5">
-                                  <button onClick={() => navigate(`/projects/${proj.id}`)} className="flex items-center gap-1 text-[11px] font-medium px-2.5 py-1.5 rounded-lg transition-colors" style={{ color: P.accent, background: `${P.accent}08` }} onMouseEnter={e => { e.currentTarget.style.background = `${P.accent}18`; }} onMouseLeave={e => { e.currentTarget.style.background = `${P.accent}08`; }}>
-                                    <Eye size={11} /> View
+                                  <button onClick={() => navigate(`/projects/${proj.id}`)} className="flex items-center gap-1 text-xs font-medium px-2.5 py-1.5 rounded-lg transition-colors" style={{ color: P.accent, background: `${P.accent}08` }} onMouseEnter={e => { e.currentTarget.style.background = `${P.accent}18`; }} onMouseLeave={e => { e.currentTarget.style.background = `${P.accent}08`; }}>
+                                    <Eye size={13} /> View
                                   </button>
                                   {/* Resolve: marks all localAlerts for this project as resolved so KPI cards and donut chart update */}
-                                  <button onClick={() => { const ids = localAlerts.filter(a => a.projectId === proj.id && !a.resolved).map(a => a.id); if (ids.length) resolveMutation.mutate(ids); }} className="flex items-center gap-1 text-[11px] font-medium px-2.5 py-1.5 rounded-lg transition-colors" style={{ color: '#34d399', background: 'rgba(52,211,153,0.08)' }} onMouseEnter={e => { e.currentTarget.style.background = 'rgba(52,211,153,0.18)'; }} onMouseLeave={e => { e.currentTarget.style.background = 'rgba(52,211,153,0.08)'; }}>
-                                    <CheckCircle2 size={11} /> Resolve
+                                  <button onClick={() => { const ids = localAlerts.filter(a => a.projectId === proj.id && !a.resolved).map(a => a.id); if (ids.length) resolveMutation.mutate(ids); }} className="flex items-center gap-1 text-xs font-medium px-2.5 py-1.5 rounded-lg transition-colors" style={{ color: '#2EBC85', background: 'rgba(52,211,153,0.08)' }} onMouseEnter={e => { e.currentTarget.style.background = 'rgba(52,211,153,0.18)'; }} onMouseLeave={e => { e.currentTarget.style.background = 'rgba(52,211,153,0.08)'; }}>
+                                    <CheckCircle2 size={13} /> Resolve
                                   </button>
                                 </div>
                               </td>
@@ -1902,12 +1981,12 @@ export default function EarlyWarning() {
                       message="No projects with quality review data are currently being monitored."
                     />
                   ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
+                  <div className="overflow-x-auto -mx-1 px-1" style={{ scrollbarColor: `${P.borderHi} transparent`, scrollbarWidth: 'thin' }}>
+                    <table className="w-full min-w-[1100px]">
                       <thead>
                         <tr style={{ borderBottom: `1px solid ${P.border}` }}>
                           {['Project', 'Avg Rating', 'Reviews', 'Last Review', 'Min Rating', 'Risk Level', 'Actions'].map(h => (
-                            <th key={h} className="px-4 py-3.5 text-left text-[10px] font-semibold tracking-[0.12em] uppercase whitespace-nowrap" style={{ color: P.textLo }}>{h}</th>
+                            <th key={h} className="px-4 py-3.5 text-left text-[11px] font-semibold tracking-[0.14em] uppercase whitespace-nowrap" style={{ color: P.textLo }}>{h}</th>
                           ))}
                         </tr>
                       </thead>
@@ -1933,25 +2012,25 @@ export default function EarlyWarning() {
                               </td>
                               <td className="px-4 py-3.5 whitespace-nowrap">
                                 <div className="flex items-center gap-2">
-                                  <StarRating rating={proj.avgRating} size={11} />
+                                  <StarRating rating={proj.avgRating} size={13} />
                                   <span className="text-xs font-bold tabular-nums" style={{ color: barColor }}>{proj.avgRating.toFixed(1)}</span>
                                 </div>
                               </td>
                               <td className="px-4 py-3.5 whitespace-nowrap text-xs tabular-nums" style={{ color: P.textMd }}>{proj.totalReviews}</td>
-                              <td className="px-4 py-3.5 whitespace-nowrap text-xs" style={{ color: P.textLo }}>{proj.lastReview}</td>
+                              <td className="px-4 py-3.5 whitespace-nowrap text-[13px]" style={{ color: P.textLo }}>{proj.lastReview}</td>
                               <td className="px-4 py-3.5 whitespace-nowrap">
-                                <span className="text-xs font-bold tabular-nums px-2 py-0.5 rounded-lg" style={{ color: proj.minRating < 2.0 ? '#f87171' : proj.minRating < 3.0 ? '#fb923c' : '#fbbf24', background: proj.minRating < 2.0 ? 'rgba(248,113,113,0.1)' : proj.minRating < 3.0 ? 'rgba(251,146,60,0.1)' : 'rgba(251,191,36,0.1)' }}>
+                                <span className="text-xs font-bold tabular-nums px-2 py-0.5 rounded-lg" style={{ color: proj.minRating < 2.0 ? '#DB5C5C' : proj.minRating < 3.0 ? '#E07F33' : '#E0A024', background: proj.minRating < 2.0 ? 'rgba(248,113,113,0.1)' : proj.minRating < 3.0 ? 'rgba(251,146,60,0.1)' : 'rgba(251,191,36,0.1)' }}>
                                   {proj.minRating.toFixed(1)}
                                 </span>
                               </td>
                               <td className="px-4 py-3.5 whitespace-nowrap"><RiskBadge level={rLevel as keyof typeof riskCfg} /></td>
                               <td className="px-4 py-3.5 whitespace-nowrap">
                                 <div className="flex items-center gap-1.5">
-                                  <button onClick={() => navigate(`/projects/${proj.id}`)} className="flex items-center gap-1 text-[11px] font-medium px-2.5 py-1.5 rounded-lg transition-colors" style={{ color: P.accent, background: `${P.accent}08` }} onMouseEnter={e => { e.currentTarget.style.background = `${P.accent}18`; }} onMouseLeave={e => { e.currentTarget.style.background = `${P.accent}08`; }}>
-                                    <Eye size={11} /> View
+                                  <button onClick={() => navigate(`/projects/${proj.id}`)} className="flex items-center gap-1 text-xs font-medium px-2.5 py-1.5 rounded-lg transition-colors" style={{ color: P.accent, background: `${P.accent}08` }} onMouseEnter={e => { e.currentTarget.style.background = `${P.accent}18`; }} onMouseLeave={e => { e.currentTarget.style.background = `${P.accent}08`; }}>
+                                    <Eye size={13} /> View
                                   </button>
-                                  <button onClick={() => { const ids = localAlerts.filter(a => a.projectId === proj.id && !a.resolved).map(a => a.id); if (ids.length) resolveMutation.mutate(ids); }} className="flex items-center gap-1 text-[11px] font-medium px-2.5 py-1.5 rounded-lg transition-colors" style={{ color: '#34d399', background: 'rgba(52,211,153,0.08)' }} onMouseEnter={e => { e.currentTarget.style.background = 'rgba(52,211,153,0.18)'; }} onMouseLeave={e => { e.currentTarget.style.background = 'rgba(52,211,153,0.08)'; }}>
-                                    <CheckCircle2 size={11} /> Resolve
+                                  <button onClick={() => { const ids = localAlerts.filter(a => a.projectId === proj.id && !a.resolved).map(a => a.id); if (ids.length) resolveMutation.mutate(ids); }} className="flex items-center gap-1 text-xs font-medium px-2.5 py-1.5 rounded-lg transition-colors" style={{ color: '#2EBC85', background: 'rgba(52,211,153,0.08)' }} onMouseEnter={e => { e.currentTarget.style.background = 'rgba(52,211,153,0.18)'; }} onMouseLeave={e => { e.currentTarget.style.background = 'rgba(52,211,153,0.08)'; }}>
+                                    <CheckCircle2 size={13} /> Resolve
                                   </button>
                                 </div>
                               </td>
@@ -1977,12 +2056,12 @@ export default function EarlyWarning() {
                       message="No projects with beneficiary targets are currently being monitored."
                     />
                   ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
+                  <div className="overflow-x-auto -mx-1 px-1" style={{ scrollbarColor: `${P.borderHi} transparent`, scrollbarWidth: 'thin' }}>
+                    <table className="w-full min-w-[1100px]">
                       <thead>
                         <tr style={{ borderBottom: `1px solid ${P.border}` }}>
                           {['Project', 'Actual Beneficiaries', 'Expected', 'Achievement', 'Gap', 'Risk Level', 'Actions'].map(h => (
-                            <th key={h} className="px-4 py-3.5 text-left text-[10px] font-semibold tracking-[0.12em] uppercase whitespace-nowrap" style={{ color: P.textLo }}>{h}</th>
+                            <th key={h} className="px-4 py-3.5 text-left text-[11px] font-semibold tracking-[0.14em] uppercase whitespace-nowrap" style={{ color: P.textLo }}>{h}</th>
                           ))}
                         </tr>
                       </thead>
@@ -2009,8 +2088,8 @@ export default function EarlyWarning() {
                                   {proj.name}
                                 </button>
                               </td>
-                              <td className="px-4 py-3.5 whitespace-nowrap text-xs tabular-nums font-mono" style={{ color: barColor }}>{proj.beneficiaries.toLocaleString()}</td>
-                              <td className="px-4 py-3.5 whitespace-nowrap text-xs tabular-nums font-mono" style={{ color: P.textMd }}>{proj.expectedBeneficiaries.toLocaleString()}</td>
+                              <td className="px-4 py-3.5 whitespace-nowrap text-[13px] tabular-nums font-mono" style={{ color: barColor }}>{proj.beneficiaries.toLocaleString()}</td>
+                              <td className="px-4 py-3.5 whitespace-nowrap text-[13px] tabular-nums font-mono" style={{ color: P.textMd }}>{proj.expectedBeneficiaries.toLocaleString()}</td>
                               <td className="px-4 py-3.5 whitespace-nowrap">
                                 <div className="flex items-center gap-2.5">
                                   <div className="w-24">
@@ -2019,17 +2098,17 @@ export default function EarlyWarning() {
                                   <span className="text-[11px] font-bold tabular-nums w-9 text-right" style={{ color: barColor }}>{pct}%</span>
                                 </div>
                               </td>
-                              <td className="px-4 py-3.5 whitespace-nowrap text-xs font-bold tabular-nums" style={{ color: gap > 0 ? barColor : '#34d399' }}>
+                              <td className="px-4 py-3.5 whitespace-nowrap text-xs font-bold tabular-nums" style={{ color: gap > 0 ? barColor : '#2EBC85' }}>
                                 {gap > 0 ? `-${gap.toLocaleString()}` : 'On target'}
                               </td>
                               <td className="px-4 py-3.5 whitespace-nowrap"><RiskBadge level={rLevel as keyof typeof riskCfg} /></td>
                               <td className="px-4 py-3.5 whitespace-nowrap">
                                 <div className="flex items-center gap-1.5">
-                                  <button onClick={() => navigate(`/projects/${proj.id}`)} className="flex items-center gap-1 text-[11px] font-medium px-2.5 py-1.5 rounded-lg transition-colors" style={{ color: P.accent, background: `${P.accent}08` }} onMouseEnter={e => { e.currentTarget.style.background = `${P.accent}18`; }} onMouseLeave={e => { e.currentTarget.style.background = `${P.accent}08`; }}>
-                                    <Eye size={11} /> View
+                                  <button onClick={() => navigate(`/projects/${proj.id}`)} className="flex items-center gap-1 text-xs font-medium px-2.5 py-1.5 rounded-lg transition-colors" style={{ color: P.accent, background: `${P.accent}08` }} onMouseEnter={e => { e.currentTarget.style.background = `${P.accent}18`; }} onMouseLeave={e => { e.currentTarget.style.background = `${P.accent}08`; }}>
+                                    <Eye size={13} /> View
                                   </button>
-                                  <button onClick={() => { const ids = localAlerts.filter(a => a.projectId === proj.id && !a.resolved).map(a => a.id); if (ids.length) resolveMutation.mutate(ids); }} className="flex items-center gap-1 text-[11px] font-medium px-2.5 py-1.5 rounded-lg transition-colors" style={{ color: '#34d399', background: 'rgba(52,211,153,0.08)' }} onMouseEnter={e => { e.currentTarget.style.background = 'rgba(52,211,153,0.18)'; }} onMouseLeave={e => { e.currentTarget.style.background = 'rgba(52,211,153,0.08)'; }}>
-                                    <CheckCircle2 size={11} /> Resolve
+                                  <button onClick={() => { const ids = localAlerts.filter(a => a.projectId === proj.id && !a.resolved).map(a => a.id); if (ids.length) resolveMutation.mutate(ids); }} className="flex items-center gap-1 text-xs font-medium px-2.5 py-1.5 rounded-lg transition-colors" style={{ color: '#2EBC85', background: 'rgba(52,211,153,0.08)' }} onMouseEnter={e => { e.currentTarget.style.background = 'rgba(52,211,153,0.18)'; }} onMouseLeave={e => { e.currentTarget.style.background = 'rgba(52,211,153,0.08)'; }}>
+                                    <CheckCircle2 size={13} /> Resolve
                                   </button>
                                 </div>
                               </td>
@@ -2067,95 +2146,124 @@ export default function EarlyWarning() {
                 message="All projects are currently within safe thresholds. No alerts have been triggered."
               />
             ) : (
-            <div className="relative pl-8">
-              {/* Vertical line */}
-              <div className="absolute left-3 top-0 bottom-0 w-px" style={{ background: `linear-gradient(to bottom, ${P.accent}60, ${P.accent}10, transparent)` }} />
-
+            <div className="space-y-2">
               <AnimatePresence>
-                <div className="space-y-1">
-                  {visibleTimeline.map((alert, i) => {
-                    const typeCfg = alertTypeCfg[alert.type];
-                    const levelCfg = riskCfg[alert.level === 'critical' ? 'critical' : alert.level === 'high' ? 'high' : alert.level === 'medium' ? 'medium' : 'low'];
-                    const TypeIcon = typeCfg.icon;
-                    return (
-                      <motion.div
-                        key={alert.id}
-                        initial={{ opacity: 0, x: -12 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.04 + i * 0.04, duration: 0.35, ease: EASE }}
-                        className="relative flex gap-4 py-3 px-4 rounded-xl transition-colors"
-                        onMouseEnter={e => { e.currentTarget.style.background = `${levelCfg.color}06`; }}
-                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+                {visibleTimeline.map((alert, i) => {
+                  const typeCfg = alertTypeCfg[alert.type];
+                  const levelCfg = riskCfg[alert.level === 'critical' ? 'critical' : alert.level === 'high' ? 'high' : alert.level === 'medium' ? 'medium' : 'low'];
+                  const desk = deskForAlertType(alert.type);
+                  const deskC = deskCfg[desk];
+                  const TypeIcon = typeCfg.icon;
+                  return (
+                    <motion.div
+                      key={alert.id}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.04 + i * 0.03, duration: 0.35, ease: EASE }}
+                      className="group relative grid items-stretch transition-colors"
+                      style={{
+                        gridTemplateColumns: '208px 1fr auto',
+                        background: alert.resolved ? 'transparent' : `${deskC.color}05`,
+                        borderRadius: 16,
+                        border: `1px solid ${alert.resolved ? P.border : deskC.color + '18'}`,
+                        overflow: 'hidden',
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.background = alert.resolved ? `${P.accent}05` : `${deskC.color}10`; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = alert.resolved ? 'transparent' : `${deskC.color}05`; }}
+                    >
+                      {/* ── Desk column — agent identity ── */}
+                      <div
+                        className="flex items-center gap-3 px-4 py-4"
+                        style={{ borderRight: `1px solid ${deskC.color}18`, background: `${deskC.color}07` }}
                       >
-                        {/* Node */}
-                        <div className="absolute -left-8 top-4 flex items-center justify-center">
-                          <div className="h-6 w-6 rounded-full flex items-center justify-center" style={{ background: P.card, border: `2px solid ${levelCfg.color}60` }}>
-                            <TypeIcon size={10} style={{ color: levelCfg.color }} />
+                        <DeskSeal desk={desk} size={36} />
+                        <div className="min-w-0">
+                          <div
+                            style={{
+                              fontFamily: "'Geist Mono', ui-monospace, monospace",
+                              fontSize: 9.5,
+                              fontWeight: 700,
+                              letterSpacing: '0.22em',
+                              textTransform: 'uppercase',
+                              color: deskC.color,
+                              lineHeight: 1.1,
+                            }}
+                          >
+                            {deskC.name}
+                          </div>
+                          <div style={{ fontFamily: "'Geist Mono', ui-monospace, monospace", fontSize: 10, color: P.textDim, marginTop: 3, fontVariantNumeric: 'tabular-nums' }}>
+                            {alert.time}
+                          </div>
+                          <div className="mt-1.5 flex items-center gap-1.5">
+                            <TypeIcon size={11} style={{ color: typeCfg.color }} />
+                            <span style={{ fontSize: 10, color: typeCfg.color, fontWeight: 600, letterSpacing: '0.04em' }}>{typeCfg.label}</span>
                           </div>
                         </div>
+                      </div>
 
-                        {/* Content */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap mb-1">
-                            <span className="text-[10px] tabular-nums font-mono" style={{ color: P.textDim }}>{alert.time}</span>
-                            <span className="h-1 w-1 rounded-full" style={{ background: P.textDim }} />
-                            <button onClick={() => navigate(`/projects/${alert.projectId}`)} className="text-xs font-semibold transition-colors" style={{ color: P.textHi }} onMouseEnter={e => { e.currentTarget.style.color = P.accent; }} onMouseLeave={e => { e.currentTarget.style.color = P.textHi; }}>
-                              {alert.project}
-                            </button>
-                            <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: levelCfg.bg, color: levelCfg.text, border: `1px solid ${levelCfg.color}20` }}>
-                              {levelCfg.label}
-                            </span>
-                            <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: `${typeCfg.color}10`, color: typeCfg.color }}>
-                              {typeCfg.emoji} {typeCfg.label}
-                            </span>
-                          </div>
-                          <p className="text-[11.5px] leading-relaxed" style={{ color: P.textMd }}>{alert.detail}</p>
-                          {/* AI Suggestion for unresolved alerts */}
-                          {!alert.resolved && (() => {
-                            const suggestion = getAlertSuggestion(alert.type, alert.level, alert.detail);
-                            if (!suggestion) return null;
-                            return (
-                              <div className="flex items-center gap-1.5 mt-1.5 px-2.5 py-1.5 rounded-lg w-fit" style={{ background: `${P.accent}06`, border: `1px solid ${P.accent}12` }}>
-                                <Lightbulb size={10} style={{ color: P.accent, flexShrink: 0 }} />
-                                <span className="text-[10px] font-medium" style={{ color: P.accent }}>{suggestion}</span>
-                              </div>
-                            );
-                          })()}
+                      {/* ── Body column ── */}
+                      <div className="px-5 py-4 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap mb-1.5">
+                          <button
+                            onClick={() => navigate(`/projects/${alert.projectId}`)}
+                            className="text-[14px] font-semibold transition-colors text-left"
+                            style={{ color: P.textHi }}
+                            onMouseEnter={e => { e.currentTarget.style.color = P.accent; }}
+                            onMouseLeave={e => { e.currentTarget.style.color = P.textHi; }}
+                          >
+                            {alert.project}
+                          </button>
+                          <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: levelCfg.bg, color: levelCfg.text, border: `1px solid ${levelCfg.color}30` }}>
+                            {levelCfg.label}
+                          </span>
                         </div>
+                        <p className="text-[13px] leading-relaxed" style={{ color: P.textMd }}>{alert.detail}</p>
 
-                        {/* Status + Actions */}
-                        <div className="flex-shrink-0 flex items-center gap-2 pt-1">
-                          {alert.resolved ? (
-                            <span className="flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: 'rgba(52,211,153,0.1)', color: '#6ee7b7', border: '1px solid rgba(52,211,153,0.2)' }}>
-                              <CheckCircle2 size={10} /> Resolved
+                        {/* AI Suggestion */}
+                        {!alert.resolved && (() => {
+                          const suggestion = getAlertSuggestion(alert.type, alert.level, alert.detail);
+                          if (!suggestion) return null;
+                          return (
+                            <div className="flex items-center gap-2 mt-2.5 px-3 py-2 rounded-lg w-fit" style={{ background: `${P.accent}08`, border: `1px solid ${P.accent}18` }}>
+                              <Lightbulb size={11} style={{ color: P.accent, flexShrink: 0 }} />
+                              <span className="text-[11px] font-medium" style={{ color: P.accentLo }}>{suggestion}</span>
+                            </div>
+                          );
+                        })()}
+                      </div>
+
+                      {/* ── Status + Actions ── */}
+                      <div className="flex flex-col items-end justify-center gap-2 px-5 py-4" style={{ borderLeft: `1px solid ${P.border}80` }}>
+                        {alert.resolved ? (
+                          <span className="flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full" style={{ background: 'rgba(46,188,133,0.10)', color: '#7AD9B3', border: '1px solid rgba(46,188,133,0.25)' }}>
+                            <CheckCircle2 size={12} /> Resolved
+                          </span>
+                        ) : (
+                          <>
+                            <span className="flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full" style={{ background: 'rgba(219,92,92,0.10)', color: '#ED9D9D', border: '1px solid rgba(219,92,92,0.25)' }}>
+                              <motion.span className="h-1.5 w-1.5 rounded-full inline-block" style={{ background: '#DB5C5C' }} animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 1.5, repeat: Infinity }} />
+                              Active
                             </span>
-                          ) : (
-                            <>
-                              {(alert.level === 'critical' || alert.level === 'high') && (
-                                <button
-                                  onClick={() => {
-                                    setSimModal({ alertId: alert.id, projectId: alert.projectId, projectName: alert.project });
-                                    handleSimulate(alert.id, alert.projectId);
-                                  }}
-                                  className="flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1 rounded-full transition-all duration-200 active:scale-[0.95]"
-                                  style={{ background: 'rgba(139,92,246,0.1)', color: '#a78bfa', border: '1px solid rgba(139,92,246,0.25)' }}
-                                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(139,92,246,0.2)'; }}
-                                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(139,92,246,0.1)'; }}
-                                >
-                                  <Play size={9} /> Simulate
-                                </button>
-                              )}
-                              <span className="flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: 'rgba(248,113,113,0.1)', color: '#fca5a5', border: '1px solid rgba(248,113,113,0.2)' }}>
-                                <motion.span className="h-1.5 w-1.5 rounded-full inline-block" style={{ background: '#f87171' }} animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 1.5, repeat: Infinity }} />
-                                Active
-                              </span>
-                            </>
-                          )}
-                        </div>
-                      </motion.div>
-                    );
-                  })}
-                </div>
+                            {(alert.level === 'critical' || alert.level === 'high') && (
+                              <button
+                                onClick={() => {
+                                  setSimModal({ alertId: alert.id, projectId: alert.projectId, projectName: alert.project });
+                                  handleSimulate(alert.id, alert.projectId);
+                                }}
+                                className="flex items-center gap-1.5 text-[10px] font-semibold px-3 py-1.5 rounded-full transition-all duration-200 active:scale-[0.95]"
+                                style={{ background: 'rgba(144,121,216,0.10)', color: '#9079D8', border: '1px solid rgba(144,121,216,0.25)' }}
+                                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(144,121,216,0.20)'; }}
+                                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(144,121,216,0.10)'; }}
+                              >
+                                <Play size={10} /> Simulate
+                              </button>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </motion.div>
+                  );
+                })}
               </AnimatePresence>
 
               {/* View all button */}
@@ -2168,12 +2276,12 @@ export default function EarlyWarning() {
                 >
                   <button
                     onClick={() => setShowAllTimeline(true)}
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-medium transition-all duration-200"
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-full text-[13px] font-medium transition-all duration-200"
                     style={{ color: P.accent, background: `${P.accent}08`, border: `1px solid ${P.accent}20` }}
                     onMouseEnter={e => { e.currentTarget.style.background = `${P.accent}18`; }}
                     onMouseLeave={e => { e.currentTarget.style.background = `${P.accent}08`; }}
                   >
-                    View All ({localAlerts.length}) <ChevronDown size={12} />
+                    View All ({localAlerts.length}) <ChevronDown size={14} />
                   </button>
                 </motion.div>
               )}
@@ -2187,7 +2295,7 @@ export default function EarlyWarning() {
                   <span className="h-3 w-px" style={{ background: P.border }} />
                   <span>Active: <span className="font-bold" style={{ color: '#fca5a5' }}>{localAlerts.filter(a => !a.resolved).length}</span></span>
                   <span className="h-3 w-px" style={{ background: P.border }} />
-                  <span>Resolved: <span className="font-bold" style={{ color: '#6ee7b7' }}>{localAlerts.filter(a => a.resolved).length}</span></span>
+                  <span>Resolved: <span className="font-bold" style={{ color: '#7AD9B3' }}>{localAlerts.filter(a => a.resolved).length}</span></span>
                 </div>
               </div>
             </div>
@@ -2203,140 +2311,199 @@ export default function EarlyWarning() {
               title="Action Approval Log"
               sub={`${scenarioActions.filter(a => a.status === 'pending').length} pending · ${scenarioActions.filter(a => a.status === 'approved').length} approved · ${scenarioActions.filter(a => a.status === 'rejected').length} rejected`}
             />
-            <Card className="overflow-hidden">
-              <div className="divide-y" style={{ borderColor: P.border }}>
-                {scenarioActions.map((action, idx) => {
-                  const statusCfg = action.status === 'approved'
-                    ? { color: '#34d399', bg: 'rgba(52,211,153,0.1)', label: 'Approved', icon: ThumbsUp }
-                    : action.status === 'rejected'
-                    ? { color: '#f87171', bg: 'rgba(248,113,113,0.1)', label: 'Rejected', icon: ThumbsDown }
-                    : { color: '#fbbf24', bg: 'rgba(251,191,36,0.1)', label: 'Pending Approval', icon: Clock };
-                  const StatusIcon = statusCfg.icon;
-                  const beforeRisk = riskCfg[(action.impactBefore?.risk as keyof typeof riskCfg) || 'medium'];
-                  const afterRisk = riskCfg[(action.impactAfter?.risk as keyof typeof riskCfg) || 'low'];
+            <div className="space-y-3">
+              {scenarioActions.map((action, idx) => {
+                const statusCfg = action.status === 'approved'
+                  ? { color: '#2EBC85', bg: 'rgba(46,188,133,0.10)', label: 'Approved', icon: ThumbsUp }
+                  : action.status === 'rejected'
+                  ? { color: '#DB5C5C', bg: 'rgba(219,92,92,0.10)', label: 'Rejected', icon: ThumbsDown }
+                  : { color: '#E0A024', bg: 'rgba(224,160,36,0.10)', label: 'Pending Approval', icon: Clock };
+                const beforeRisk = riskCfg[(action.impactBefore?.risk as keyof typeof riskCfg) || 'medium'];
+                const afterRisk = riskCfg[(action.impactAfter?.risk as keyof typeof riskCfg) || 'low'];
+                const desk = deskForScenarioId(action.scenarioId);
+                const deskC = deskCfg[desk];
 
-                  return (
-                    <motion.div
-                      key={action.id}
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.04, duration: 0.3, ease: EASE }}
-                      className="px-6 py-4"
+                return (
+                  <motion.div
+                    key={action.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.04, duration: 0.35, ease: EASE }}
+                    className="group relative overflow-hidden"
+                    style={{
+                      background: P.card,
+                      border: `1px solid ${P.border}`,
+                      borderRadius: 16,
+                    }}
+                  >
+                    {/* Top status strip */}
+                    <div
+                      className="px-5 py-2 flex items-center justify-between"
+                      style={{ background: `${statusCfg.color}08`, borderBottom: `1px solid ${statusCfg.color}1a` }}
                     >
-                      <div className="flex items-start gap-4">
-                        {/* Status Icon */}
-                        <div className="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-xl mt-0.5" style={{ background: statusCfg.bg, border: `1px solid ${statusCfg.color}25` }}>
-                          <StatusIcon size={16} style={{ color: statusCfg.color }} />
-                        </div>
+                      <div className="flex items-center gap-3">
+                        <span className="flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full" style={{ background: statusCfg.bg, color: statusCfg.color, border: `1px solid ${statusCfg.color}30` }}>
+                          {(() => { const SI = statusCfg.icon; return <SI size={11} />; })()}
+                          {statusCfg.label}
+                        </span>
+                        <span style={{ fontFamily: "'Geist Mono', ui-monospace, monospace", fontSize: 10, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: P.textLo }}>
+                          Case #{String(idx + 1).padStart(3, '0')}
+                        </span>
+                      </div>
+                      <span style={{ fontFamily: "'Geist Mono', ui-monospace, monospace", fontSize: 10, color: P.textDim, fontVariantNumeric: 'tabular-nums' }}>
+                        {new Date(action.createdAt).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
 
-                        {/* Content */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap mb-1">
-                            <span className="text-[13px] font-bold" style={{ color: P.textHi }}>{action.title}</span>
-                            <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: statusCfg.bg, color: statusCfg.color, border: `1px solid ${statusCfg.color}20` }}>
-                              {statusCfg.label}
-                            </span>
-                            <button
-                              onClick={() => navigate(`/projects/${action.project.id}`)}
-                              className="text-[10px] font-medium px-2 py-0.5 rounded-full transition-colors"
-                              style={{ background: `${P.accent}08`, color: P.accent, border: `1px solid ${P.accent}15` }}
-                            >
-                              {action.project.name}
-                            </button>
-                          </div>
-                          <p className="text-[11px] leading-relaxed mb-2" style={{ color: P.textMd }}>{action.description}</p>
-
-                          {/* Before → After mini */}
-                          <div className="flex items-center gap-3 mb-2">
-                            <div className="flex items-center gap-1.5">
-                              <span className="h-1.5 w-1.5 rounded-full" style={{ background: beforeRisk.color }} />
-                              <span className="text-[10px] font-semibold" style={{ color: beforeRisk.color }}>
-                                {action.impactBefore?.value}{action.impactBefore?.unit}
-                              </span>
-                              <span className="text-[10px]" style={{ color: P.textDim }}>{action.impactBefore?.metric}</span>
+                    <div className="grid items-stretch" style={{ gridTemplateColumns: '220px 1fr auto' }}>
+                      {/* ── Desk column ── */}
+                      <div
+                        className="flex flex-col items-start gap-3 px-5 py-5"
+                        style={{ borderRight: `1px solid ${deskC.color}18`, background: `${deskC.color}07` }}
+                      >
+                        <div className="flex items-center gap-3">
+                          <DeskSeal desk={desk} size={40} />
+                          <div className="min-w-0">
+                            <div style={{ fontFamily: "'Geist Mono', ui-monospace, monospace", fontSize: 9.5, fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase', color: deskC.color, lineHeight: 1.1 }}>
+                              Filed by
                             </div>
-                            <ChevronRight size={10} style={{ color: P.textDim }} />
-                            <div className="flex items-center gap-1.5">
-                              <span className="h-1.5 w-1.5 rounded-full" style={{ background: afterRisk.color }} />
-                              <span className="text-[10px] font-semibold" style={{ color: afterRisk.color }}>
-                                {action.impactAfter?.value}{action.impactAfter?.unit}
-                              </span>
-                              <span className="text-[10px]" style={{ color: P.textDim }}>{action.impactAfter?.metric}</span>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: P.textHi, marginTop: 3, letterSpacing: '-0.005em' }}>
+                              {deskC.name}
                             </div>
                           </div>
+                        </div>
+                        <div style={{ fontSize: 11, color: P.textLo, lineHeight: 1.4 }}>
+                          By <span style={{ color: P.textMd, fontWeight: 600 }}>{action.createdBy.name}</span>
+                        </div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span style={{ fontFamily: "'Geist Mono', ui-monospace, monospace", fontSize: 9.5, fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase', color: P.textDim, padding: '3px 8px', border: `1px solid ${P.border}`, borderRadius: 999 }}>
+                            {action.effort} effort
+                          </span>
+                          <span style={{ fontFamily: "'Geist Mono', ui-monospace, monospace", fontSize: 9.5, fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase', color: P.textDim, padding: '3px 8px', border: `1px solid ${P.border}`, borderRadius: 999 }}>
+                            {action.timeframe}
+                          </span>
+                        </div>
+                      </div>
 
-                          {/* Meta row */}
-                          <div className="flex items-center gap-3 text-[10px]" style={{ color: P.textLo }}>
-                            <span>by {action.createdBy.name}</span>
-                            <span className="h-3 w-px" style={{ background: P.border }} />
-                            <span>{new Date(action.createdAt).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
-                            <span className="h-3 w-px" style={{ background: P.border }} />
-                            <span>{action.effort} effort · {action.timeframe}</span>
-                            {action.approvedBy && action.approvedAt && (
-                              <>
-                                <span className="h-3 w-px" style={{ background: P.border }} />
-                                <span style={{ color: '#34d399' }}>Approved by {action.approvedBy.name} · {new Date(action.approvedAt).toLocaleString('en-US', { month: 'short', day: 'numeric' })}</span>
-                              </>
-                            )}
-                            {action.executionNote && (
-                              <>
-                                <span className="h-3 w-px" style={{ background: P.border }} />
-                                <span style={{ color: '#34d399' }}>Note: {action.executionNote}</span>
-                              </>
-                            )}
-                            {action.rejectionReason && (
-                              <>
-                                <span className="h-3 w-px" style={{ background: P.border }} />
-                                <span style={{ color: '#f87171' }}>Reason: {action.rejectionReason}</span>
-                              </>
-                            )}
+                      {/* ── Body column ── */}
+                      <div className="px-5 py-5 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap mb-2">
+                          <span style={{ fontSize: 15, fontWeight: 700, color: P.textHi, letterSpacing: '-0.005em' }}>{action.title}</span>
+                          <button
+                            onClick={() => navigate(`/projects/${action.project.id}`)}
+                            className="text-[11px] font-semibold px-2 py-0.5 rounded-full transition-colors"
+                            style={{ background: `${P.accent}10`, color: P.accent, border: `1px solid ${P.accent}25` }}
+                          >
+                            {action.project.name}
+                          </button>
+                        </div>
+                        <p className="text-[13px] leading-relaxed mb-4" style={{ color: P.textMd }}>{action.description}</p>
+
+                        {/* Before → After comparison block */}
+                        <div className="grid grid-cols-2 gap-3" style={{ marginBottom: 12 }}>
+                          <div className="rounded-xl px-3.5 py-3" style={{ background: `${beforeRisk.color}08`, border: `1px solid ${beforeRisk.color}25` }}>
+                            <div style={{ fontFamily: "'Geist Mono', ui-monospace, monospace", fontSize: 9, fontWeight: 700, letterSpacing: '0.20em', textTransform: 'uppercase', color: P.textLo }}>
+                              Before
+                            </div>
+                            <div className="flex items-baseline gap-1 mt-1">
+                              <span style={{ fontSize: 22, fontWeight: 700, color: beforeRisk.color, lineHeight: 1, fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em' }}>
+                                {action.impactBefore?.value}
+                              </span>
+                              <span style={{ fontSize: 12, color: beforeRisk.color, fontWeight: 600 }}>{action.impactBefore?.unit}</span>
+                            </div>
+                            <div style={{ fontSize: 11, color: P.textLo, marginTop: 3 }}>{action.impactBefore?.metric}</div>
+                          </div>
+                          <div className="rounded-xl px-3.5 py-3 relative" style={{ background: `${afterRisk.color}08`, border: `1px solid ${afterRisk.color}25` }}>
+                            <div className="absolute -left-3 top-1/2 -translate-y-1/2 h-6 w-6 rounded-full flex items-center justify-center" style={{ background: P.card, border: `1px solid ${P.border}` }}>
+                              <ChevronRight size={12} style={{ color: P.accent }} />
+                            </div>
+                            <div style={{ fontFamily: "'Geist Mono', ui-monospace, monospace", fontSize: 9, fontWeight: 700, letterSpacing: '0.20em', textTransform: 'uppercase', color: P.textLo }}>
+                              After
+                            </div>
+                            <div className="flex items-baseline gap-1 mt-1">
+                              <span style={{ fontSize: 22, fontWeight: 700, color: afterRisk.color, lineHeight: 1, fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em' }}>
+                                {action.impactAfter?.value}
+                              </span>
+                              <span style={{ fontSize: 12, color: afterRisk.color, fontWeight: 600 }}>{action.impactAfter?.unit}</span>
+                            </div>
+                            <div style={{ fontSize: 11, color: P.textLo, marginTop: 3 }}>{action.impactAfter?.metric}</div>
                           </div>
                         </div>
 
-                        {/* Action buttons for pending */}
+                        {/* Approval / Rejection footnote */}
+                        {action.approvedBy && action.approvedAt && (
+                          <div className="flex items-center gap-2 text-[11px] mt-3 pt-3" style={{ color: '#2EBC85', borderTop: `1px solid ${P.border}` }}>
+                            <CheckCircle2 size={12} />
+                            <span>Approved by <span style={{ fontWeight: 700 }}>{action.approvedBy.name}</span> on {new Date(action.approvedAt).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                          </div>
+                        )}
+                        {action.executionNote && (
+                          <div className="text-[11px] mt-1" style={{ color: P.textMd, fontStyle: 'italic', paddingLeft: 18 }}>
+                            "{action.executionNote}"
+                          </div>
+                        )}
+                        {action.rejectionReason && (
+                          <div className="flex items-start gap-2 text-[11px] mt-3 pt-3" style={{ color: '#DB5C5C', borderTop: `1px solid ${P.border}` }}>
+                            <X size={12} style={{ marginTop: 2 }} />
+                            <span>Rejected: <span style={{ fontStyle: 'italic' }}>{action.rejectionReason}</span></span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* ── Status / Actions column ── */}
+                      <div className="flex flex-col items-center justify-center gap-3 px-6 py-5" style={{ borderLeft: `1px solid ${P.border}80`, minWidth: 144 }}>
+                        {action.status === 'approved' && (
+                          <ApprovedStamp color="#2EBC85" />
+                        )}
+                        {action.status === 'rejected' && (
+                          <RejectedStamp color="#DB5C5C" />
+                        )}
                         {action.status === 'pending' && (
-                          <div className="flex items-center gap-2 flex-shrink-0">
+                          <div className="flex flex-col items-stretch gap-2 w-full">
+                            <span style={{ fontFamily: "'Geist Mono', ui-monospace, monospace", fontSize: 9, fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#E0A024', textAlign: 'center', marginBottom: 4 }}>
+                              Awaiting Signature
+                            </span>
                             <button
                               onClick={() => {
                                 const note = window.prompt('Execution note (optional):');
                                 handleApproveAction(action.id, note || undefined);
                               }}
-                              className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[11px] font-semibold transition-all duration-200 active:scale-[0.95]"
-                              style={{ background: 'rgba(52,211,153,0.1)', color: '#34d399', border: '1px solid rgba(52,211,153,0.25)' }}
-                              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(52,211,153,0.2)'; }}
-                              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(52,211,153,0.1)'; }}
+                              className="flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-full text-[11px] font-semibold transition-all duration-200 active:scale-[0.95]"
+                              style={{ background: 'rgba(46,188,133,0.10)', color: '#2EBC85', border: '1px solid rgba(46,188,133,0.30)' }}
+                              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(46,188,133,0.22)'; }}
+                              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(46,188,133,0.10)'; }}
                             >
-                              <ThumbsUp size={12} /> Approve
+                              <ThumbsUp size={13} /> Approve
                             </button>
                             <button
                               onClick={() => {
                                 const reason = window.prompt('Rejection reason (optional):');
                                 handleRejectAction(action.id, reason || undefined);
                               }}
-                              className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[11px] font-semibold transition-all duration-200 active:scale-[0.95]"
-                              style={{ background: 'rgba(248,113,113,0.08)', color: '#f87171', border: '1px solid rgba(248,113,113,0.2)' }}
-                              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(248,113,113,0.18)'; }}
-                              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(248,113,113,0.08)'; }}
+                              className="flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-full text-[11px] font-semibold transition-all duration-200 active:scale-[0.95]"
+                              style={{ background: 'rgba(219,92,92,0.08)', color: '#DB5C5C', border: '1px solid rgba(219,92,92,0.25)' }}
+                              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(219,92,92,0.20)'; }}
+                              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(219,92,92,0.08)'; }}
                             >
-                              <ThumbsDown size={12} /> Reject
+                              <ThumbsDown size={13} /> Reject
                             </button>
                           </div>
                         )}
                       </div>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </Card>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
           </section>
         )}
 
         {/* ═══ Footer ═══════════════════════════════════════════════════════ */}
         <div className="flex items-center justify-between pt-6 pb-4" style={{ borderTop: `1px solid ${P.border}` }}>
-          <span className="text-[11px] font-medium" style={{ color: P.textDim }}>CSR Platform © 2026 — Ministry of Commerce & Industry, Oman</span>
+          <span className="text-xs font-medium" style={{ color: P.textDim }}>CSR Platform © 2026 — Ministry of Commerce & Industry, Oman</span>
           {/* activeAlertCounts.critical is reactive to localAlerts resolved state */}
-          <span className="flex items-center gap-2 text-[11px] font-medium" style={{ color: P.textDim }}>
-            <motion.span className="h-1.5 w-1.5 rounded-full" style={{ background: '#f87171' }} animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 1.5, repeat: Infinity }} />
+          <span className="flex items-center gap-2 text-xs font-medium" style={{ color: P.textDim }}>
+            <motion.span className="h-1.5 w-1.5 rounded-full" style={{ background: '#DB5C5C' }} animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 1.5, repeat: Infinity }} />
             {activeAlertCounts.critical} critical alerts active
           </span>
         </div>
@@ -2366,7 +2533,7 @@ export default function EarlyWarning() {
                 <div className="sticky top-0 flex items-center justify-between px-6 py-5 rounded-t-[24px]" style={{ background: P.card, borderBottom: `1px solid ${P.border}`, zIndex: 10 }}>
                   <div className="flex items-center gap-3">
                     <div className="h-10 w-10 flex items-center justify-center rounded-xl" style={{ background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.3)' }}>
-                      <Brain size={18} style={{ color: '#a78bfa' }} />
+                      <Brain size={18} style={{ color: '#9079D8' }} />
                     </div>
                     <div>
                       <h2 className="text-lg font-bold" style={{ color: P.textHi }}>Prescriptive Analytics</h2>
@@ -2385,20 +2552,20 @@ export default function EarlyWarning() {
                         animate={{ rotate: 360 }}
                         transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
                         className="h-12 w-12 rounded-full border-2 border-t-transparent mb-4"
-                        style={{ borderColor: '#a78bfa', borderTopColor: 'transparent' }}
+                        style={{ borderColor: '#9079D8', borderTopColor: 'transparent' }}
                       />
                       <p className="text-sm font-medium" style={{ color: P.textMd }}>Simulating solution scenarios...</p>
-                      <p className="text-xs mt-1" style={{ color: P.textLo }}>Analyzing budget, timeline, and resource data</p>
+                      <p className="text-[13px] mt-1.5" style={{ color: P.textLo }}>Analyzing budget, timeline, and resource data</p>
                     </div>
                   ) : simResult ? (
                     <div className="space-y-5">
                       {/* Project Summary */}
                       <div className="grid grid-cols-4 gap-3">
                         {[
-                          { label: 'Budget', value: `${((simResult.project.spent / simResult.project.budget) * 100).toFixed(0)}%`, sub: `${simResult.project.spent.toLocaleString()} / ${simResult.project.budget.toLocaleString()} OMR`, color: '#fbbf24' },
-                          { label: 'Progress', value: `${simResult.project.progress}%`, sub: 'completion', color: '#38bdf8' },
-                          { label: 'Beneficiaries', value: simResult.project.beneficiaries.toLocaleString(), sub: 'reached', color: '#f472b6' },
-                          { label: 'Quality', value: `${simResult.project.avgRating.toFixed(1)}`, sub: 'avg rating', color: '#a78bfa' },
+                          { label: 'Budget', value: `${((simResult.project.spent / simResult.project.budget) * 100).toFixed(0)}%`, sub: `${simResult.project.spent.toLocaleString()} / ${simResult.project.budget.toLocaleString()} OMR`, color: '#E0A024' },
+                          { label: 'Progress', value: `${simResult.project.progress}%`, sub: 'completion', color: '#3B97D2' },
+                          { label: 'Beneficiaries', value: simResult.project.beneficiaries.toLocaleString(), sub: 'reached', color: '#D86B95' },
+                          { label: 'Quality', value: `${simResult.project.avgRating.toFixed(1)}`, sub: 'avg rating', color: '#9079D8' },
                         ].map((m, i) => (
                           <div key={i} className="px-3 py-3 rounded-xl text-center" style={{ background: `${m.color}08`, border: `1px solid ${m.color}20` }}>
                             <p className="text-lg font-black tabular-nums" style={{ color: m.color }}>{m.value}</p>
@@ -2411,9 +2578,9 @@ export default function EarlyWarning() {
                       {/* Scenarios */}
                       <div className="space-y-4">
                         <div className="flex items-center gap-2">
-                          <Sparkles size={14} style={{ color: '#a78bfa' }} />
+                          <Sparkles size={14} style={{ color: '#9079D8' }} />
                           <h3 className="text-sm font-bold" style={{ color: P.textHi }}>Solution Scenarios</h3>
-                          <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: 'rgba(139,92,246,0.1)', color: '#a78bfa' }}>{simResult.scenarios.length} scenarios</span>
+                          <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: 'rgba(139,92,246,0.1)', color: '#9079D8' }}>{simResult.scenarios.length} scenarios</span>
                         </div>
 
                         {simResult.scenarios.map((scenario, idx) => {
@@ -2433,7 +2600,7 @@ export default function EarlyWarning() {
                                 <div className="flex items-center justify-between mb-1.5">
                                   <h4 className="text-[13px] font-bold" style={{ color: P.textHi }}>{scenario.title}</h4>
                                   <div className="flex items-center gap-2">
-                                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: `${scenario.effort === 'low' ? '#34d399' : scenario.effort === 'medium' ? '#fbbf24' : '#f87171'}12`, color: scenario.effort === 'low' ? '#34d399' : scenario.effort === 'medium' ? '#fbbf24' : '#f87171' }}>
+                                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: `${scenario.effort === 'low' ? '#2EBC85' : scenario.effort === 'medium' ? '#E0A024' : '#DB5C5C'}12`, color: scenario.effort === 'low' ? '#2EBC85' : scenario.effort === 'medium' ? '#E0A024' : '#DB5C5C' }}>
                                       {scenario.effort} effort
                                     </span>
                                     <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: `${P.accent}10`, color: P.accent }}>
@@ -2448,7 +2615,7 @@ export default function EarlyWarning() {
                               <div className="grid grid-cols-2 divide-x" style={{ borderColor: P.border }}>
                                 {/* Before */}
                                 <div className="px-5 py-4">
-                                  <p className="text-[10px] font-semibold tracking-wider uppercase mb-2" style={{ color: '#f87171' }}>Before</p>
+                                  <p className="text-[10px] font-semibold tracking-wider uppercase mb-2" style={{ color: '#DB5C5C' }}>Before</p>
                                   <p className="text-xl font-black tabular-nums" style={{ color: beforeRiskCfg.color }}>
                                     {scenario.impact.before.value}{scenario.impact.before.unit}
                                   </p>
@@ -2460,7 +2627,7 @@ export default function EarlyWarning() {
                                 </div>
                                 {/* After */}
                                 <div className="px-5 py-4">
-                                  <p className="text-[10px] font-semibold tracking-wider uppercase mb-2" style={{ color: '#34d399' }}>After</p>
+                                  <p className="text-[10px] font-semibold tracking-wider uppercase mb-2" style={{ color: '#2EBC85' }}>After</p>
                                   <p className="text-xl font-black tabular-nums" style={{ color: afterRiskCfg.color }}>
                                     {scenario.impact.after.value}{scenario.impact.after.unit}
                                   </p>
@@ -2477,7 +2644,7 @@ export default function EarlyWarning() {
                                 <div className="flex-1">
                                   <div className="flex items-center justify-between mb-1.5">
                                     <span className="text-[10px] font-medium" style={{ color: P.textLo }}>Confidence</span>
-                                    <span className="text-[11px] font-bold tabular-nums" style={{ color: scenario.confidence >= 70 ? '#34d399' : scenario.confidence >= 50 ? '#fbbf24' : '#f87171' }}>
+                                    <span className="text-[11px] font-bold tabular-nums" style={{ color: scenario.confidence >= 70 ? '#2EBC85' : scenario.confidence >= 50 ? '#E0A024' : '#DB5C5C' }}>
                                       {scenario.confidence}%
                                     </span>
                                   </div>
@@ -2487,7 +2654,7 @@ export default function EarlyWarning() {
                                       animate={{ width: `${scenario.confidence}%` }}
                                       transition={{ duration: 0.8, ease: EASE, delay: 0.2 + idx * 0.1 }}
                                       className="h-full rounded-full"
-                                      style={{ background: scenario.confidence >= 70 ? '#34d399' : scenario.confidence >= 50 ? '#fbbf24' : '#f87171' }}
+                                      style={{ background: scenario.confidence >= 70 ? '#2EBC85' : scenario.confidence >= 50 ? '#E0A024' : '#DB5C5C' }}
                                     />
                                   </div>
                                 </div>
@@ -2502,16 +2669,16 @@ export default function EarlyWarning() {
                                       className="flex items-center gap-1.5 px-4 py-2 rounded-full text-[11px] font-semibold transition-all duration-200 active:scale-[0.95] flex-shrink-0"
                                       style={{
                                         background: alreadySubmitted ? 'rgba(52,211,153,0.1)' : `${P.accent}12`,
-                                        color: alreadySubmitted ? '#34d399' : P.accent,
+                                        color: alreadySubmitted ? '#2EBC85' : P.accent,
                                         border: `1px solid ${alreadySubmitted ? 'rgba(52,211,153,0.25)' : `${P.accent}25`}`,
                                         opacity: alreadySubmitted ? 0.8 : 1,
                                         cursor: alreadySubmitted ? 'default' : 'pointer',
                                       }}
                                     >
                                       {alreadySubmitted ? (
-                                        <><CheckCircle2 size={12} /> Submitted</>
+                                        <><CheckCircle2 size={14} /> Submitted</>
                                       ) : (
-                                        <><Send size={12} /> Submit for Approval</>
+                                        <><Send size={14} /> Submit for Approval</>
                                       )}
                                     </button>
                                   );
@@ -2532,15 +2699,15 @@ export default function EarlyWarning() {
                     </div>
                   ) : (
                     <div className="flex flex-col items-center justify-center py-16">
-                      <AlertTriangle size={32} style={{ color: '#f87171' }} />
+                      <AlertTriangle size={32} style={{ color: '#DB5C5C' }} />
                       <p className="text-sm font-medium mt-3" style={{ color: P.textMd }}>Failed to generate scenarios</p>
-                      <p className="text-xs mt-1" style={{ color: P.textLo }}>Please try again or check the project data</p>
+                      <p className="text-[13px] mt-1.5" style={{ color: P.textLo }}>Please try again or check the project data</p>
                       <button
                         onClick={() => handleSimulate(simModal.alertId, simModal.projectId)}
-                        className="mt-4 flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium transition-all"
-                        style={{ background: 'rgba(139,92,246,0.1)', color: '#a78bfa', border: '1px solid rgba(139,92,246,0.25)' }}
+                        className="mt-4 flex items-center gap-2 px-4 py-2 rounded-full text-[13px] font-medium transition-all"
+                        style={{ background: 'rgba(139,92,246,0.1)', color: '#9079D8', border: '1px solid rgba(139,92,246,0.25)' }}
                       >
-                        <RefreshCw size={12} /> Retry
+                        <RefreshCw size={14} /> Retry
                       </button>
                     </div>
                   )}
