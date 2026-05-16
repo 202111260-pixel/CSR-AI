@@ -2,9 +2,14 @@
   "name": "backend",
   "version": "1.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "dev": "tsx watch src/server.ts",
+    "postinstall": "prisma generate --schema=src/prisma/schema.prisma",
     "start": "node dist/server.js",
+    "start:prod": "prisma db push --schema=src/prisma/schema.prisma --accept-data-loss && node dist/server.js",
     "build": "tsc",
     "db:generate": "prisma generate --schema=src/prisma/schema.prisma",
     "db:push": "prisma db push --schema=src/prisma/schema.prisma",

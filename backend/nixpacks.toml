@@ -1,0 +1,18 @@
+# Railway / Nixpacks build configuration for the CSR-AI backend.
+# Service "Root Directory" must be set to "backend" in Railway settings
+# so Nixpacks picks up this file.
+
+[phases.setup]
+nixPkgs = ["nodejs_20", "openssl"]
+
+[phases.install]
+cmds = ["npm ci --include=dev"]
+
+[phases.build]
+cmds = [
+  "npx prisma generate --schema=src/prisma/schema.prisma",
+  "npm run build",
+]
+
+[start]
+cmd = "npx prisma db push --schema=src/prisma/schema.prisma --accept-data-loss && node dist/server.js"
