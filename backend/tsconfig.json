@@ -19,5 +19,5 @@
     "noUnusedParameters": false
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "src/config/cloudinary.ts", "src/config/redis.ts", "src/jobs/**", "src/middleware/upload.middleware.ts", "src/server.ts", "src/utils/logger.ts"]
+  "exclude": ["node_modules", "dist"]
 }
