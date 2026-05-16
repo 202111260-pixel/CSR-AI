@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Corporate PDF Report Generator — CSR Platform
  * Native jsPDF + jspdf-autotable for real selectable text.

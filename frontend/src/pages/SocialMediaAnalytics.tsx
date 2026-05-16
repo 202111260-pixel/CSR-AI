@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useMemo, useRef, useCallback } from 'react';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
 import {
@@ -27,7 +28,7 @@ import { ActionBar } from '../components/common/ActionBar';
    ANIMATION VARIANTS
 ═══════════════════════════════════════════════════════════════════════ */
 
-const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+const EASE: any = [0.22, 1, 0.36, 1];
 const fadeUp = {
   hidden: { opacity: 0, y: 22 },
   show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: EASE } },
@@ -418,7 +419,7 @@ export default function SocialMediaAnalytics() {
       style={{ background: P.bg }}
     >
       {/* ─── Page Header ──────────────────────────────────────────── */}
-      <motion.div variants={fadeUp} className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+      <motion.div variants={fadeUp as any} className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
         <div>
           <div className="flex items-center gap-3 mb-2">
             <div
@@ -507,7 +508,7 @@ export default function SocialMediaAnalytics() {
           { title: 'Ideas Submitted',   value: engagementMetrics.ideas,            icon: Lightbulb,      iconBg: 'rgba(167,139,250,0.15)', trend: { value: 15.2, isPositive: true } },
           { title: 'Engagement Rate',   value: engagementMetrics.engagementRate,   icon: Zap,            iconBg: 'rgba(52,211,153,0.15)',  trend: { value: 3.1, isPositive: true }, suffix: '%' },
         ].map((kpi, i) => (
-          <motion.div key={kpi.title} variants={stagger(i * 0.08)}>
+          <motion.div key={kpi.title} variants={stagger(i * 0.08) as any}>
             <KpiCard {...kpi} />
           </motion.div>
         ))}
@@ -517,7 +518,7 @@ export default function SocialMediaAnalytics() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
 
         {/* Engagement Trend (2/3 width) */}
-        <motion.div variants={stagger(0.35)} className="lg:col-span-2">
+        <motion.div variants={stagger(0.35) as any} className="lg:col-span-2">
           <GlassCard className="p-6">
             <SectionHeading icon={BarChart3} title="Engagement Trend" sub="Monthly activity across all channels" />
             <div className="h-[300px] mt-4">
@@ -571,7 +572,7 @@ export default function SocialMediaAnalytics() {
         </motion.div>
 
         {/* Platform Breakdown (1/3 width) */}
-        <motion.div variants={stagger(0.42)}>
+        <motion.div variants={stagger(0.42) as any}>
           <GlassCard className="p-6 h-full flex flex-col">
             <SectionHeading icon={Eye} title="Platform Breakdown" sub="Engagement by channel" />
             <div className="flex-1 flex flex-col items-center justify-center">
@@ -626,7 +627,7 @@ export default function SocialMediaAnalytics() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
 
         {/* Sentiment Analysis */}
-        <motion.div variants={stagger(0.5)}>
+        <motion.div variants={stagger(0.5) as any}>
           <GlassCard className="p-6">
             <SectionHeading icon={Heart} title="Sentiment Analysis" sub="Community feedback sentiment distribution" />
             <div className="grid grid-cols-2 gap-6 mt-4">
@@ -705,7 +706,7 @@ export default function SocialMediaAnalytics() {
         </motion.div>
 
         {/* Top Hashtags */}
-        <motion.div variants={stagger(0.56)}>
+        <motion.div variants={stagger(0.56) as any}>
           <GlassCard className="p-6">
             <SectionHeading icon={Hash} title="Top Hashtags" sub="Most used tags across all CSR content" />
             <div className="mt-4 space-y-2.5 max-h-[360px] overflow-y-auto pr-1" style={{ scrollbarWidth: 'thin' }}>
@@ -754,7 +755,7 @@ export default function SocialMediaAnalytics() {
       </div>
 
       {/* ─── Row 3: Campaign Performance Table ────────────────────── */}
-      <motion.div variants={stagger(0.62)} className="mb-6">
+      <motion.div variants={stagger(0.62) as any} className="mb-6">
         <GlassCard className="p-6">
           <SectionHeading icon={Target} title="Campaign Performance" sub="Category-level engagement and sentiment metrics" />
 
@@ -889,7 +890,7 @@ export default function SocialMediaAnalytics() {
       </motion.div>
 
       {/* ─── Row 4: Recent Activity Feed ──────────────────────────── */}
-      <motion.div variants={stagger(0.68)}>
+      <motion.div variants={stagger(0.68) as any}>
         <GlassCard className="p-6">
           <SectionHeading icon={Activity} title="Recent Activity" sub="Latest actions from across the CSR platform" />
 

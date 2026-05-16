@@ -21,7 +21,7 @@ export default function NotFound() {
         <motion.div
           initial={{ y: 16, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.55, ease: 'easeOut' }}
         >
           {/* Editorial eyebrow */}
           <div style={{

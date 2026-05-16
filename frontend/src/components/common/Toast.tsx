@@ -92,7 +92,7 @@ function ToastItem({ toast, onClose }: { toast: Toast; onClose: () => void }) {
       initial={{ opacity: 0, x: 60, scale: 0.95 }}
       animate={{ opacity: 1, x: 0, scale: 1 }}
       exit={{ opacity: 0, x: 60, scale: 0.95 }}
-      transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.3, ease: 'easeOut' }}
       className="pointer-events-auto flex items-start gap-3 rounded-xl px-4 py-3"
       style={{
         background: P.card,

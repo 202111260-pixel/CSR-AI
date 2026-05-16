@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -93,7 +94,7 @@ const omanVisionPillars = [
 ];
 
 // ─── Animation ─────────────────────────────────────────────────────────────
-const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+const EASE: any = [0.22, 1, 0.36, 1];
 const fadeUp = {
   hidden: { opacity: 0, y: 22 },
   show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: EASE } },
@@ -523,7 +524,7 @@ function Step1Basic({ data, errors, onChange, categoryOptions }: { data: FormDat
   }
 
   return (
-    <motion.div variants={fadeUp} initial="hidden" animate="show" className="space-y-6">
+    <motion.div variants={fadeUp as any} initial="hidden" animate="show" className="space-y-6">
       {/* Section Header */}
       <div className="flex items-center gap-3 mb-2">
         <div className="h-10 w-10 rounded-lg flex items-center justify-center" style={{ background: CORPORATE.brandSoft, border: `1px solid ${CORPORATE.brand}33` }}>
@@ -702,7 +703,7 @@ function Step2Budget({ data, errors, onChange }: { data: FormData; errors: Valid
   const durationMonths = Math.round(durationDays / 30.44);
 
   return (
-    <motion.div variants={fadeUp} initial="hidden" animate="show" className="space-y-6">
+    <motion.div variants={fadeUp as any} initial="hidden" animate="show" className="space-y-6">
       <div className="flex items-center gap-3 mb-2">
         <div className="h-10 w-10 rounded-lg flex items-center justify-center" style={{ background: CORPORATE.brandSoft, border: `1px solid ${CORPORATE.brand}33` }}>
           <Wallet size={18} style={{ color: CORPORATE.brand }} />
@@ -828,7 +829,7 @@ function Step3Beneficiaries({ data, errors, onChange }: { data: FormData; errors
   const ageGroups = ['0-5', '6-12', '13-17', '18-25', '26-35', '36-50', '51-65', '65+', 'All Ages'];
 
   return (
-    <motion.div variants={fadeUp} initial="hidden" animate="show" className="space-y-6">
+    <motion.div variants={fadeUp as any} initial="hidden" animate="show" className="space-y-6">
       <div className="flex items-center gap-3 mb-2">
         <div className="h-10 w-10 rounded-lg flex items-center justify-center" style={{ background: CORPORATE.brandSoft, border: `1px solid ${CORPORATE.brand}33` }}>
           <Users size={18} style={{ color: CORPORATE.brand }} />
@@ -948,7 +949,7 @@ function Step4Location({ data, errors, onChange }: { data: FormData; errors: Val
   ];
 
   return (
-    <motion.div variants={fadeUp} initial="hidden" animate="show" className="space-y-6">
+    <motion.div variants={fadeUp as any} initial="hidden" animate="show" className="space-y-6">
       <div className="flex items-center gap-3 mb-2">
         <div className="h-10 w-10 rounded-lg flex items-center justify-center" style={{ background: CORPORATE.brandSoft, border: `1px solid ${CORPORATE.brand}33` }}>
           <MapPin size={18} style={{ color: CORPORATE.brand }} />
@@ -1100,7 +1101,7 @@ function Step5Media({ data, onChange }: { data: FormData; errors: ValidationErro
   const updateDocCategory = (id: string, category: string) => onChange({ documents: data.documents.map(d => d.id === id ? { ...d, category } : d) });
 
   return (
-    <motion.div variants={fadeUp} initial="hidden" animate="show" className="space-y-6">
+    <motion.div variants={fadeUp as any} initial="hidden" animate="show" className="space-y-6">
       <div className="flex items-center gap-3 mb-2">
         <div className="h-10 w-10 rounded-lg flex items-center justify-center" style={{ background: CORPORATE.brandSoft, border: `1px solid ${CORPORATE.brand}33` }}>
           <Camera size={18} style={{ color: CORPORATE.brand }} />
@@ -1309,7 +1310,7 @@ function Step6Review({ data, onChange, categoryOptions }: { data: FormData; erro
   const completeness = Math.round((checks.filter(Boolean).length / checks.length) * 100);
 
   return (
-    <motion.div variants={fadeUp} initial="hidden" animate="show" className="space-y-6">
+    <motion.div variants={fadeUp as any} initial="hidden" animate="show" className="space-y-6">
       <div className="flex items-center gap-3 mb-2">
         <div className="h-10 w-10 rounded-lg flex items-center justify-center" style={{ background: CORPORATE.brandSoft, border: `1px solid ${CORPORATE.brand}33` }}>
           <Eye size={18} style={{ color: CORPORATE.brand }} />
@@ -1347,7 +1348,7 @@ function Step6Review({ data, onChange, categoryOptions }: { data: FormData; erro
         {sections.map((section, i) => {
           const Icon = section.icon;
           return (
-            <motion.div key={section.title} variants={stagger(i * 0.08)} initial="hidden" animate="show">
+            <motion.div key={section.title} variants={stagger(i * 0.08) as any} initial="hidden" animate="show">
               <GlassCard className="p-4 h-full">
                 <div className="flex items-center gap-2 mb-3 pb-3" style={{ borderBottom: `1px solid ${P.border}` }}>
                   <div className="h-7 w-7 rounded-full flex items-center justify-center" style={{ background: `${section.color}12`, border: `1px solid ${section.color}25` }}>

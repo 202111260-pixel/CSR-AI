@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useMemo } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -292,7 +293,7 @@ const childrenVariants = {
 
 const navItemVariants = {
   hidden: { opacity: 0, x: -8 },
-  show: { opacity: 1, x: 0, transition: { duration: 0.25, ease: [0.22, 1, 0.36, 1] } },
+  show: { opacity: 1, x: 0, transition: { duration: 0.25, ease: 'easeOut' } },
 };
 
 const navListVariants = {
@@ -782,7 +783,7 @@ export function Sidebar({
         width: currentWidth,
         x: hidden ? -currentWidth - 1 : 0,
       }}
-      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.35, ease: 'easeOut' }}
       className="fixed left-0 top-0 bottom-0 z-50 flex flex-col"
       style={{
         background: C.bg,

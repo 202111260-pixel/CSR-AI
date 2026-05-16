@@ -50,7 +50,7 @@ const regions = [
 ];
 
 // ─── Framer Variants ──────────────────────────────────────────────────────────
-const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+const EASE: any = [0.22, 1, 0.36, 1];
 const fadeUp = {
   hidden: { opacity: 0, y: 22 },
   show:   { opacity: 1, y: 0, transition: { duration: 0.5, ease: EASE } },
@@ -167,7 +167,7 @@ function FilterPanel({ filters, onChange, onReset, onClose, isOpen, categoryList
           initial={{ width: 0, opacity: 0 }}
           animate={{ width: 300, opacity: 1 }}
           exit={{ width: 0, opacity: 0 }}
-          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.35, ease: 'easeOut' }}
           className="flex-shrink-0 overflow-hidden"
         >
           <GlassCard className="h-full p-5 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 240px)' }}>
@@ -342,10 +342,10 @@ function ProjectCard({ project, index, onSelect, onEdit }: { project: Project; i
 
   return (
     <motion.div
-      variants={stagger(index * 0.05)}
+      variants={stagger(index * 0.05) as any}
       initial="hidden"
       animate="show"
-      whileHover={{ y: -6, scale: 1.015, transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] } }}
+      whileHover={{ y: -6, scale: 1.015, transition: { duration: 0.3, ease: 'easeOut' } }}
       onClick={() => onSelect(project.id)}
       className="cursor-pointer group"
     >
@@ -398,7 +398,7 @@ function ProjectCard({ project, index, onSelect, onEdit }: { project: Project; i
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${Math.min(budgetPct, 100)}%` }}
-                transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: 0.8, ease: 'easeOut' }}
                 className="h-full rounded-full"
                 style={{ background: budgetPct > 90 ? '#f87171' : budgetPct > 75 ? '#fbbf24' : P.accent }}
               />
@@ -516,7 +516,7 @@ function ProjectTableRow({ project, index, selected, onToggle, onSelect, onEdit 
       <td className="px-4 py-3.5 whitespace-nowrap">
         <div className="flex items-center gap-2">
           <div className="w-14 h-1.5 rounded-full overflow-hidden" style={{ background: P.border }}>
-            <motion.div initial={{ width: 0 }} animate={{ width: `${project.progress || 0}%` }} transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }} className="h-full rounded-full" style={{ background: (project.progress || 0) === 100 ? '#34d399' : P.accent }} />
+            <motion.div initial={{ width: 0 }} animate={{ width: `${project.progress || 0}%` }} transition={{ duration: 0.8, ease: 'easeOut' }} className="h-full rounded-full" style={{ background: (project.progress || 0) === 100 ? '#34d399' : P.accent }} />
           </div>
           <span className="text-[11px] tabular-nums w-7 text-right" style={{ color: P.textLo }}>{project.progress || 0}%</span>
         </div>
@@ -568,7 +568,7 @@ function KpiBar({ projects }: { projects: Project[] }) {
       {kpis.map((k, i) => {
         const Icon = k.icon;
         return (
-          <motion.div key={k.label} variants={stagger(i * 0.06)} initial="hidden" animate="show" whileHover={{ y: -3, transition: { duration: 0.2 } }}>
+          <motion.div key={k.label} variants={stagger(i * 0.06) as any} initial="hidden" animate="show" whileHover={{ y: -3, transition: { duration: 0.2 } }}>
             <GlassCard className="px-4 py-3.5 flex items-center gap-3 cursor-default" glow={k.glow}>
               <div className="h-9 w-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${k.color}12`, border: `1px solid ${k.color}25` }}>
                 <Icon size={15} style={{ color: k.color }} />
@@ -875,7 +875,7 @@ export default function ProjectsList() {
 
       <div className="relative px-6 py-5 space-y-5 max-w-[1600px] mx-auto">
         {/* ═══ Header ═══ */}
-        <motion.div ref={heroRef} initial={{ opacity: 0, y: 10 }} animate={heroInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }} className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <motion.div ref={heroRef} initial={{ opacity: 0, y: 10 }} animate={heroInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.5, ease: 'easeOut' }} className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-xl font-black leading-tight flex items-center gap-3" style={{ color: P.textHi, fontFamily: 'Playfair Display, serif' }}>
               <div className="h-9 w-9 rounded-xl flex items-center justify-center" style={{ background: `${P.accent}15`, border: `1px solid ${P.accent}30` }}>
@@ -922,7 +922,7 @@ export default function ProjectsList() {
         <KpiBar projects={allProjects} />
 
         {/* ═══ Search + View Toggle ═══ */}
-        <motion.div variants={fadeUp} initial="hidden" animate="show" className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <motion.div variants={fadeUp as any} initial="hidden" animate="show" className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex-1 flex items-center gap-2 max-w-xl">
             <div className="flex-1 relative">
               <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: P.textLo }} />

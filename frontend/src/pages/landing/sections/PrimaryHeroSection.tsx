@@ -88,7 +88,7 @@ export function PrimaryHeroSection() {
       <motion.h1
         initial={{ opacity: 0, y: 32 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
+        transition={{ duration: 0.9, ease: 'easeOut', delay: 0.15 }}
         style={{
           fontFamily: "'Caveat', 'Parisienne', cursive",
           fontSize: 'clamp(3rem, 6.5vw, 6rem)',
@@ -112,7 +112,7 @@ export function PrimaryHeroSection() {
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.4 }}
+        transition={{ duration: 1, ease: 'easeOut', delay: 0.4 }}
         style={{ position: 'relative', zIndex: 2 }}
       >
         {/* Badge — left (Analytics) */}
@@ -314,7 +314,7 @@ function DarkCharts() {
         style={{ top: '12%', left: '4%' }}
         initial={{ opacity: 0, x: -24, rotate: -5 }}
         animate={{ opacity: 1, x: 0,  rotate: -5 }}
-        transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1], delay: 1.6 }}
+        transition={{ duration: 1.1, ease: 'easeOut', delay: 1.6 }}
       >
         <div style={{ ...CAVEAT, color: GDIM, fontSize: 13, fontWeight: 700, marginBottom: 4, marginLeft: 6 }}>
           impact rising ↗
@@ -349,7 +349,7 @@ function DarkCharts() {
         style={{ top: '12%', right: '4%' }}
         initial={{ opacity: 0, x: 24, rotate: 5 }}
         animate={{ opacity: 1, x: 0,  rotate: 5 }}
-        transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1], delay: 1.9 }}
+        transition={{ duration: 1.1, ease: 'easeOut', delay: 1.9 }}
       >
         <div style={{ ...CAVEAT, color: GDIM, fontSize: 13, fontWeight: 700, marginBottom: 4, textAlign: 'right', marginRight: 6 }}>
           ← budget spread
@@ -387,7 +387,7 @@ function DarkCharts() {
         style={{ top: '40%', left: '4%' }}
         initial={{ opacity: 0, x: -20, rotate: -6 }}
         animate={{ opacity: 1, x: 0,  rotate: -6 }}
-        transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 2.1 }}
+        transition={{ duration: 1, ease: 'easeOut', delay: 2.1 }}
       >
         <div style={{ ...GLASS, width: 142 }}>
           <p style={{ ...CAVEAT, color: 'rgba(255,255,255,0.35)', fontSize: 11 }}>total beneficiaries</p>
@@ -405,7 +405,7 @@ function DarkCharts() {
         style={{ top: '38%', right: '4%' }}
         initial={{ opacity: 0, x: 20, rotate: -4 }}
         animate={{ opacity: 1, x: 0,  rotate: -4 }}
-        transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 2.2 }}
+        transition={{ duration: 1, ease: 'easeOut', delay: 2.2 }}
       >
         <div style={{ ...CAVEAT, color: GDIM, fontSize: 13, fontWeight: 700, marginBottom: 4 }}>
           48 teams active ↗
@@ -437,7 +437,7 @@ function DarkCharts() {
         style={{ top: '65%', left: '4%' }}
         initial={{ opacity: 0, x: -20, rotate: -5 }}
         animate={{ opacity: 1, x: 0,  rotate: -5 }}
-        transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 2.4 }}
+        transition={{ duration: 1, ease: 'easeOut', delay: 2.4 }}
       >
         <div style={{ ...CAVEAT, color: GDIM, fontSize: 12, fontWeight: 700, marginBottom: 4 }}>budget utilized</div>
         <div style={{ ...GLASS, width: 116, display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -458,7 +458,7 @@ function DarkCharts() {
         style={{ top: '65%', right: '4%' }}
         initial={{ opacity: 0, x: 20, rotate: 4 }}
         animate={{ opacity: 1, x: 0,  rotate: 4 }}
-        transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 2.55 }}
+        transition={{ duration: 1, ease: 'easeOut', delay: 2.55 }}
       >
         <div style={{ ...CAVEAT, color: GDIM, fontSize: 12, fontWeight: 700, marginBottom: 4, textAlign: 'right' }}>SDG alignment</div>
         <div style={{ ...GLASS, width: 148 }}>

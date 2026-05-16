@@ -267,7 +267,7 @@ export default function MapView() {
             initial={{ width: 0, opacity: 0 }}
             animate={{ width: 380, opacity: 1 }}
             exit={{ width: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
             className="shrink-0 flex flex-col overflow-hidden"
             style={{ borderRight: `1px solid ${P.border}`, background: P.surface }}
           >
@@ -477,7 +477,7 @@ export default function MapView() {
               initial={{ y: 100, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 100, opacity: 0 }}
-              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
               className="absolute bottom-20 left-1/2 -translate-x-1/2 z-[1000] w-[600px] max-w-[calc(100%-2rem)]"
             >
               <div className="rounded-2xl p-5 relative" style={{ background: 'rgba(19,19,16,0.95)', backdropFilter: 'blur(20px)', border: `1px solid ${P.borderHi}`, boxShadow: `0 12px 48px rgba(0,0,0,0.6), 0 0 0 1px ${P.border}` }}>

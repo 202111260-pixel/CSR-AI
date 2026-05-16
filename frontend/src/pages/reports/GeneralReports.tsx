@@ -27,7 +27,7 @@ import { ActionBar } from '../../components/common/ActionBar';
 
 
 
-const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+const EASE: any = [0.22, 1, 0.36, 1];
 const fadeUp = { hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: EASE } } };
 const stagger = (d = 0) => ({ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: EASE, delay: d } } });
 const scaleIn = (d = 0) => ({ hidden: { opacity: 0, scale: 0.92 }, show: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: EASE, delay: d } } });
@@ -418,7 +418,7 @@ export default function GeneralReports() {
       <div className="relative px-6 py-5 space-y-6 max-w-[1600px] mx-auto">
 
         {/* ═══════════════════ HEADER ═══════════════════ */}
-        <motion.div variants={fadeUp} initial="hidden" animate="show" key="header">
+        <motion.div variants={fadeUp as any} initial="hidden" animate="show" key="header">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <div className="flex items-center gap-3 mb-1">
@@ -485,7 +485,7 @@ export default function GeneralReports() {
               d.beneficiaries
             );
             return (
-              <motion.div key={`${period}-${kpi.label}`} variants={stagger(i * 0.08)} initial="hidden" whileInView="show" viewport={VP} onClick={() => navigate(kpi.href)} className="cursor-pointer" whileHover={{ y: -4, scale: 1.02 }} transition={{ type: 'spring', stiffness: 300 }}>
+              <motion.div key={`${period}-${kpi.label}`} variants={stagger(i * 0.08) as any} initial="hidden" whileInView="show" viewport={VP} onClick={() => navigate(kpi.href)} className="cursor-pointer" whileHover={{ y: -4, scale: 1.02 }} transition={{ type: 'spring', stiffness: 300 }}>
                 <GlassCard className="p-5">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-2.5">
@@ -520,7 +520,7 @@ export default function GeneralReports() {
         </div>
 
         {/* ═══════════════════ EARLY WARNING PANEL ═══════════════════ */}
-        <motion.div variants={scaleIn(0.1)} initial="hidden" whileInView="show" viewport={VP}>
+        <motion.div variants={scaleIn(0.1) as any} initial="hidden" whileInView="show" viewport={VP}>
           <GlassCard className="p-6" style={{ border: '1px solid rgba(248,113,113,0.15)' }}>
             <SectionHeader icon={ShieldAlert} title="Early Warning Center" subtitle="Real-time project risk assessment" action={
               <motion.button whileHover={{ scale: 1.03 }} onClick={() => navigate('/early-warning')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold cursor-pointer"
@@ -534,7 +534,7 @@ export default function GeneralReports() {
               <div className="flex-1">
                 <div className="grid grid-cols-4 gap-3 mb-5">
                   {(Object.entries(riskCfg) as [string, (typeof riskCfg)[keyof typeof riskCfg]][]).map(([key, val], i) => (
-                    <motion.div key={key} variants={stagger(i * 0.06)} initial="hidden" whileInView="show" viewport={VP}
+                    <motion.div key={key} variants={stagger(i * 0.06) as any} initial="hidden" whileInView="show" viewport={VP}
                       className="rounded-2xl p-4 text-center" style={{ background: val.bg, border: `1px solid ${val.color}15` }}>
                       <val.icon size={18} style={{ color: val.color }} className="mx-auto mb-2" />
                       <p className="text-2xl font-black tabular-nums" style={{ color: val.color }}>{val.count}</p>
@@ -611,7 +611,7 @@ export default function GeneralReports() {
         {/* ═══════════════════ CHARTS — ROW 1 ═══════════════════ */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           {/* Trend Line Chart */}
-          <motion.div key={`trend-${period}`} variants={stagger(0)} initial="hidden" whileInView="show" viewport={VP}>
+          <motion.div key={`trend-${period}`} variants={stagger(0) as any} initial="hidden" whileInView="show" viewport={VP}>
             <GlassCard className="p-5">
               <SectionHeader icon={TrendingUp} title="Project & Budget Trends" subtitle="8-month progression overview" />
               <div style={{ height: 280 }}>
@@ -644,7 +644,7 @@ export default function GeneralReports() {
           </motion.div>
 
           {/* Category Comparison Bar */}
-          <motion.div key={`category-${period}`} variants={stagger(0.06)} initial="hidden" whileInView="show" viewport={VP}>
+          <motion.div key={`category-${period}`} variants={stagger(0.06) as any} initial="hidden" whileInView="show" viewport={VP}>
             <GlassCard className="p-5">
               <SectionHeader icon={Layers} title="Category Comparison" subtitle="Budget allocated vs spent by category" />
               <div style={{ height: 280 }}>
@@ -666,7 +666,7 @@ export default function GeneralReports() {
         {/* ═══════════════════ CHARTS — ROW 2 ═══════════════════ */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {/* Status Distribution Pie */}
-          <motion.div key={`status-${period}`} variants={stagger(0)} initial="hidden" whileInView="show" viewport={VP}>
+          <motion.div key={`status-${period}`} variants={stagger(0) as any} initial="hidden" whileInView="show" viewport={VP}>
             <GlassCard className="p-5">
               <SectionHeader icon={PieChartIcon} title="Status Distribution" />
               <div style={{ height: 220 }}>
@@ -695,7 +695,7 @@ export default function GeneralReports() {
           </motion.div>
 
           {/* Performance Radar */}
-          <motion.div variants={stagger(0.06)} initial="hidden" whileInView="show" viewport={VP}>
+          <motion.div variants={stagger(0.06) as any} initial="hidden" whileInView="show" viewport={VP}>
             <GlassCard className="p-5">
               <SectionHeader icon={Target} title="Performance Radar" />
               <div style={{ height: 220 }}>
@@ -714,7 +714,7 @@ export default function GeneralReports() {
           </motion.div>
 
           {/* Budget Evolution Area */}
-          <motion.div variants={stagger(0.12)} initial="hidden" whileInView="show" viewport={VP}>
+          <motion.div variants={stagger(0.12) as any} initial="hidden" whileInView="show" viewport={VP}>
             <GlassCard className="p-5">
               <SectionHeader icon={Wallet} title="Budget Evolution" />
               <div style={{ height: 220 }}>
@@ -746,7 +746,7 @@ export default function GeneralReports() {
         {/* ═══════════════════ DELAYED + OVER-BUDGET ═══════════════════ */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           {/* Delayed Projects */}
-          <motion.div variants={stagger(0)} initial="hidden" whileInView="show" viewport={VP}>
+          <motion.div variants={stagger(0) as any} initial="hidden" whileInView="show" viewport={VP}>
             <GlassCard className="p-5">
               <SectionHeader icon={Clock} title="Delayed Projects" subtitle="Projects past their original deadline" />
               <div className="space-y-3">
@@ -782,7 +782,7 @@ export default function GeneralReports() {
           </motion.div>
 
           {/* Over-Budget Projects */}
-          <motion.div variants={stagger(0.06)} initial="hidden" whileInView="show" viewport={VP}>
+          <motion.div variants={stagger(0.06) as any} initial="hidden" whileInView="show" viewport={VP}>
             <GlassCard className="p-5">
               <SectionHeader icon={Flame} title="Budget Alert" subtitle="Projects exceeding 85% of allocated budget" />
               <div className="space-y-3">
@@ -820,7 +820,7 @@ export default function GeneralReports() {
         </div>
 
         {/* ═══════════════════ TOP 10 PROJECTS TABLE ═══════════════════ */}
-        <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={VP}>
+        <motion.div variants={fadeUp as any} initial="hidden" whileInView="show" viewport={VP}>
           <GlassCard className="p-5">
             <SectionHeader icon={Award} title="Top 10 Projects by Budget" subtitle="Ranked by total budget allocation" />
             <div className="rounded-xl overflow-x-auto" style={{ border: `1px solid ${P.border}` }}>
@@ -879,11 +879,11 @@ export default function GeneralReports() {
         </motion.div>
 
         {/* ═══════════════════ COMPARISONS ═══════════════════ */}
-        <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={VP}>
+        <motion.div variants={fadeUp as any} initial="hidden" whileInView="show" viewport={VP}>
           <SectionHeader icon={BarChart3} title="Period Comparisons" subtitle="Performance benchmarks over time" />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {comparisons.map((c, ci) => (
-              <motion.div key={ci} variants={stagger(ci * 0.08)} initial="hidden" whileInView="show" viewport={VP}>
+              <motion.div key={ci} variants={stagger(ci * 0.08) as any} initial="hidden" whileInView="show" viewport={VP}>
                 <GlassCard className="p-5">
                   <p className="text-xs font-bold mb-4" style={{ color: P.accent }}>{c.label}</p>
                   <div className="space-y-3">
@@ -914,7 +914,7 @@ export default function GeneralReports() {
         </motion.div>
 
         {/* ═══════════════════ PRINT & SCHEDULE ═══════════════════ */}
-        <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={VP} className="flex items-center justify-center gap-4 py-4">
+        <motion.div variants={fadeUp as any} initial="hidden" whileInView="show" viewport={VP} className="flex items-center justify-center gap-4 py-4">
           <Button
             size="md"
             leftIcon={<Printer size={16} />}

@@ -77,7 +77,7 @@ function FAQItemRow({
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
             style={{ overflow: 'hidden' }}
           >
             <p style={{ paddingBottom: 22, fontSize: 14.5, lineHeight: 1.8, color: '#555', maxWidth: 560 }}>
