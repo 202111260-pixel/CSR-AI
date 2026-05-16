@@ -35,17 +35,21 @@ function isUniversityEmail(email: string): boolean {
 // ── Cookie Helpers ──────────────────────────────────────────────────────
 
 function setTokenCookies(res: Response, accessToken: string, refreshToken: string) {
+  // In production, the frontend (Vercel) and backend (Railway) live on different
+  // origins, so cookies must be sameSite:'none' + secure:true to be sent on
+  // cross-origin requests. In dev we keep strict for tighter local protection.
+  const sameSite: 'none' | 'strict' = IS_PROD ? 'none' : 'strict';
   res.cookie('access_token', accessToken, {
     httpOnly: true,
     secure: IS_PROD,
-    sameSite: 'strict',
+    sameSite,
     maxAge: 15 * 60 * 1000, // 15 minutes
     path: '/',
   });
   res.cookie('refresh_token', refreshToken, {
     httpOnly: true,
     secure: IS_PROD,
-    sameSite: 'strict',
+    sameSite,
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     path: '/api/auth',
   });

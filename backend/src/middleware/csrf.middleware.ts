@@ -31,10 +31,12 @@ export function csrfProtection(req: Request, res: Response, next: NextFunction) 
   // (including GET) so the browser has it before the first POST
   if (!req.cookies?.csrf_token) {
     const csrfToken = crypto.randomBytes(32).toString('hex');
+    const isProd = process.env.NODE_ENV === 'production';
     res.cookie('csrf_token', csrfToken, {
       httpOnly: false, // JS needs to read this
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: isProd,
+      // Cross-origin frontend (Vercel) + backend (Railway) requires sameSite:'none' in prod
+      sameSite: isProd ? 'none' : 'strict',
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
       path: '/',
     });
