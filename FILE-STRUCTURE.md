@@ -12,7 +12,6 @@ CSR-FINAL-PROJECT/
 ├── docker-compose.yml
 ├── docker-compose.dev.yml
 ├── package.json
-└── CLAUDE.md
 ```
 
 ---
