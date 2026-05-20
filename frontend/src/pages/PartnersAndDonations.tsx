@@ -1657,7 +1657,7 @@ export default function PartnersAndDonations() {
   const [activeSection, setActiveSection] = useState<Section>('CSR Partners');
 
   // Queries for export functionality  
-  const { data: partnersData } = useQuery({
+  const { data: partnersData, refetch, isRefetching } = useQuery({
     queryKey: ['partners', { limit: 100 }],
     queryFn: () => partnerService.getPartners({ limit: 100 }),
     staleTime: 60 * 1000,
